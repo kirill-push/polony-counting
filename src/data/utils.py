@@ -1,6 +1,7 @@
 import os
 import zipfile
 from glob import glob
+from random import random
 from typing import Union
 
 import cv2
@@ -8,7 +9,6 @@ import gdown
 import h5py
 import numpy as np
 from PIL import Image
-from random import random
 from roifile import roiread
 from scipy.ndimage import gaussian_filter
 from torch.utils.data import Dataset
@@ -204,8 +204,8 @@ def grid_to_squares(path):
             )
 
             square_dict = dict()
-            square = img[y: y + square_size, x: x + square_size]
-            square_2c = imgs[:, y: y + square_size, x: x + square_size]
+            square = img[y : y + square_size, x : x + square_size]
+            square_2c = imgs[:, y : y + square_size, x : x + square_size]
 
             square_dict["square"] = square
             square_dict["square_2c"] = square_2c
@@ -314,12 +314,13 @@ def mean_std(data_train):
 class H5Dataset(Dataset):
     """PyTorch dataset for HDF5 files generated with `get_data.py`."""
 
-    def __init__(self,
-                 dataset_path: str,
-                 horizontal_flip: float = 0.0,
-                 vertical_flip: float = 0.0,
-                 to_gray: bool = False,
-                 ):
+    def __init__(
+        self,
+        dataset_path: str,
+        horizontal_flip: float = 0.0,
+        vertical_flip: float = 0.0,
+        to_gray: bool = False,
+    ):
         """
         Initialize flips probabilities and pointers to a HDF5 file.
 
@@ -329,10 +330,10 @@ class H5Dataset(Dataset):
             vertical_flip: the probability of applying vertical flip
         """
         super(H5Dataset, self).__init__()
-        self.h5 = h5py.File(dataset_path, 'r')
-        self.images = self.h5['images']
-        self.labels = self.h5['labels']
-        self.n_points = self.h5['n_points']
+        self.h5 = h5py.File(dataset_path, "r")
+        self.images = self.h5["images"]
+        self.labels = self.h5["labels"]
+        self.n_points = self.h5["n_points"]
         self.horizontal_flip = horizontal_flip
         self.vertical_flip = vertical_flip
         self.to_gray = to_gray
@@ -349,7 +350,6 @@ class H5Dataset(Dataset):
             label = self.labels[index]
             n_points = self.n_points[index]
             if self.to_gray:
-
                 image = rgb_to_gray(image)
 
             return image, label, n_points
@@ -363,6 +363,8 @@ class H5Dataset(Dataset):
         if random() < self.horizontal_flip:
             axis_to_flip.append(2)
 
-        return (np.flip(self.images[index], axis=axis_to_flip).copy(),
-                np.flip(self.labels[index], axis=axis_to_flip).copy(),
-                self.n_points[index])
+        return (
+            np.flip(self.images[index], axis=axis_to_flip).copy(),
+            np.flip(self.labels[index], axis=axis_to_flip).copy(),
+            self.n_points[index],
+        )
