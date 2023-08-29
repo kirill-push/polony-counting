@@ -174,3 +174,13 @@ class Looper:
             f"\tError deviation: {self.std:3.3f}\n"
             f"\tMean square error: {self.mean_square_error:3.3f}"
         )
+
+
+class Config(dict):
+    def __getattr__(self, key):
+        if key in self:
+            return self[key]
+        else:
+            raise AttributeError(
+                f"'{type(self).__name__}' object has no attribute '{key}'"
+            )
