@@ -39,3 +39,7 @@ profile = "black"
 [tool.mypy]
 ignore_missing_imports = true
 exclude = ['docs']
+
+[tool.flake8]
+max-line-length = 79
+ignore = ["E203", "W503", "C901"]
