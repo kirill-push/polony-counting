@@ -1,8 +1,8 @@
+import argparse
 import os
 import shutil
 from glob import glob
 from typing import Tuple
-import argparse
 
 import h5py
 import numpy as np
@@ -10,8 +10,8 @@ from PIL import Image
 
 from data.utils import (
     IMG_SIZE,
-    SQUARE_SIZE,
     MODEL_SIZE,
+    SQUARE_SIZE,
     count_data_size,
     create_density_roi,
     get_and_unzip,
@@ -20,17 +20,16 @@ from data.utils import (
     read_tiff,
 )
 
-
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 
 parser.add_argument(
-    '--train_size',
-    '-s',
+    "--train_size",
+    "-s",
     type=int,
     default=90,
-    help='Percentage of the sample that is used for training'
+    help="Percentage of the sample that is used for training",
 )
 
 
@@ -248,7 +247,7 @@ def generate_polony_data(
 
 
 def main(args):
-    with open('id_list', 'r') as f:
+    with open("id_list", "r") as f:
         id_list = []
         for line in f.readlines():
             id_list.append(line.strip())
