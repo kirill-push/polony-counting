@@ -18,6 +18,7 @@ torchvision = "^0.15.0"
 Pillow = "^9.5.0"
 matplotlib = "^3.7.0"
 h5py = "^3.9.0"
+argparse = "^1.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
