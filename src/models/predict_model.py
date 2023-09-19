@@ -2,17 +2,21 @@ import os
 from typing import Dict, List, Tuple
 
 import torch
+from torchvision import transforms
 
 from data.utils import read_tiff
 from models.models import UNet
 from models.utils import grid_to_squares
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-FIRST_HORIZONTAL = ...
-FIRST_VERTICAL = ...
+FIRST_HORIZONTAL = 158
+FIRST_VERTICAL = 158
 SQUARE_SIZE = 316
 # [horizontal lines, vertical lines] = [8, 5] by ImageJ
 NUMBER_OF_LINES = [8, 5]
+
+MEAN, STD = ([12.69365111, 2.47628206], [13.35308926, 2.45260453])
+normalize = transforms.Normalize(MEAN, STD)
 
 
 def evaluate(
@@ -49,6 +53,10 @@ def predict(
     path: str,
     path_to_model: str,
     model: torch.nn.Module = UNet(res=False),
+    device: torch.device = torch.device(
+        "cuda:0" if torch.cuda.is_available() else "cpu"
+    ),
+    channels: int = 2,
 ) -> List[Dict[int, int]]:
     """
     args:
@@ -68,9 +76,15 @@ def predict(
         images = os.listdir(path)
         print("Files and folders in the directory:")
         for image_path in images:
-            predictions.append(predict_one_image(image_path, path_to_model))
+            predictions.append(
+                predict_one_image(
+                    image_path, path_to_model, model, device, channels
+                )
+            )
     else:
-        predictions.append(predict_one_image(path, path_to_model))
+        predictions.append(
+            predict_one_image(path, path_to_model, model, device, channels)
+        )
 
     return predictions
 
@@ -113,8 +127,8 @@ def predict_one_image(
     # square size TODO find constant value of square_size
     square_size = SQUARE_SIZE
 
-    # horizontal (8) and vertical (5) lines
-    h, v = NUMBER_OF_LINES
+    # horizontal (5) and vertical (8) lines
+    v, h = NUMBER_OF_LINES
     horizontal_lines = [first_horizontal + square_size * i for i in range(h)]
     vertical_lines = [first_vertical + square_size * i for i in range(v)]
 
@@ -122,15 +136,19 @@ def predict_one_image(
     square_id = -1
     for x in horizontal_lines[:-1]:
         for y in vertical_lines[:-1]:
+            result_dict = dict()
             square_id += 1
             if channels == 1:
                 square = img[y : y + square_size, x : x + square_size]
             elif channels == 2:
                 square = imgs[:, y : y + square_size, x : x + square_size]
             square = torch.from_numpy(square).float().to(device)
+            square = normalize(square)
             density = network(square.unsqueeze(0))
             result = torch.sum(density).item() // 100
 
-            squares_dict[square_id] = int(result)
+            result_dict["result"] = int(result)
+            result_dict["density"] = density
+            squares_dict[square_id] = result_dict
 
     return squares_dict
