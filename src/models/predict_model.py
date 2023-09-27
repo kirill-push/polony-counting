@@ -11,8 +11,8 @@ from models.utils import grid_to_squares
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158
 FIRST_VERTICAL = 158
-SQUARE_SIZE = 316
-# [horizontal lines, vertical lines] = [8, 5] by ImageJ
+SQUARE_SIZE = [316, 316]
+# [vertical lines, horizontal lines] = [8, 5] by ImageJ
 NUMBER_OF_LINES = [8, 5]
 
 MEAN, STD = ([12.69365111, 2.47628206], [13.35308926, 2.45260453])
@@ -125,9 +125,9 @@ def predict_one_image(
     first_vertical = FIRST_VERTICAL
 
     # square size TODO find constant value of square_size
-    square_size = SQUARE_SIZE
+    square_size = SQUARE_SIZE[0]
 
-    # horizontal (5) and vertical (8) lines
+    # vertical (8) and horizontal (5) lines
     v, h = NUMBER_OF_LINES
     horizontal_lines = [first_horizontal + square_size * i for i in range(h)]
     vertical_lines = [first_vertical + square_size * i for i in range(v)]
