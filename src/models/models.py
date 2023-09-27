@@ -14,6 +14,7 @@ class ConvCat(nn.Module):
         size: Tuple[int, int],
         stride: Tuple[int, int] = (1, 1),
         N: int = 1,
+        res: bool = False,
     ):
         """
         Create a sequential container with convolutional block (see conv_block)
@@ -23,6 +24,9 @@ class ConvCat(nn.Module):
         self.conv = nn.Sequential(
             conv_block(channels, size, stride, N),
         )
+        self.res = res
+        if self.res:
+            self.conv_skip = nn.Conv2d(*channels, kernel_size=1)
 
     def forward(self, to_conv: torch.Tensor, to_cat: torch.Tensor):
         """Forward pass.
@@ -31,10 +35,12 @@ class ConvCat(nn.Module):
             to_conv: input passed to convolutional block and upsampling
             to_cat: input concatenated with the output of a conv block
         """
+        if self.res:
+            to_upsample = self.conv(to_conv) + self.conv_skip(to_conv)
+        else:
+            to_upsample = self.conv(to_conv)
 
-        upsample_conv = F.interpolate(
-            self.conv(to_conv), size=to_cat.shape[-2:]
-        )
+        upsample_conv = F.interpolate(to_upsample, size=to_cat.shape[-2:])
         return torch.cat([upsample_conv, to_cat], dim=1)
 
 
@@ -87,7 +93,12 @@ class UNet(nn.Module):
     """
 
     def __init__(
-        self, filters: int = 64, input_filters: int = 3, N: int = 2, **kwargs
+        self,
+        filters: int = 64,
+        input_filters: int = 3,
+        N: int = 2,
+        res: bool = False,
+        **kwargs
     ):
         """
         Create U-Net model with:
@@ -109,15 +120,17 @@ class UNet(nn.Module):
         # channels size for upsampling (input doubled because of concatenate)
         up_filters = (2 * filters, filters)
 
+        self.res = res
+
         # downsampling
         self.block1 = conv_block(channels=initial_filters, size=(3, 3), N=N)
         self.block2 = conv_block(channels=down_filters, size=(3, 3), N=N)
         self.block3 = conv_block(channels=down_filters, size=(3, 3), N=N)
 
         # upsampling
-        self.block4 = ConvCat(channels=down_filters, size=(3, 3), N=N)
-        self.block5 = ConvCat(channels=up_filters, size=(3, 3), N=N)
-        self.block6 = ConvCat(channels=up_filters, size=(3, 3), N=N)
+        self.block4 = ConvCat(channels=down_filters, size=(3, 3), N=N, res=res)
+        self.block5 = ConvCat(channels=up_filters, size=(3, 3), N=N, res=res)
+        self.block6 = ConvCat(channels=up_filters, size=(3, 3), N=N, res=res)
 
         # density prediction
         self.block7 = conv_block(channels=up_filters, size=(3, 3), N=N)
@@ -125,17 +138,32 @@ class UNet(nn.Module):
             in_channels=filters, out_channels=1, kernel_size=(1, 1), bias=False
         )
 
+        # residual
+        if self.res:
+            self.conv_skip1 = nn.Conv2d(*initial_filters, kernel_size=1)
+            self.conv_skip2 = nn.Conv2d(*down_filters, kernel_size=1)
+            self.conv_skip3 = nn.Conv2d(*down_filters, kernel_size=1)
+
     def forward(self, input: torch.Tensor):
         """Forward pass."""
         # use the same max pooling kernel size (2, 2) across the network
         pool = nn.MaxPool2d(2)
 
         # downsampling
-        block1 = self.block1(input)
+        if self.res:
+            block1 = self.block1(input) + self.conv_skip1(input)
+        else:
+            block1 = self.block1(input)
         pool1 = pool(block1)
-        block2 = self.block2(pool1)
+        if self.res:
+            block2 = self.block2(pool1) + self.conv_skip2(pool1)
+        else:
+            block2 = self.block2(pool1)
         pool2 = pool(block2)
-        block3 = self.block3(pool2)
+        if self.res:
+            block3 = self.block3(pool2) + self.conv_skip3(pool2)
+        else:
+            block3 = self.block3(pool2)
         pool3 = pool(block3)
 
         # upsampling
