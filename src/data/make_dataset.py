@@ -14,6 +14,7 @@ from data.utils import (
     SQUARE_SIZE,
     count_data_size,
     create_density_roi,
+    delete_duplicates,
     get_and_unzip,
     get_roi_coordinates,
     grid_to_squares,
@@ -76,7 +77,7 @@ def create_hdf5(
         h5.create_dataset("images", (size, in_channels, *SQUARE_SIZE))
         h5.create_dataset("labels", (size, 1, *img_size))
         h5.create_dataset("n_points", (size, 1)),
-        h5.create_dataset('path', (size, 1))
+        h5.create_dataset("path", (size, 1))
 
     return train_h5, valid_h5
 
@@ -109,6 +110,7 @@ def generate_polony_data(
         else:
             for i, id_to_zip in enumerate(id_list):
                 get_and_unzip(id_to_zip, location=f"polony/{i}")
+            delete_duplicates("polony")
 
     if new_size is None:
         if is_squares:
@@ -186,13 +188,13 @@ def generate_polony_data(
                         h5["images"][train_j] = image
                         h5["labels"][train_j, 0] = label
                         h5["n_points"][train_j] = n_points
-                        h5['path'][train_j] = i
+                        h5["path"][train_j] = i
                         train_j += 1
                     elif h5_val is not None:
                         h5_val["images"][val_j] = image
                         h5_val["labels"][val_j, 0] = label
                         h5_val["n_points"][val_j] = n_points
-                        h5_val['path'][val_j] = i
+                        h5_val["path"][val_j] = i
                         val_j += 1
 
             else:
