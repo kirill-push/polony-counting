@@ -1,3 +1,4 @@
+import hashlib
 import os
 import zipfile
 from glob import glob
@@ -309,6 +310,45 @@ def mean_std(data_train):
         mean += data_train[i][0].mean((1, 2))
         std += data_train[i][0].std((1, 2))
     return mean / len(data_train), std / len(data_train)
+
+
+def delete_duplicates(image_folder):
+    # Creating a dictionary where the key is the hash of the image,
+    # and the value is a list of files with this hash
+    image_hash_dict = {}
+
+    # Going through all the files in the folder
+    for root, dirs, files in os.walk(image_folder):
+        if len(files) == 0:
+            continue
+        for filename in files:
+            file_path = os.path.join(root, filename)
+
+            # Skip the non-images
+            try:
+                with Image.open(file_path) as img:
+                    image_hash = hashlib.md5(img.tobytes()).hexdigest()
+            except Exception as e:
+                print(f"Error during file processing {file_path}: {e}")
+                continue
+
+            # If the hash of the image is already in the dictionary,
+            # add the file to the corresponding list
+            if image_hash in image_hash_dict:
+                image_hash_dict[image_hash].append(file_path)
+            else:
+                # If there is no hash, create a new entry in the dictionary
+                image_hash_dict[image_hash] = [file_path]
+
+    # Deleting duplicate files
+    for image_hash, file_list in image_hash_dict.items():
+        if len(file_list) > 1:
+            print(f"Removing duplicates for the hash {image_hash}:")
+            for file_path in file_list[1:]:
+                os.remove(file_path)
+                print(f"  Deleted file: {file_path}")
+
+    print("Deletion completed.")
 
 
 class H5Dataset(Dataset):
