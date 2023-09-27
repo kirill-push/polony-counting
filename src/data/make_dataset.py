@@ -75,7 +75,8 @@ def create_hdf5(
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
         h5.create_dataset("images", (size, in_channels, *SQUARE_SIZE))
         h5.create_dataset("labels", (size, 1, *img_size))
-        h5.create_dataset("n_points", (size, 1))
+        h5.create_dataset("n_points", (size, 1)),
+        h5.create_dataset('path', (size, 1))
 
     return train_h5, valid_h5
 
@@ -185,11 +186,13 @@ def generate_polony_data(
                         h5["images"][train_j] = image
                         h5["labels"][train_j, 0] = label
                         h5["n_points"][train_j] = n_points
+                        h5['path'][train_j] = i
                         train_j += 1
                     elif h5_val is not None:
                         h5_val["images"][val_j] = image
                         h5_val["labels"][val_j, 0] = label
                         h5_val["n_points"][val_j] = n_points
+                        h5_val['path'][val_j] = i
                         val_j += 1
 
             else:
