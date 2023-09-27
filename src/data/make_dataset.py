@@ -11,6 +11,7 @@ from PIL import Image
 
 from data.utils import (
     IMG_SIZE,
+    JSON_PATH,
     MODEL_SIZE,
     SQUARE_SIZE,
     count_data_size,
@@ -248,13 +249,7 @@ def generate_polony_data(
         fill_h5(valid_h5, image_list[train_size:])
 
     # writing a path_dict to a json file for further use
-    current_path = os.path.dirname(__file__)
-    json_path = os.path.abspath(
-        os.path.join(
-            current_path, "..", "..", "data", "dataset_files", "path_dict.json"
-        )
-    )
-    with open(json_path, "w") as file:
+    with open(JSON_PATH, "w") as file:
         json.dump(path_dict, file)
 
     # close HDF5 files
