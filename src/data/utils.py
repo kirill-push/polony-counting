@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import zipfile
 from glob import glob
@@ -17,6 +18,13 @@ from torch.utils.data import Dataset
 IMG_SIZE = (2450, 1438)
 SQUARE_SIZE = (316, 316)
 MODEL_SIZE = SQUARE_SIZE
+
+current_path = os.path.dirname(__file__)
+JSON_PATH = os.path.abspath(
+    os.path.join(
+        current_path, "..", "..", "data", "dataset_files", "path_dict.json"
+    )
+)
 
 
 def remove_img_without_roi(location):
@@ -360,6 +368,7 @@ class H5Dataset(Dataset):
         horizontal_flip: float = 0.0,
         vertical_flip: float = 0.0,
         to_gray: bool = False,
+        json_path: str = JSON_PATH,
     ):
         """
         Initialize flips probabilities and pointers to a HDF5 file.
@@ -374,9 +383,12 @@ class H5Dataset(Dataset):
         self.images = self.h5["images"]
         self.labels = self.h5["labels"]
         self.n_points = self.h5["n_points"]
+        self.path_id = self.h5["path"]
         self.horizontal_flip = horizontal_flip
         self.vertical_flip = vertical_flip
         self.to_gray = to_gray
+        with open(json_path, "r") as file:
+            self.path_dict = json.load(file)
 
     def __len__(self):
         """Return no. of samples in HDF5 file."""
@@ -389,10 +401,11 @@ class H5Dataset(Dataset):
             image = self.images[index]
             label = self.labels[index]
             n_points = self.n_points[index]
+            path = self.path_dict[int(self.path_id[index][0])]
             if self.to_gray:
                 image = rgb_to_gray(image)
 
-            return image, label, n_points
+            return image, label, n_points, path
 
         # axis = 1 (vertical flip), axis = 2 (horizontal flip)
         axis_to_flip = []
@@ -407,4 +420,5 @@ class H5Dataset(Dataset):
             np.flip(self.images[index], axis=axis_to_flip).copy(),
             np.flip(self.labels[index], axis=axis_to_flip).copy(),
             self.n_points[index],
+            self.path_dict[int(self.path_id[index][0])],
         )
