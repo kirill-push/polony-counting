@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import shutil
 from glob import glob
@@ -150,6 +151,9 @@ def generate_polony_data(
         img_size=img_size,
         in_channels=channels,
     )
+    # creating a dictionary of paths to collect information in the process of
+    # launching fill_h5 function
+    path_dict = dict()
 
     def fill_h5(
         h5,
@@ -170,6 +174,10 @@ def generate_polony_data(
         train_j = 0
         val_j = 0
         for i, img_path in enumerate(images):
+            # collecting a dictionary of paths {id: path_to_image}
+            # (for future analysis of results)
+            if i not in path_dict:
+                path_dict[i] = img_path
             if is_squares:
                 squares_list = grid_to_squares(img_path)
                 for tt, square_dict in enumerate(squares_list):
@@ -238,6 +246,16 @@ def generate_polony_data(
         # use first 150 samples for training and the last 50 for validation
         fill_h5(train_h5, image_list[:train_size])
         fill_h5(valid_h5, image_list[train_size:])
+
+    # writing a path_dict to a json file for further use
+    current_path = os.path.dirname(__file__)
+    json_path = os.path.abspath(
+        os.path.join(
+            current_path, "..", "..", "data", "dataset_files", "path_dict.json"
+        )
+    )
+    with open(json_path, "w") as file:
+        json.dump(path_dict, file)
 
     # close HDF5 files
     train_h5.close()
