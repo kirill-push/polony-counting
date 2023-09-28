@@ -3,7 +3,7 @@ import json
 import os
 import shutil
 from glob import glob
-from typing import Tuple
+from typing import Iterable, Optional, Tuple
 
 import h5py
 import numpy as np
@@ -38,7 +38,7 @@ parser.add_argument(
 
 def create_hdf5(
     dataset_name: str,
-    train_size: int,
+    train_size: Optional[int],
     valid_size: int,
     img_size: Tuple[int, int],
     in_channels: int = 1,
@@ -53,7 +53,7 @@ def create_hdf5(
 
     Args:
         dataset_name: used to create a folder for train.h5 and valid.h5
-        train_size: no. of training samples
+        train_size: no. of training samples, if None -> evaluation mode
         valid_size: no. of validation samples
         img_size: (width, height) of a single image / density map
         in_channels: no. of channels of an input image
@@ -71,15 +71,19 @@ def create_hdf5(
         os.remove(os.path.join(dataset_name, "valid.h5"))
 
     # create HDF5 files: [dataset_name]/(train | valid).h5
-    train_h5 = h5py.File(os.path.join(dataset_name, "train.h5"), "w")
+    if train_size is not None:
+        train_h5 = h5py.File(os.path.join(dataset_name, "train.h5"), "w")
+    else:
+        train_h5 = None
     valid_h5 = h5py.File(os.path.join(dataset_name, "valid.h5"), "w")
 
     # add two HDF5 datasets (images and labels) for each HDF5 file
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
-        h5.create_dataset("images", (size, in_channels, *SQUARE_SIZE))
-        h5.create_dataset("labels", (size, 1, *img_size))
-        h5.create_dataset("n_points", (size, 1)),
-        h5.create_dataset("path", (size, 1))
+        if h5 is not None:
+            h5.create_dataset("images", (size, in_channels, *SQUARE_SIZE))
+            h5.create_dataset("labels", (size, 1, *img_size))
+            h5.create_dataset("n_points", (size, 1)),
+            h5.create_dataset("path", (size, 1))
 
     return train_h5, valid_h5
 
@@ -91,8 +95,9 @@ def generate_polony_data(
     download: bool = True,
     is_squares: bool = True,
     all_files: bool = False,
-    id_list=None,
+    id_list: Optional[Iterable[str]] = None,
     channels: int = 1,
+    evaluation: bool = False,
 ):
     """
     Generate HDF5 files for fluorescent cell dataset.
@@ -138,20 +143,32 @@ def generate_polony_data(
     if is_squares:
         # count the number of squares in all images that contain dots
         n_data = count_data_size(image_list)
-        train_size = int((train_size / 100) * n_data)
-        print(f"Data size {n_data}, training size {train_size}")
+        if not evaluation:
+            train_size = int((train_size / 100) * n_data)
+            valid_size = n_data - train_size
+            print(f"Data size {n_data}, training size {train_size}")
+        else:
+            train_size = None
+            valid_size = n_data
+            print(f"Data size {n_data}")
     else:
         n_data = len(image_list)
-        train_size = int((train_size / 100) * n_data)
+        if not evaluation:
+            train_size = int((train_size / 100) * n_data)
+            valid_size = n_data - train_size
+        else:
+            train_size = None
+            valid_size = n_data
 
     # create training and validation HDF5 files
     train_h5, valid_h5 = create_hdf5(
-        "polony",
+        dataset_name="polony",
         train_size=train_size,
-        valid_size=n_data - train_size,
+        valid_size=valid_size,
         img_size=img_size,
         in_channels=channels,
     )
+
     # creating a dictionary of paths to collect information in the process of
     # launching fill_h5 function
     path_dict = dict()
@@ -163,6 +180,7 @@ def generate_polony_data(
         is_squares=is_squares,
         h5_val=None,
         train_size=train_size,
+        valid_size=valid_size,
         channels=channels,
     ):
         """
@@ -172,6 +190,10 @@ def generate_polony_data(
             h5: HDF5 file
             images: the list of images paths
         """
+        if h5 is None:
+            h5 = h5_val
+            h5_val = None
+            train_size = valid_size
         train_j = 0
         val_j = 0
         for i, img_path in enumerate(images):
@@ -245,7 +267,8 @@ def generate_polony_data(
         fill_h5(train_h5, image_list, h5_val=valid_h5)
     else:
         # use first 150 samples for training and the last 50 for validation
-        fill_h5(train_h5, image_list[:train_size])
+        if train_h5 is not None:
+            fill_h5(train_h5, image_list[:train_size])
         fill_h5(valid_h5, image_list[train_size:])
 
     # writing a path_dict to a json file for further use
@@ -253,7 +276,8 @@ def generate_polony_data(
         json.dump(path_dict, file)
 
     # close HDF5 files
-    train_h5.close()
+    if train_h5 is not None:
+        train_h5.close()
     valid_h5.close()
 
     # cleanup
