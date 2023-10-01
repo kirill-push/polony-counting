@@ -29,7 +29,7 @@ def evaluate(
         path_to_model - path to saved state dict of model
     return:
         mean absolute error on squares with points,
-        total number of points in thpoetry run mypy image
+        total number of points in image
     """
 
     network = torch.nn.DataParallel(UNet(res=False))
