@@ -91,12 +91,13 @@ def create_hdf5(
 def generate_polony_data(
     id: str = "1t2idVjWUXKnUdy2_a1gActHdfO5nzLgt",
     train_size: int = 80,
-    new_size=None,
+    new_size: Tuple[int] = MODEL_SIZE,
     download: bool = True,
+    data_root: str = ".",
     is_squares: bool = True,
-    all_files: bool = False,
+    all_files: bool = True,
     id_list: Optional[Iterable[str]] = None,
-    channels: int = 1,
+    channels: int = 2,
     evaluation: bool = False,
 ):
     """
@@ -110,14 +111,15 @@ def generate_polony_data(
         is_squares: bool - divide into squares or no
     """
     # download and extract dataset
-
+    data_path = os.path.join(data_root, "polony")
     if download:
-        if not all_files:
-            get_and_unzip(id, location="polony")
+        if id_list is None:
+            get_and_unzip(id, location=data_path)
         else:
             for i, id_to_zip in enumerate(id_list):
-                get_and_unzip(id_to_zip, location=f"polony/{i}")
-            delete_duplicates("polony")
+                location = os.path.join(data_path, i)
+                get_and_unzip(id_to_zip, location=location)
+            delete_duplicates(data_path)
 
     if new_size is None:
         if is_squares:
