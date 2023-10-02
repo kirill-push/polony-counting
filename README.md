@@ -13,11 +13,15 @@ Project Organization
         ├── __init__.py    <- Makes src a Python module
         │
         ├── data           <- Scripts to download or generate data
-        │   ├── utils.py
-        │   └── make_dataset.py
+        │   ├── make_dataset.py
+        │   └── utils.py
         │
-        └── models         <- Scripts with models
-            └── models.py
+        ├── models         <- Scripts with models
+        │   ├── models.py
+        │   ├── predict_model.py
+        │   ├── train_model.py
+        │   └── utils.py
+        └── scripts        <- Project scripts
 
 --------
 
