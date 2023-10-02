@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@yandex.ru>"]
 readme = "README.md"
+packages = [
+ { include = "*", from = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -46,4 +49,4 @@ max-line-length = 79
 ignore = ["E203", "W503", "C901"]
 
 [tool.poetry.scripts]
-fix = "poetry_fix:main"
+fix = "src.scripts.fix_script:main"
