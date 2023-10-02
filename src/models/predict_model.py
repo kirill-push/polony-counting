@@ -9,14 +9,6 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
 
-# parser.add_argument(
-#     "--download",
-#     "-d",
-#     type=bool,
-#     default=True,
-#     help="is it necessary ot not to download data from Google drive"
-# )
-
 parser.add_argument(
     "--path",
     "-p",
