@@ -2,7 +2,7 @@ import argparse
 import os
 import tempfile
 
-from .models.predict_model import predict
+from .utils import predict
 
 # Configuring Argument parser
 parser = argparse.ArgumentParser(
