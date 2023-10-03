@@ -24,9 +24,8 @@ parser.add_argument(
     help="Path to saved state dict",
 )
 
-ARGS = parser.parse_args()
 
-if __name__ == "__main__":
+def main(args):
     temp_folder = tempfile.mkdtemp()
     print("Creating temporary folder: {}".format(temp_folder))
 
@@ -39,3 +38,8 @@ if __name__ == "__main__":
         for pred in predictions:
             for k, v in pred.items():
                 file.write(f"Square {k}, number of points {v}\n")
+
+
+if __name__ == "__main__":
+    ARGS = parser.parse_args()
+    main(ARGS)
