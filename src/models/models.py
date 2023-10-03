@@ -66,7 +66,7 @@ def conv_block(
 
     # a single convolution + batch normalization + ReLU block
     def block(in_channels: int):
-        nn.Sequential(
+        return nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
                 out_channels=channels[1],
