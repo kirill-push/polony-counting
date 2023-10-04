@@ -1,3 +1,21 @@
+"""
+This script predicts the number of points in squares on images using
+a pre-trained model.
+
+The script takes two arguments:
+  1. --path or -p: Path to the folder or file containing the images
+    to be processed.
+  2. --path_to_model or -m: Path to the saved model state dictionary used
+    for predictions.
+
+The prediction results are saved in a file named 'prediction' in a temporary
+folder.
+
+Usage example:
+python predict_model.py --path /path/to/images --path_to_model /path/to/model
+
+"""
+
 import argparse
 import os
 import tempfile
