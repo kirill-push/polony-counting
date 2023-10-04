@@ -101,7 +101,7 @@ def generate_polony_data(
     evaluation: bool = False,
 ):
     """
-    Generate HDF5 files for fluorescent cell dataset.
+    Generate HDF5 files for polony dataset.
 
     Args:
         id: zip id on gdrive
