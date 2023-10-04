@@ -1799,4 +1799,4 @@ sweeps = ["sweeps (>=0.2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "35df9892c355ce75b1b1786bf3f1e16920c74c427f47044b3c47a23040064e91"
+content-hash = "ac17fd90a1dae808cc54d91e84054781a5b663bd71d3878c79c917be86b5fc4e"
