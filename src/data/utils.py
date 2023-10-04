@@ -42,7 +42,7 @@ def remove_img_without_roi(location):
             file.write(path + "\n")
 
 
-def get_and_unzip(url: str, location: str = "."):
+def get_and_unzip(url: str, location: str):
     """Extract a ZIP archive from given URL.
 
     Args:
