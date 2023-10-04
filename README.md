@@ -9,6 +9,8 @@ Project Organization
     ├── LICENSE
     ├── README.md          <- The top-level README for developers using this project.
     │
+    ├── config             <- Configuration files for the project.
+    │
     ├── src                <- Source code for use in this project.
     │   ├── __init__.py    <- Makes src a Python module
     │   │
