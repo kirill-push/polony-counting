@@ -109,7 +109,7 @@ def create_empty_hdf5_files(
     train_size: Optional[int],
     valid_size: int,
     img_size: Tuple[int, int],
-    in_channels: int = 1,
+    in_channels: int,
 ):
     """
     Create empty training and validation HDF5 files (one file for training and
