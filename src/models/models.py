@@ -95,7 +95,7 @@ class UNet(nn.Module):
     def __init__(
         self,
         filters: int = 64,
-        input_filters: int = 3,
+        input_filters: int = 2,
         N: int = 2,
         res: bool = False,
         **kwargs
