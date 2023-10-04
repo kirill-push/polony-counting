@@ -36,7 +36,7 @@ parser.add_argument(
 )
 
 
-def create_hdf5(
+def create_empty_hdf5_files(
     dataset_name: str,
     train_size: Optional[int],
     valid_size: int,
@@ -44,8 +44,8 @@ def create_hdf5(
     in_channels: int = 1,
 ):
     """
-    Create empty training and validation HDF5 files with placeholders
-    for images and labels (density maps).
+    Create empty training and validation HDF5 files (one file for training and
+    one for validation) with placeholders for images and labels (density maps).
 
     Note:
     Datasets are saved in [dataset_name]/train.h5 and [dataset_name]/valid.h5.
@@ -163,7 +163,7 @@ def generate_polony_data(
             valid_size = n_data
 
     # create training and validation HDF5 files
-    train_h5, valid_h5 = create_hdf5(
+    train_h5, valid_h5 = create_empty_hdf5_files(
         dataset_name="polony",
         train_size=train_size,
         valid_size=valid_size,
