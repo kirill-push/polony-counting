@@ -3,11 +3,13 @@ import json
 import os
 import shutil
 from glob import glob
+from random import random
 from typing import Iterable, Optional, Tuple
 
 import h5py
 import numpy as np
 from PIL import Image
+from torch.utils.data import Dataset
 
 from data.utils import (
     IMG_SIZE,
@@ -21,6 +23,7 @@ from data.utils import (
     get_roi_coordinates,
     grid_to_squares,
     read_tiff,
+    rgb_to_gray,
 )
 
 parser = argparse.ArgumentParser(
@@ -34,6 +37,71 @@ parser.add_argument(
     default=90,
     help="Percentage of the sample that is used for training",
 )
+
+
+class PolonyDataset(Dataset):
+    """PyTorch dataset for HDF5 files generated with `get_data.py`."""
+
+    def __init__(
+        self,
+        dataset_path: str,
+        horizontal_flip: float = 0.0,
+        vertical_flip: float = 0.0,
+        to_gray: bool = False,
+        json_path: str = JSON_PATH,
+    ):
+        """
+        Initialize flips probabilities and pointers to a HDF5 file.
+
+        Args:
+            dataset_path: a path to a HDF5 file
+            horizontal_flip: the probability of applying horizontal flip
+            vertical_flip: the probability of applying vertical flip
+        """
+        super(PolonyDataset, self).__init__()
+        self.h5 = h5py.File(dataset_path, "r")
+        self.images = self.h5["images"]
+        self.labels = self.h5["labels"]
+        self.n_points = self.h5["n_points"]
+        self.path_id = self.h5["path"]
+        self.horizontal_flip = horizontal_flip
+        self.vertical_flip = vertical_flip
+        self.to_gray = to_gray
+        with open(json_path, "r") as file:
+            self.path_dict = json.load(file)
+
+    def __len__(self):
+        """Return no. of samples in HDF5 file."""
+        return len(self.images)
+
+    def __getitem__(self, index: int):
+        """Return next sample (randomly flipped)."""
+        # if both flips probabilities are zero return an image and a label
+        if not (self.horizontal_flip or self.vertical_flip):
+            image = self.images[index]
+            label = self.labels[index]
+            n_points = self.n_points[index]
+            path = self.path_dict[int(self.path_id[index][0])]
+            if self.to_gray:
+                image = rgb_to_gray(image)
+
+            return image, label, n_points, path
+
+        # axis = 1 (vertical flip), axis = 2 (horizontal flip)
+        axis_to_flip = []
+
+        if random() < self.vertical_flip:
+            axis_to_flip.append(1)
+
+        if random() < self.horizontal_flip:
+            axis_to_flip.append(2)
+
+        return (
+            np.flip(self.images[index], axis=axis_to_flip).copy(),
+            np.flip(self.labels[index], axis=axis_to_flip).copy(),
+            self.n_points[index],
+            self.path_dict[int(self.path_id[index][0])],
+        )
 
 
 def create_empty_hdf5_files(

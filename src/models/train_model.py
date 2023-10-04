@@ -6,7 +6,8 @@ import wandb
 from torch import nn
 from torchvision import transforms
 
-from data.utils import H5Dataset, mean_std
+from data.utils import mean_std
+from data.make_dataset import PolonyDataset
 from models.models import UNet
 from models.utils import Config, Looper
 
@@ -72,7 +73,7 @@ def train(
         # expected HDF5 files in dataset_name/(train | valid).h5
         data_path = os.path.join(dataset_name, f"{mode}.h5")
         # turn on flips only for training dataset
-        dataset[mode] = H5Dataset(
+        dataset[mode] = PolonyDataset(
             data_path,
             horizontal_flip if mode == "train" else 0,
             vertical_flip if mode == "train" else 0,
