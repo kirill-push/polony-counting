@@ -8,7 +8,7 @@ from torchvision import transforms
 
 from data.utils import read_tiff
 from models.models import UNet
-from models.utils import grid_to_squares
+from data.utils import grid_to_squares
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158
