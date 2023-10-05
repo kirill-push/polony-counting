@@ -8,14 +8,11 @@ from typing import Iterable, Optional, Tuple
 
 import h5py
 import numpy as np
+import yaml
 from PIL import Image
 from torch.utils.data import Dataset
 
 from data.utils import (
-    IMG_SIZE,
-    JSON_PATH,
-    MODEL_SIZE,
-    SQUARE_SIZE,
     count_data_size,
     create_density_roi,
     delete_duplicates,
@@ -26,6 +23,12 @@ from data.utils import (
     rgb_to_gray,
 )
 
+# folder to load config file
+CONFIG_PATH = "src/config/config.yaml"
+
+with open(CONFIG_PATH, "r") as file:
+    config = yaml.load(file)
+
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
 )
@@ -34,7 +37,7 @@ parser.add_argument(
     "--train_size",
     "-s",
     type=int,
-    default=90,
+    default=config["generate_polony_data"]["train_size"],
     help="Percentage of the sample that is used for training",
 )
 
@@ -45,10 +48,10 @@ class PolonyDataset(Dataset):
     def __init__(
         self,
         dataset_path: str,
-        horizontal_flip: float = 0.0,
-        vertical_flip: float = 0.0,
-        to_gray: bool = False,
-        json_path: str = JSON_PATH,
+        horizontal_flip: float,
+        vertical_flip: float,
+        to_gray: bool,
+        json_path: str,
     ):
         """
         Initialize flips probabilities and pointers to a HDF5 file.
@@ -148,7 +151,9 @@ def create_empty_hdf5_files(
     # add two HDF5 datasets (images and labels) for each HDF5 file
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
         if h5 is not None:
-            h5.create_dataset("images", (size, in_channels, *SQUARE_SIZE))
+            h5.create_dataset(
+                "images", (size, in_channels, *config["square_size"])
+            )
             h5.create_dataset("labels", (size, 1, *img_size))
             h5.create_dataset("n_points", (size, 1)),
             h5.create_dataset("path", (size, 1))
@@ -157,16 +162,18 @@ def create_empty_hdf5_files(
 
 
 def generate_polony_data(
-    id: str = "1t2idVjWUXKnUdy2_a1gActHdfO5nzLgt",
-    train_size: int = 80,
-    new_size: Tuple[int] = MODEL_SIZE,
-    download: bool = True,
-    data_root: str = ".",
-    is_squares: bool = True,
-    all_files: bool = True,
-    id_list: Optional[Iterable[str]] = None,
-    channels: int = 2,
-    evaluation: bool = False,
+    id: str = config["generate_polony_data"]["id"],
+    train_size: int = config["generate_polony_data"]["train_size"],
+    new_size: Tuple[int] = config["generate_polony_data"]["new_size"],
+    download: bool = config["generate_polony_data"]["download"],
+    data_root: str = config["generate_polony_data"]["data_root"],
+    is_squares: bool = config["generate_polony_data"]["is_squares"],
+    all_files: bool = config["generate_polony_data"]["all_files"],
+    id_list: Optional[Iterable[str]] = config["generate_polony_data"][
+        "id_list"
+    ],
+    channels: int = config["generate_polony_data"]["channels"],
+    evaluation: bool = config["generate_polony_data"]["evaluation"],
 ):
     """
     Generate HDF5 files for polony dataset.
@@ -191,9 +198,9 @@ def generate_polony_data(
 
     if new_size is None:
         if is_squares:
-            img_size = SQUARE_SIZE  # TODO need to check
+            img_size = config["square_size"]  # TODO need to check
         else:
-            img_size = IMG_SIZE
+            img_size = config["img_size"]
     else:
         img_size = new_size
 
@@ -342,7 +349,7 @@ def generate_polony_data(
         fill_h5(valid_h5, image_list[train_size:])
 
     # writing a path_dict to a json file for further use
-    with open(JSON_PATH, "w") as file:
+    with open(config["json_path"], "w") as file:
         json.dump(path_dict, file)
 
     # close HDF5 files
@@ -365,12 +372,6 @@ def main(args):
             id_list.append(line.strip())
     generate_polony_data(
         train_size=args.train_size,
-        new_size=MODEL_SIZE,
-        all_files=True,
-        id_list=id_list,
-        channels=2,
-        download=True,
-        is_squares=True,
     )
 
 
