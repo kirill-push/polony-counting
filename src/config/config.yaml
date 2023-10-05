@@ -1,36 +1,37 @@
+---
 # Initial Settings
-project: &project 'polony'
+project: &project polony
 seed: 19
 img_size: [2450, 1438]
 img_channels: &img_channels 2
-json_path: &json_path 'data\dataset_files\path_dict.json'
+json_path: &json_path data\dataset_files\path_dict.json
 square_size: [316, 316]
 model_size: &model_size [316, 316]
-model_architecture: &model_architecture 'UNet'
+model_architecture: &model_architecture UNet
 mean: [12.69365111, 2.47628206]
 std: [13.35308926, 2.45260453]
 files_to_del:
-  - 'slides/3-01-A.tif'
-  - 'slides/3-43-B(1).tif'
-  - 'slides/3-45-A.tif'
+  - slides/3-01-A.tif
+  - slides/3-43-B(1).tif
+  - slides/3-45-A.tif
 id_list:
-  - &id_polony0 '1t2idVjWUXKnUdy2_a1gActHdfO5nzLgt'
-  - &id_polony1 '1DhItO1ZGw1rXvYABff-bEumbAMRWifn0'
-  - &id_polony2 '11laPuRsmkYpOI4BwGieXkxi6AC_hPZE1'
-  - &id_polony3 '1M_Bjkwuv0a-Hiz3byLxyHdbnhCnyr2NX'
-device: &device 'cuda:0'
-model_saving: &model_saving '/kaggle/working/polony_49_1.7496.pth'
+  - &id_polony0 1t2idVjWUXKnUdy2_a1gActHdfO5nzLgt
+  - &id_polony1 1DhItO1ZGw1rXvYABff-bEumbAMRWifn0
+  - &id_polony2 11laPuRsmkYpOI4BwGieXkxi6AC_hPZE1
+  - &id_polony3 1M_Bjkwuv0a-Hiz3byLxyHdbnhCnyr2NX
+device: &device cuda:0
+model_saving: &model_saving /kaggle/working/polony_49_1.7496.pth
 first_horizontal: 158
 first_vertical: 158
 number_of_lines: [8, 5]
 
 # Function settings
 generate_polony_data:
-  id: "1t2idVjWUXKnUdy2_a1gActHdfO5nzLgt"
+  id: 1t2idVjWUXKnUdy2_a1gActHdfO5nzLgt
   train_size: 90
   new_size: *model_size
   download: true
-  data_root: "."
+  data_root: .
   is_squares: true
   all_files: true
   id_list: [*id_polony0, *id_polony1, *id_polony2, *id_polony3]
@@ -38,10 +39,10 @@ generate_polony_data:
   evaluation: false
 
 read_tiff:
-  new_size: None
+  new_size: null
 
 get_roi_coordinates:
-  channel: None
+  channel: null
   counter: false
 
 create_density_roi:
@@ -50,14 +51,14 @@ create_density_roi:
   channel: 1
 
 PolonyDataset_train:
-  dataset_path: 'polony/train.h5'
+  dataset_path: polony/train.h5
   horizontal_flip: 0.5
   vertical_flip: 0.5
   to_gray: false
   json_path: *json_path
 
 PolonyDataset_val:
-  dataset_path: 'polony/val.h5'
+  dataset_path: polony/val.h5
   horizontal_flip: 0
   vertical_flip: 0
   to_gray: false
@@ -84,7 +85,7 @@ wandb_init:
   project: *project
   save_code: true
   config:
-    learning_rate: 1e-2
+    learning_rate: 0.01
     architecture: *model_architecture
     dataset: *project
     epochs: 200
@@ -101,7 +102,7 @@ eval:
   convolutions: 2
   input_channels: 2
   normalize: true
-  loss: 'MSELoss'
+  loss: MSELoss
   res: false
 
 predict:
@@ -116,11 +117,11 @@ predict_one_image:
 
 Looper:
   validation: false
-  regressor: None
+  regressor: null
   batch_idx: 0
   relative_error: false
   wandb_bool: false
-  transforms: None
+  transforms: null
 
 # Model settings
 ConvCat:
