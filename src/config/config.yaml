@@ -2,7 +2,7 @@
 # Initial Settings
 project: &project polony
 seed: 19
-img_size: [2450, 1438]
+img_size: &img_size [2450, 1438]
 img_channels: &img_channels 2
 json_path: &json_path data\dataset_files\path_dict.json
 square_size: [316, 316]
