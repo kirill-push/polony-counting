@@ -15,10 +15,9 @@ IMG_SIZE = (2450, 1438)
 SQUARE_SIZE = (316, 316)
 MODEL_SIZE = SQUARE_SIZE
 
-current_path = os.path.dirname(__file__)
 JSON_PATH = os.path.abspath(
     os.path.join(
-        current_path, "..", "..", "data", "dataset_files", "path_dict.json"
+        "data", "dataset_files", "path_dict.json"
     )
 )
 
@@ -32,7 +31,7 @@ def remove_img_without_roi(location):
     for roi_path in image_list:
         try:
             roiread(roi_path)[1]
-        except ValueError as e:
+        except Exception as e:
             print(f'Warning: "{e}". File {roi_path} was deleted')
             os.remove(roi_path)
             error_list.append(roi_path)
