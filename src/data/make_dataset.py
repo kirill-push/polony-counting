@@ -27,7 +27,7 @@ from data.utils import (
 CONFIG_PATH = "src/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
-    config = yaml.load(file)
+    config = yaml.load(file, Loader=yaml.FullLoader)
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -192,7 +192,7 @@ def generate_polony_data(
             get_and_unzip(id, location=data_path)
         else:
             for i, id_to_zip in enumerate(id_list):
-                location = os.path.join(data_path, i)
+                location = os.path.join(data_path, str(i))
                 get_and_unzip(id_to_zip, location=location)
             delete_duplicates(data_path)
 
@@ -206,12 +206,14 @@ def generate_polony_data(
 
     # get the list of all samples and sort it
     if not all_files:
-        image_list = glob(os.path.join("polony/slides", "*.tif"))
+        image_list = glob(os.path.join(data_path, "slides", "*.tif"))
         image_list.sort()
     else:
         image_list = []
         for i in range(len(id_list)):
-            image_list += glob(os.path.join(f"polony/{i}/slides", "*.tif"))
+            image_list += glob(os.path.join(
+                data_path, str(i), "slides", "*.tif"
+            ))
 
         names_list = np.array([s.split("/")[-1] for s in image_list])
         sort_idx = names_list.argsort()
@@ -239,7 +241,7 @@ def generate_polony_data(
 
     # create training and validation HDF5 files
     train_h5, valid_h5 = create_empty_hdf5_files(
-        dataset_name="polony",
+        dataset_name=data_path,
         train_size=train_size,
         valid_size=valid_size,
         img_size=img_size,
@@ -359,10 +361,10 @@ def generate_polony_data(
 
     # cleanup
     if not all_files:
-        shutil.rmtree("polony/slides")
+        shutil.rmtree(os.path.join(data_path, "slides"))
     else:
         for i in range(len(id_list)):
-            shutil.rmtree(f"polony/{i}")
+            shutil.rmtree(os.path.join(data_path, str(i)))
 
 
 def main(args):
