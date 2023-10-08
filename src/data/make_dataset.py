@@ -211,9 +211,9 @@ def generate_polony_data(
     else:
         image_list = []
         for i in range(len(id_list)):
-            image_list += glob(os.path.join(
-                data_path, str(i), "slides", "*.tif"
-            ))
+            image_list += glob(
+                os.path.join(data_path, str(i), "slides", "*.tif")
+            )
 
         names_list = np.array([s.split("/")[-1] for s in image_list])
         sort_idx = names_list.argsort()

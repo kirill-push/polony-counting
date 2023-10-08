@@ -16,9 +16,7 @@ SQUARE_SIZE = (316, 316)
 MODEL_SIZE = SQUARE_SIZE
 
 JSON_PATH = os.path.abspath(
-    os.path.join(
-        "data", "dataset_files", "path_dict.json"
-    )
+    os.path.join("data", "dataset_files", "path_dict.json")
 )
 
 
