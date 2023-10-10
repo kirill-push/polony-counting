@@ -2,25 +2,31 @@ import hashlib
 import os
 import zipfile
 from glob import glob
-from typing import Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import cv2
 import gdown
 import numpy as np
+import yaml
 from PIL import Image
 from roifile import roiread
 from scipy.ndimage import gaussian_filter
 
-IMG_SIZE = (2450, 1438)
-SQUARE_SIZE = (316, 316)
-MODEL_SIZE = SQUARE_SIZE
+CONFIG_PATH = "src/config/config.yaml"
 
-JSON_PATH = os.path.abspath(
-    os.path.join("data", "dataset_files", "path_dict.json")
-)
+with open(CONFIG_PATH, "r") as file:
+    config = yaml.load(file, Loader=yaml.FullLoader)
 
 
-def remove_img_without_roi(location):
+def remove_img_without_roi(location: str, remove: bool = True) -> None:
+    """Find all images without roi data, write txt file with paths to problems.
+
+    Args:
+        location (str): dir with slides. In this location must be dir slides
+            and inside must be all slides.
+        remove (bool, optional): if True - remove all files without roi data.
+            Defaults to True.
+    """
     img_location = os.path.join(location, "slides")
     image_list = glob(os.path.join(img_location, "*.tif"))
 
@@ -31,20 +37,23 @@ def remove_img_without_roi(location):
             roiread(roi_path)[1]
         except Exception as e:
             print(f'Warning: "{e}". File {roi_path} was deleted')
-            os.remove(roi_path)
+            if remove:
+                os.remove(roi_path)
             error_list.append(roi_path)
             continue
-    with open("errors.txt", "w") as file:
-        for path in error_list:
-            file.write(path + "\n")
+    if error_list:
+        errors_path = os.path.join("data", "dataset_files", "errors.txt")
+        with open(errors_path, "w") as file:
+            for path in error_list:
+                file.write(path + "\n")
 
 
-def get_and_unzip(url: str, location: str):
+def get_and_unzip(url: str, location: str) -> None:
     """Extract a ZIP archive from given URL.
 
     Args:
-        url: url of a ZIP file
-        location: target location to extract archive in
+        url (str): google drive url id of a ZIP file
+        location (str): target location to extract archive in
     """
     dataset = gdown.download(id=url, fuzzy=True, output="polony.zip")
     dataset = zipfile.ZipFile(dataset)
@@ -54,9 +63,16 @@ def get_and_unzip(url: str, location: str):
     remove_img_without_roi(location)
 
 
-def read_tiff(path, new_size=None):
-    """
-    path - Path to the multipage-tiff file
+def read_tiff(path: str, new_size: Optional[Tuple[int]] = None) -> np.ndarray:
+    """Read tiff file from path, make resize and return numpy array wth image.
+
+    Args:
+        path (str): Path to the multipage-tiff file.
+        new_size (Optional[Tuple], optional): If not None - resize img
+            to new_size. Defaults to None.
+
+    Returns:
+        np.ndarray: Return numpy array with image
     """
     img = Image.open(path)
     images = []
@@ -71,7 +87,7 @@ def read_tiff(path, new_size=None):
 
 def get_roi_coordinates(
     roi_path: str, channel: Union[int, None] = None, counter: bool = False
-):
+) -> Union[np.ndarray, Tuple]:
     """
     From ROI file with image get arrays with coordinates
     Args:
@@ -79,15 +95,21 @@ def get_roi_coordinates(
         channel (Union[int, None], optional): for which channel of the image
         you need to return an array with coordinates.
             Defaults to None - for both. Can be 1 or 2
+        counter (False): return or not also array with points areas id
 
     Returns:
-        np.ndarray: Array with coordinates
+        np.ndarray or Tuple: Array with points coordinates
+            or if counter == True
+                tuple with 2 arrays: (point coordinates, point area id)
+            or if channel is None
+                point coordinates - tuple with two arrays
+                point area id - tuple with two arrays
     """
     try:
         img_roi = roiread(roi_path)[1]
     except ValueError as e:
         print(f'ERROR "{e}" in file {roi_path}')
-        os.remove(roi_path)
+        # os.remove(roi_path)
         raise (e)
     counter_positions = img_roi.counter_positions
     subpixel_coordinates = img_roi.subpixel_coordinates
@@ -96,7 +118,7 @@ def get_roi_coordinates(
         if channel is None:
             coordinates_1 = subpixel_coordinates[counter_positions == 1]
             coordinates_2 = subpixel_coordinates[counter_positions == 2]
-            return coordinates_1, coordinates_2
+            return (coordinates_1, coordinates_2)
         elif channel == 1 or channel == 2:
             return subpixel_coordinates[counter_positions == channel]
         else:
@@ -107,10 +129,14 @@ def get_roi_coordinates(
             coordinates_1 = subpixel_coordinates[counter_positions == 1]
             coordinates_2 = subpixel_coordinates[counter_positions == 2]
             return (
-                coordinates_1,
-                coordinates_2,
-                counters[counter_positions == 1],
-                counters[counter_positions == 2],
+                (
+                    coordinates_1,
+                    coordinates_2,
+                ),
+                (
+                    counters[counter_positions == 1],
+                    counters[counter_positions == 2],
+                ),
             )
         elif channel == 1 or channel == 2:
             return (
@@ -121,7 +147,23 @@ def get_roi_coordinates(
             raise ValueError("Invalid value for variable. Must be 1 or 2")
 
 
-def create_density_roi(coordinates, size=IMG_SIZE, new_size=None, channel=1):
+def create_density_roi(
+    coordinates: np.ndarray,
+    size: Tuple[int] = config["img_size"],
+    new_size: Optional[Tuple[int]] = None,
+) -> np.ndarray:
+    """Create density map by points coordinates
+
+    Args:
+        coordinates (np.ndarray): Points coordinates
+        size (Tuple[int], optional): Size of image.
+            Defaults to config['img_size'].
+        new_size (Optional[Tuple[int]], optional): Size for resize.
+            Defaults to None.
+
+    Returns:
+        np.ndarray: Output density map
+    """
     if new_size is not None:
         density = np.zeros(new_size, dtype=np.float32)
 
@@ -150,7 +192,17 @@ def create_density_roi(coordinates, size=IMG_SIZE, new_size=None, channel=1):
     return density
 
 
-def grid_to_squares(path):
+def grid_to_squares(path: str) -> List[Dict[str, Any]]:
+    """Make dict with squares and other data for model training
+        from original tiff file with image
+
+    Args:
+        path (str): path to tiff file with image
+
+    Returns:
+        List[Dict[str, Any]]: List with dicts. Each dict for square image and
+            training data for it
+    """
     # Uploading an image
     imgs = read_tiff(path)
     img = imgs[0]
@@ -220,7 +272,7 @@ def grid_to_squares(path):
             square_dict["n_points"] = len(square_points)
 
             square_dict["label"] = create_density_roi(
-                square_dict["points"], size=MODEL_SIZE
+                square_dict["points"], size=config["model_size"]
             )
             if square_dict["label"] is False:
                 print(
@@ -280,12 +332,6 @@ def bring_back_points(square_id, points, counters, x, y, square_size):
                 mistake_points[i][1] = y + square_size - 0.5
         true_points[points_anti_condition] = mistake_points
         return true_points
-
-
-def save_squares(location):
-    folder_to_save = os.path.join(location, "squares")
-    # create output folder if it does not exist
-    os.makedirs(folder_to_save, exist_ok=True)
 
 
 def count_data_size(image_list):
