@@ -48,8 +48,8 @@ def main(args):
     print("Creating temporary folder: {}".format(temp_folder))
 
     predictions = predict(
-        path=ARGS.path,
-        path_to_model=ARGS.path_to_model,
+        path=args.path,
+        path_to_model=args.path_to_model,
     )
 
     with open(os.path.join(temp_folder, "prediction"), "w") as file:
@@ -59,5 +59,5 @@ def main(args):
 
 
 if __name__ == "__main__":
-    ARGS = parser.parse_args()
-    main(ARGS)
+    args = parser.parse_args()
+    main(args)
