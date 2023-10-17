@@ -41,6 +41,30 @@ parser.add_argument(
     help="Percentage of the sample that is used for training",
 )
 
+parser.add_argument(
+    "--download",
+    "-d",
+    type=bool,
+    default=config["generate_polony_data"]["download"],
+    help="Download data or don't",
+)
+
+parser.add_argument(
+    "--path_to_data",
+    "-p",
+    type=str,
+    default=config.path_to_data,
+    help="Path to dir with data or to dir for download data",
+)
+
+parser.add_argument(
+    "--id_list_path",
+    "-i",
+    type=str,
+    default=config.id_list_path,
+    help="Path to file with id list for gdown download",
+)
+
 
 class PolonyDataset(Dataset):
     """PyTorch dataset for HDF5 files generated with `get_data.py`."""
