@@ -162,13 +162,13 @@ def create_empty_hdf5_files(
 
 
 def generate_polony_data(
-    id: str = config["generate_polony_data"]["id"],
+    download: bool = config["generate_polony_data"]["download"],
+    # id: str = config["generate_polony_data"]["id"],
     train_size: int = config["generate_polony_data"]["train_size"],
     new_size: Tuple[int] = config["generate_polony_data"]["new_size"],
-    download: bool = config["generate_polony_data"]["download"],
     data_root: str = config["generate_polony_data"]["data_root"],
     is_squares: bool = config["generate_polony_data"]["is_squares"],
-    all_files: bool = config["generate_polony_data"]["all_files"],
+    # all_files: bool = config["generate_polony_data"]["all_files"],
     id_list: Optional[Iterable[str]] = config["generate_polony_data"][
         "id_list"
     ],
@@ -188,13 +188,13 @@ def generate_polony_data(
     # download and extract dataset
     data_path = os.path.join(data_root, "polony")
     if download:
-        if id_list is None:
-            get_and_unzip(id, location=data_path)
-        else:
-            for i, id_to_zip in enumerate(id_list):
-                location = os.path.join(data_path, str(i))
-                get_and_unzip(id_to_zip, location=location)
-            delete_duplicates(data_path)
+        # if id_list is None:
+        #     get_and_unzip(id, location=data_path)
+        # else:
+        for i, id_to_zip in enumerate(id_list):
+            location = os.path.join(data_path, str(i))
+            get_and_unzip(id_to_zip, location=location)
+        delete_duplicates(data_path)
 
     if new_size is None:
         if is_squares:
@@ -205,19 +205,17 @@ def generate_polony_data(
         img_size = new_size
 
     # get the list of all samples and sort it
-    if not all_files:
-        image_list = glob(os.path.join(data_path, "slides", "*.tif"))
-        image_list.sort()
-    else:
-        image_list = []
-        for i in range(len(id_list)):
-            image_list += glob(
-                os.path.join(data_path, str(i), "slides", "*.tif")
-            )
+    # if not all_files:
+    #     image_list = glob(os.path.join(data_path, "slides", "*.tif"))
+    #     image_list.sort()
+    # else:
+    image_list = []
+    for i in range(len(id_list)):
+        image_list += glob(os.path.join(data_path, str(i), "slides", "*.tif"))
 
-        names_list = np.array([s.split("/")[-1] for s in image_list])
-        sort_idx = names_list.argsort()
-        image_list = np.array(image_list)[sort_idx]
+    names_list = np.array([s.split("/")[-1] for s in image_list])
+    sort_idx = names_list.argsort()
+    image_list = np.array(image_list)[sort_idx]
 
     if is_squares:
         # count the number of squares in all images that contain dots
@@ -360,11 +358,11 @@ def generate_polony_data(
     valid_h5.close()
 
     # cleanup
-    if not all_files:
-        shutil.rmtree(os.path.join(data_path, "slides"))
-    else:
-        for i in range(len(id_list)):
-            shutil.rmtree(os.path.join(data_path, str(i)))
+    # if not all_files:
+    #     shutil.rmtree(os.path.join(data_path, "slides"))
+    # else:
+    for i in range(len(id_list)):
+        shutil.rmtree(os.path.join(data_path, str(i)))
 
 
 def main(args):
