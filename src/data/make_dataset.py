@@ -390,12 +390,18 @@ def generate_polony_data(
 
 
 def main(args):
-    with open("id_list", "r") as f:
-        id_list = []
-        for line in f.readlines():
-            id_list.append(line.strip())
+    id_list = []
+    if args.download and os.path.exists(args.id_list_path):
+        with open(args.id_list_path, "r") as f:
+            for line in f.readlines():
+                id_list.append(line.strip())
+    elif args.download:
+        id_list = config.id_list
+
     generate_polony_data(
+        download=args.download,
         train_size=args.train_size,
+        id_list=id_list,
     )
 
 
