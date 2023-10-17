@@ -4,7 +4,7 @@ project: &project polony
 seed: 19
 img_size: &img_size [2450, 1438]
 img_channels: &img_channels 2
-json_path: &json_path data\dataset_files\path_dict.json
+json_path: &json_path data/dataset_files/path_dict.json
 square_size: [316, 316]
 model_size: &model_size [316, 316]
 model_architecture: &model_architecture UNet
@@ -19,11 +19,13 @@ id_list:
   - &id_polony1 1DhItO1ZGw1rXvYABff-bEumbAMRWifn0
   - &id_polony2 11laPuRsmkYpOI4BwGieXkxi6AC_hPZE1
   - &id_polony3 1M_Bjkwuv0a-Hiz3byLxyHdbnhCnyr2NX
+id_list_path: data/dataset_files/id_list
 device: &device cuda:0
 model_saving: &model_saving /kaggle/working/polony_49_1.7496.pth
 first_horizontal: 158
 first_vertical: 158
 number_of_lines: [8, 5]
+path_to_data: data/raw/
 
 # Function settings
 generate_polony_data:
@@ -31,7 +33,7 @@ generate_polony_data:
   train_size: 90
   new_size: *model_size
   download: true
-  data_root: .
+  data_root: D:\Temp
   is_squares: true
   all_files: true
   id_list: [*id_polony0, *id_polony1, *id_polony2, *id_polony3]
