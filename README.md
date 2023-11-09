@@ -6,14 +6,14 @@ Polony Counter is a protocol originally developed based on PCR for sequencing pu
 ### About the Project
 
 This project is a labor of love and a volunteer effort by me. I have a deep passion for advancing science and simplifying the work of researchers in the field. As a result, I have dedicated my time and expertise to develop and maintain the Polony Counter project with no financial compensation.
-
+<!-- 
 **Key Points:**
 
 - 🌟 Voluntary Contribution: This project is developed on a voluntary basis, driven by a commitment to contribute to the scientific community.
 
 - 💪 Sole Developer: I am the sole developer of this project, working tirelessly to make it accessible and useful for researchers worldwide.
 
-- 🆓 No Cost: The Polony Counter project is completely free and open-source, with no charges for its usage.
+- 🆓 No Cost: The Polony Counter project is completely free and open-source, with no charges for its usage. -->
 
 ### Overview
 
