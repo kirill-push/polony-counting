@@ -3,18 +3,6 @@
 
 Polony Counter is a protocol originally developed based on PCR for sequencing purposes. It has been further refined and adapted by Lindell's Lab at Technion (Haifa, Israel) for the specific task of quantifying viruses in marine water at the type/clade level. This means it goes beyond just counting "how many viruses" and provides precise information on "how many viruses of a particular type" are present in a given sample.
 
-### About the Project
-
-This project is a labor of love and a volunteer effort by me. I have a deep passion for advancing science and simplifying the work of researchers in the field. As a result, I have dedicated my time and expertise to develop and maintain the Polony Counter project with no financial compensation.
-<!-- 
-**Key Points:**
-
-- 🌟 Voluntary Contribution: This project is developed on a voluntary basis, driven by a commitment to contribute to the scientific community.
-
-- 💪 Sole Developer: I am the sole developer of this project, working tirelessly to make it accessible and useful for researchers worldwide.
-
-- 🆓 No Cost: The Polony Counter project is completely free and open-source, with no charges for its usage. -->
-
 ### Overview
 
 Analyzing 20-30 samples of marine water using the Polony Counter protocol typically takes 2.5 days. The process is divided into two main phases:
@@ -69,4 +57,16 @@ I would like to express my gratitude to Lindell's Lab at Technion for their pion
 ### License
 
 This project is open-source and released under the MIT License. Please refer to the project's LICENSE file for more details on licensing.
+<!-- 
+### About the Project
+
+This project is a labor of love and a volunteer effort by me. I have a deep passion for advancing science and simplifying the work of researchers in the field. As a result, I have dedicated my time and expertise to develop and maintain the Polony Counter project with no financial compensation.
+
+**Key Points:**
+
+- 🌟 Voluntary Contribution: This project is developed on a voluntary basis, driven by a commitment to contribute to the scientific community.
+
+- 💪 Sole Developer: I am the sole developer of this project, working tirelessly to make it accessible and useful for researchers worldwide.
+
+- 🆓 No Cost: The Polony Counter project is completely free and open-source, with no charges for its usage. -->
 
