@@ -29,9 +29,7 @@ CONFIG_PATH = "src/config/config.yaml"
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
-)
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument(
     "--train_size",
@@ -175,9 +173,7 @@ def create_empty_hdf5_files(
     # add two HDF5 datasets (images and labels) for each HDF5 file
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
         if h5 is not None:
-            h5.create_dataset(
-                "images", (size, in_channels, *config["square_size"])
-            )
+            h5.create_dataset("images", (size, in_channels, *config["square_size"]))
             h5.create_dataset("labels", (size, 1, *img_size))
             h5.create_dataset("n_points", (size, 1)),
             h5.create_dataset("path", (size, 1))
@@ -193,9 +189,7 @@ def generate_polony_data(
     data_root: str = config["generate_polony_data"]["data_root"],
     is_squares: bool = config["generate_polony_data"]["is_squares"],
     # all_files: bool = config["generate_polony_data"]["all_files"],
-    id_list: Optional[Iterable[str]] = config["generate_polony_data"][
-        "id_list"
-    ],
+    id_list: Optional[Iterable[str]] = config["generate_polony_data"]["id_list"],
     channels: int = config["generate_polony_data"]["channels"],
     evaluation: bool = config["generate_polony_data"]["evaluation"],
 ):
@@ -333,10 +327,7 @@ def generate_polony_data(
                 # get an image as numpy array
                 if new_size is None:
                     if channels == 1:
-                        image = (
-                            np.array(Image.open(img_path), dtype=np.float32)
-                            / 255
-                        )
+                        image = np.array(Image.open(img_path), dtype=np.float32) / 255
                     elif channels == 2:
                         image = read_tiff(img_path)
                 else:
