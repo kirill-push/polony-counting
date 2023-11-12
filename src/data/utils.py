@@ -42,7 +42,7 @@ def remove_img_without_roi(location: str, remove: bool = True) -> None:
             error_list.append(roi_path)
             continue
     if error_list:
-        errors_path = os.path.join("data", "dataset_files", "errors.txt")
+        errors_path = config["errors_path"]
         with open(errors_path, "w") as file:
             for path in error_list:
                 file.write(path + "\n")

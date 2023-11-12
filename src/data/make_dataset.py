@@ -51,7 +51,7 @@ parser.add_argument(
     "--path_to_data",
     "-p",
     type=str,
-    default=config.path_to_data,
+    default=config["path_to_data"],
     help="Path to dir with data or to dir for download data",
 )
 
@@ -59,7 +59,7 @@ parser.add_argument(
     "--id_list_path",
     "-i",
     type=str,
-    default=config.id_list_path,
+    default=config["id_list_path"],
     help="Path to file with id list for gdown download",
 )
 
@@ -135,6 +135,7 @@ def create_empty_hdf5_files(
     valid_size: int,
     img_size: Tuple[int, int],
     in_channels: int,
+    root_path: str,
 ):
     """
     Create empty training and validation HDF5 files (one file for training and
@@ -150,25 +151,27 @@ def create_empty_hdf5_files(
         valid_size: no. of validation samples
         img_size: (width, height) of a single image / density map
         in_channels: no. of channels of an input image
+        root_path: path to root dir for h5 files
 
     Returns:
         A tuple of pointers to training and validation HDF5 files.
     """
     # create output folder if it does not exist
-    os.makedirs(dataset_name, exist_ok=True)
+    dataset_path = os.path.join(root_path, dataset_name)
+    os.makedirs(dataset_path, exist_ok=True)
 
     # if files exist - delete them
-    if os.path.exists(os.path.join(dataset_name, "train.h5")):
-        os.remove(os.path.join(dataset_name, "train.h5"))
-    if os.path.exists(os.path.join(dataset_name, "valid.h5")):
-        os.remove(os.path.join(dataset_name, "valid.h5"))
+    if os.path.exists(os.path.join(dataset_path, "train.h5")):
+        os.remove(os.path.join(dataset_path, "train.h5"))
+    if os.path.exists(os.path.join(dataset_path, "valid.h5")):
+        os.remove(os.path.join(dataset_path, "valid.h5"))
 
-    # create HDF5 files: [dataset_name]/(train | valid).h5
+    # create HDF5 files: [dataset_path]/(train | valid).h5
     if train_size is not None:
-        train_h5 = h5py.File(os.path.join(dataset_name, "train.h5"), "w")
+        train_h5 = h5py.File(os.path.join(dataset_path, "train.h5"), "w")
     else:
         train_h5 = None
-    valid_h5 = h5py.File(os.path.join(dataset_name, "valid.h5"), "w")
+    valid_h5 = h5py.File(os.path.join(dataset_path, "valid.h5"), "w")
 
     # add two HDF5 datasets (images and labels) for each HDF5 file
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
@@ -192,6 +195,7 @@ def generate_polony_data(
     id_list: Optional[Iterable[str]] = config["generate_polony_data"]["id_list"],
     channels: int = config["generate_polony_data"]["channels"],
     evaluation: bool = config["generate_polony_data"]["evaluation"],
+    delete_data: bool = config["generate_polony_data"]["delete_data"],
 ):
     """
     Generate HDF5 files for polony dataset.
@@ -203,6 +207,8 @@ def generate_polony_data(
         download: bool - download data or no
         is_squares: bool - divide into squares or no
     """
+    if not download:
+        delete_data = False
     # download and extract dataset
     data_path = os.path.join(data_root, "polony")
     if download:
@@ -228,7 +234,7 @@ def generate_polony_data(
     #     image_list.sort()
     # else:
     image_list = []
-    for i in range(len(id_list)):
+    for i in range(len(os.listdir(data_path))):
         image_list += glob(os.path.join(data_path, str(i), "slides", "*.tif"))
 
     names_list = np.array([s.split("/")[-1] for s in image_list])
@@ -257,11 +263,12 @@ def generate_polony_data(
 
     # create training and validation HDF5 files
     train_h5, valid_h5 = create_empty_hdf5_files(
-        dataset_name=data_path,
+        dataset_name="polony",
         train_size=train_size,
         valid_size=valid_size,
         img_size=img_size,
         in_channels=channels,
+        root_path=data_root,
     )
 
     # creating a dictionary of paths to collect information in the process of
@@ -376,8 +383,9 @@ def generate_polony_data(
     # if not all_files:
     #     shutil.rmtree(os.path.join(data_path, "slides"))
     # else:
-    for i in range(len(id_list)):
-        shutil.rmtree(os.path.join(data_path, str(i)))
+    if delete_data:
+        for i in range(len(os.listdir(data_path))):
+            shutil.rmtree(os.path.join(data_path, str(i)))
 
 
 def main(args):
