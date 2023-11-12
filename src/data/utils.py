@@ -123,28 +123,27 @@ def get_roi_coordinates(
             return subpixel_coordinates[counter_positions == channel]
         else:
             raise ValueError("Invalid value for variable. Must be 1 or 2")
+    counters = img_roi.counters
+    if channel is None:
+        coordinates_1 = subpixel_coordinates[counter_positions == 1]
+        coordinates_2 = subpixel_coordinates[counter_positions == 2]
+        return (
+            (
+                coordinates_1,
+                coordinates_2,
+            ),
+            (
+                counters[counter_positions == 1],
+                counters[counter_positions == 2],
+            ),
+        )
+    elif channel == 1 or channel == 2:
+        return (
+            subpixel_coordinates[counter_positions == channel],
+            counters[counter_positions == channel],
+        )
     else:
-        counters = img_roi.counters
-        if channel is None:
-            coordinates_1 = subpixel_coordinates[counter_positions == 1]
-            coordinates_2 = subpixel_coordinates[counter_positions == 2]
-            return (
-                (
-                    coordinates_1,
-                    coordinates_2,
-                ),
-                (
-                    counters[counter_positions == 1],
-                    counters[counter_positions == 2],
-                ),
-            )
-        elif channel == 1 or channel == 2:
-            return (
-                subpixel_coordinates[counter_positions == channel],
-                counters[counter_positions == channel],
-            )
-        else:
-            raise ValueError("Invalid value for variable. Must be 1 or 2")
+        raise ValueError("Invalid value for variable. Must be 1 or 2")
 
 
 def create_density_roi(
