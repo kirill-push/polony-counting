@@ -1,4 +1,5 @@
 [![Linting](https://github.com/kirill-push/polony-counting/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/kirill-push/polony-counting/actions/workflows/lint.yml)
+[![Testing](https://github.com/kirill-push/polony-counting/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kirill-push/polony-counting/actions/workflows/test.yml)
 
 ## Project Description
 **Polony Counter**
