@@ -253,7 +253,6 @@ cython_debug/
 .vscode/
 
 # Project files
-/data/
 /docs/
 /checkpoints/
 /notebooks/
@@ -281,4 +280,8 @@ errors.txt
 polony/train.h5
 polony/valid.h5
 COMMIT.md
-resources/
+resources/dataset_files
+resources/external
+resources/interim
+resources/processed
+resources/raw/polony
