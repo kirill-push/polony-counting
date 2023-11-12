@@ -280,7 +280,9 @@ errors.txt
 polony/train.h5
 polony/valid.h5
 COMMIT.md
-resources/dataset_files
+resources/dataset_files/id_list
+resources/dataset_files/errors.txt
+
 resources/external
 resources/interim
 resources/processed
