@@ -255,7 +255,7 @@ cython_debug/
 # Project files
 /data/
 /docs/
-/models/
+/checkpoints/
 /notebooks/
 /references/
 /reports/
@@ -280,4 +280,5 @@ run_model.py
 errors.txt
 polony/train.h5
 polony/valid.h5
-.commit
+COMMIT.md
+resources/
