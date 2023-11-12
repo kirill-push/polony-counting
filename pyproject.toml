@@ -6,6 +6,7 @@ authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
 packages = [
  { include = "*", from = "src" },
+ { include = "tests"},
 ]
 license = "MIT"
 homepage = "https://github.com/kirill-push/polony-counting"
@@ -73,6 +74,10 @@ warn_return_any = false
 warn_unreachable = true
 # Misc
 pretty = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider" # deactivating pytest caching.
 
 [tool.poetry.scripts]
 fix = "poetry_fix:main"
