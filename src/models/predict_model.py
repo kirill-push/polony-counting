@@ -23,9 +23,7 @@ import tempfile
 from utils import predict
 
 # Configuring Argument parser
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
-)
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument(
     "--path",

@@ -131,9 +131,7 @@ class Looper:
                 for true_counts, predicted_counts in zip(n_points, result):
                     # update current epoch results
                     self.true_values.append(true_counts.item())
-                    self.predicted_values.append(
-                        torch.round(predicted_counts).item()
-                    )
+                    self.predicted_values.append(torch.round(predicted_counts).item())
 
         # calculate errors and standard deviation
         self.update_errors()
@@ -259,9 +257,7 @@ def predict(
         print("Files and folders in the directory:")
         for image_path in images:
             predictions.append(
-                predict_one_image(
-                    image_path, path_to_model, model, device, channels
-                )
+                predict_one_image(image_path, path_to_model, model, device, channels)
             )
     else:
         predictions.append(

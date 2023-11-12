@@ -25,7 +25,8 @@ model_saving: &model_saving /kaggle/working/polony_49_1.7496.pth
 first_horizontal: 158
 first_vertical: 158
 number_of_lines: [8, 5]
-path_to_data: data/raw/
+path_to_data: resources/raw/
+errors_path: resources/dataset_files/errors.txt
 
 # Function settings
 generate_polony_data:
@@ -39,6 +40,7 @@ generate_polony_data:
   id_list: [*id_polony0, *id_polony1, *id_polony2, *id_polony3]
   channels: *img_channels
   evaluation: false
+  delete_data: true
 
 read_tiff:
   new_size: null

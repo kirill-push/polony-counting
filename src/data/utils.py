@@ -42,7 +42,7 @@ def remove_img_without_roi(location: str, remove: bool = True) -> None:
             error_list.append(roi_path)
             continue
     if error_list:
-        errors_path = os.path.join("data", "dataset_files", "errors.txt")
+        errors_path = config["errors_path"]
         with open(errors_path, "w") as file:
             for path in error_list:
                 file.write(path + "\n")
@@ -217,9 +217,7 @@ def grid_to_squares(path: str) -> List[Dict[str, Any]]:
         counter=True,
     )
 
-    lines_coordinates = (
-        img_roi[0].multi_coordinates.reshape(-1, 6).astype(int)[:, 1:3]
-    )
+    lines_coordinates = img_roi[0].multi_coordinates.reshape(-1, 6).astype(int)[:, 1:3]
 
     # square size
     square_size = lines_coordinates[1, 0] - lines_coordinates[0, 0]
@@ -301,9 +299,7 @@ def bring_back_points(square_id, points, counters, x, y, square_size):
     Return:
         list of correct points of square with square_id
     """
-    true_points = points[
-        counters == square_id
-    ]  # square points by id of square
+    true_points = points[counters == square_id]  # square points by id of square
     points_condition = (
         (true_points[:, 1] >= y)
         & (true_points[:, 1] < y + square_size)

@@ -1,12 +1,8 @@
-import os
-import shutil
-import tempfile
-import unittest
-from typing import Dict, List, Tuple
-
 import numpy as np
+import pytest
 import yaml
 
+from data.make_dataset import generate_polony_data
 from data.utils import (
     create_density_roi,
     get_and_unzip,
@@ -22,83 +18,64 @@ with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
 
 
-class TestTest(unittest.TestCase):
-    def setUp(self):
-        self.temp_folder = tempfile.mkdtemp(dir=os.path.join("D:", "Temp"))
-        self.path_to_roi_img = "data/raw/slides/test_img.tif"
+def test_remove_img_without_roi(tmp_path):
+    generate_polony_data(
+        data_root=tmp_path,
+        id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
+        delete_data=False,
+    )
+    remove_img_without_roi(location=tmp_path, remove=False)
 
-    def test_remove_img_without_roi(self):
-        remove_img_without_roi(location="data/raw", remove=False)
 
-    def test_get_and_unzip(self):
-        get_and_unzip(
-            url="1DhItO1ZGw1rXvYABff-bEumbAMRWifn0", location=self.temp_folder
-        )
+def test_get_and_unzip(tmp_path):
+    get_and_unzip(url="11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS", location=tmp_path)
 
-    def test_read_tiff(self):
-        img_with_new_size = read_tiff(
-            path=self.path_to_roi_img,
-            new_size=(10, 10),
-        )
-        self.assertEqual(img_with_new_size.shape[1:], (10, 10))
-        self.assertIsInstance(img_with_new_size, np.ndarray)
 
-        img_without_new_size = read_tiff(
-            path=self.path_to_roi_img,
-            new_size=None,
-        )
-        self.assertIsInstance(img_without_new_size, np.ndarray)
+def test_read_tiff():
+    path_to_roi_img = "resources/raw/test/test_img.tif"
+    img_with_new_size = read_tiff(path=path_to_roi_img, new_size=(10, 10))
+    assert img_with_new_size.shape[1:] == (10, 10)
+    assert isinstance(img_with_new_size, np.ndarray)
 
-    def test_get_roi_coordinates(self):
-        for channel in [None, 1, 2]:
-            for counter in [True, False]:
-                ans = get_roi_coordinates(
-                    roi_path=self.path_to_roi_img,
-                    channel=channel,
-                    counter=counter,
-                )
-                if counter:
-                    self.assertIsInstance(ans, Tuple)
-                    self.assertEqual(len(ans), 2)
-                elif channel is None:
-                    self.assertIsInstance(ans, Tuple)
-                else:
-                    self.assertIsInstance(ans, np.ndarray)
+    img_without_new_size = read_tiff(path=path_to_roi_img, new_size=None)
+    assert isinstance(img_without_new_size, np.ndarray)
 
-    def test_create_density_roi(self):
-        coordinates = get_roi_coordinates(
-            roi_path=self.path_to_roi_img,
-            channel=1,
-            counter=False,
-        )
-        for new_size in [(200, 200), (10, 10), None]:
-            density = create_density_roi(
-                coordinates=coordinates, new_size=new_size
-            )
-            if new_size is not None:
-                self.assertEqual(density.shape, new_size)
-            else:
-                self.assertEqual(density.shape, tuple(config["img_size"]))
 
-    def test_grid_to_squares(self):
-        list_with_dicts = grid_to_squares(path=self.path_to_roi_img)
-        self.assertIsInstance(list_with_dicts, List)
-        self.assertIsInstance(list_with_dicts[0], Dict)
+@pytest.mark.parametrize("channel", [None, 1, 2])
+@pytest.mark.parametrize("counter", [True, False])
+def test_get_roi_coordinates(channel, counter):
+    path_to_roi_img = "resources/raw/test/test_img.tif"
+    ans = get_roi_coordinates(
+        roi_path=path_to_roi_img,
+        channel=channel,
+        counter=counter,
+    )
+    if counter:
+        assert isinstance(ans, tuple)
+        assert len(ans) == 2
+    elif channel is None:
+        assert isinstance(ans, tuple)
+    else:
+        assert isinstance(ans, np.ndarray)
 
-    def test_bring_back_points(self):
-        ...
 
-    def test_count_data_size(self):
-        ...
+@pytest.mark.parametrize("new_size", [(200, 200), (10, 10), None])
+def test_create_density_roi(new_size):
+    path_to_roi_img = "resources/raw/test/test_img.tif"
+    coordinates = get_roi_coordinates(
+        roi_path=path_to_roi_img,
+        channel=1,
+        counter=False,
+    )
+    density = create_density_roi(coordinates=coordinates, new_size=new_size)
+    if new_size is not None:
+        assert density.shape == new_size
+    else:
+        assert density.shape == tuple(config["img_size"])
 
-    def test_rgb_to_gray(self):
-        ...
 
-    def test_mean_std(self):
-        ...
-
-    def test_delete_duplicates(self):
-        ...
-
-    def tearDown(self):
-        shutil.rmtree(self.temp_folder)
+def test_grid_to_squares():
+    path_to_roi_img = "resources/raw/test/test_img.tif"
+    list_with_dicts = grid_to_squares(path=path_to_roi_img)
+    assert isinstance(list_with_dicts, list)
+    assert isinstance(list_with_dicts[0], dict)
