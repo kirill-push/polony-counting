@@ -83,7 +83,8 @@ addopts = "-p no:cacheprovider" # deactivating pytest caching.
 
 [tool.coverage.report]
 exclude_lines = [
-    'if __name__ == "__main__":'
+    'if __name__ == "__main__":',
+    '__version__'
 ]
 
 [tool.poetry.scripts]
