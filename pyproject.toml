@@ -86,6 +86,3 @@ exclude_lines = [
     'if __name__ == "__main__":',
     '__version__'
 ]
-
-[tool.poetry.scripts]
-fix = "poetry_fix:main"
