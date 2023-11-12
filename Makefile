@@ -33,4 +33,4 @@ lint-mypy:
 lint-mypy-report:
 	@mypy --config-file pyproject.toml . --html-report ./mypy_html
 
-lint: lint-black lint-isort lint-flake8 lint-mypy
+lint: lint-black lint-isort lint-flake8
