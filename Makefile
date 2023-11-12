@@ -39,3 +39,25 @@ lint-mypy-report: # run mypy & create report
 	@mypy --config-file pyproject.toml . --html-report ./mypy_html
 
 lint: lint-black lint-isort lint-flake8 ## run all linters without mypy
+
+##@ Testing
+
+.PHONY: unit-tests
+unit-tests:
+	@pytest
+
+.PHONY: unit-tests-cov
+unit-tests-cov: ## run unit-tests with coverage
+	@pytest --cov=src --cov-report term-missing --cov-report=html
+
+.PHONY: unit-tests-cov-fail
+unit-tests-cov-fail: ## run unit-tests with coverage and cov-fail level
+	@pytest --cov=src --cov-report term-missing --cov-report=html --cov-fail-under=80 --junitxml=pytest.xml | tee pytest-coverage.txt
+
+##@ Clean-up
+
+clean-cov: ## run cleaning from reports
+	@rm -rf .coverage
+	@rm -rf htmlcov
+	@rm -rf pytest.xml
+	@rm -rf pytest-coverage.txt
