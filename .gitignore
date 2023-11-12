@@ -266,7 +266,6 @@ src/features/
 src/visualization/
 .gitlab-ci.yml
 #LICENSE
-Makefile
 requirements.txt
 setup.py
 test_environment.py
@@ -281,3 +280,4 @@ run_model.py
 errors.txt
 polony/train.h5
 polony/valid.h5
+.commit
