@@ -110,7 +110,7 @@ def get_roi_coordinates(
     except ValueError as e:
         print(f'ERROR "{e}" in file {roi_path}')
         # os.remove(roi_path)
-        raise (e)
+        raise e
     counter_positions = img_roi.counter_positions
     subpixel_coordinates = img_roi.subpixel_coordinates
 
