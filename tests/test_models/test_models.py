@@ -11,3 +11,11 @@ def test_forward_pass():
     output = nn(input_data)
 
     assert output.shape == (1, 1, 316, 316)
+
+
+def test_forward_pass_with_res():
+    nn = UNet(input_filters=2, res=True).to(device)
+    input_data = torch.rand((1, 2, 316, 316)).to(device)
+    output = nn(input_data)
+
+    assert output.shape == (1, 1, 316, 316)
