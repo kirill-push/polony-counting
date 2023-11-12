@@ -254,7 +254,6 @@ cython_debug/
 
 # Project files
 /docs/
-/checkpoints/
 /notebooks/
 /references/
 /reports/
@@ -282,8 +281,9 @@ polony/valid.h5
 COMMIT.md
 resources/dataset_files/id_list
 resources/dataset_files/errors.txt
-
 resources/external
 resources/interim
 resources/processed
 resources/raw/polony
+checkpoints/polony_49_1.7496.pth
+checkpoints/polony_64_1.8386.pth
