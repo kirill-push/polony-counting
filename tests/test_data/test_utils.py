@@ -36,7 +36,7 @@ def test_get_and_unzip(tmp_path):
 
 
 def test_read_tiff():
-    path_to_roi_img = "resources/raw/slides/test_img.tif"
+    path_to_roi_img = "resources/raw/test/test_img.tif"
     img_with_new_size = read_tiff(path=path_to_roi_img, new_size=(10, 10))
     assert img_with_new_size.shape[1:] == (10, 10)
     assert isinstance(img_with_new_size, np.ndarray)
@@ -48,7 +48,7 @@ def test_read_tiff():
 @pytest.mark.parametrize("channel", [None, 1, 2])
 @pytest.mark.parametrize("counter", [True, False])
 def test_get_roi_coordinates(channel, counter):
-    path_to_roi_img = "resources/raw/slides/test_img.tif"
+    path_to_roi_img = "resources/raw/test/test_img.tif"
     ans = get_roi_coordinates(
         roi_path=path_to_roi_img,
         channel=channel,
@@ -65,7 +65,7 @@ def test_get_roi_coordinates(channel, counter):
 
 @pytest.mark.parametrize("new_size", [(200, 200), (10, 10), None])
 def test_create_density_roi(new_size):
-    path_to_roi_img = "resources/raw/slides/test_img.tif"
+    path_to_roi_img = "resources/raw/test/test_img.tif"
     coordinates = get_roi_coordinates(
         roi_path=path_to_roi_img,
         channel=1,
@@ -79,7 +79,7 @@ def test_create_density_roi(new_size):
 
 
 def test_grid_to_squares():
-    path_to_roi_img = "resources/raw/slides/test_img.tif"
+    path_to_roi_img = "resources/raw/test/test_img.tif"
     list_with_dicts = grid_to_squares(path=path_to_roi_img)
     assert isinstance(list_with_dicts, list)
     assert isinstance(list_with_dicts[0], dict)
