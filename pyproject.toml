@@ -39,6 +39,7 @@ flake8 = "^6.1.0"
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
 hypothesis = "^6.87.3"
+pytest-cov = "^4.1.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -78,6 +79,11 @@ pretty = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-p no:cacheprovider" # deactivating pytest caching.
+
+[tool.coverage.report]
+exclude_lines = [
+    'if __name__ == "__main__":'
+]
 
 [tool.poetry.scripts]
 fix = "poetry_fix:main"
