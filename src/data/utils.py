@@ -315,19 +315,18 @@ def bring_back_points(square_id, points, counters, x, y, square_size):
         np.sum(points_anti_condition) == 0
     ):  # check if we don't have any points out of square
         return true_points  # return list of square_points
-    else:
-        mistake_points = true_points[points_anti_condition]
-        for i, (p_x, p_y) in enumerate(mistake_points):
-            if p_x < x:
-                mistake_points[i][0] = x
-            if p_x >= x + square_size:
-                mistake_points[i][0] = x + square_size - 0.5
-            if p_y < y:
-                mistake_points[i][1] = y
-            if p_y >= y + square_size:
-                mistake_points[i][1] = y + square_size - 0.5
-        true_points[points_anti_condition] = mistake_points
-        return true_points
+    mistake_points = true_points[points_anti_condition]
+    for i, (p_x, p_y) in enumerate(mistake_points):
+        if p_x < x:
+            mistake_points[i][0] = x
+        if p_x >= x + square_size:
+            mistake_points[i][0] = x + square_size - 0.5
+        if p_y < y:
+            mistake_points[i][1] = y
+        if p_y >= y + square_size:
+            mistake_points[i][1] = y + square_size - 0.5
+    true_points[points_anti_condition] = mistake_points
+    return true_points
 
 
 def count_data_size(image_list):
