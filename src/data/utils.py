@@ -137,7 +137,7 @@ def get_roi_coordinates(
                 counters[counter_positions == 2],
             ),
         )
-    elif channel == 1 or channel == 2:
+    if channel == 1 or channel == 2:
         return (
             subpixel_coordinates[counter_positions == channel],
             counters[counter_positions == channel],
