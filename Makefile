@@ -43,7 +43,7 @@ lint: lint-black lint-isort lint-flake8 ## run all linters without mypy
 ##@ Testing
 
 .PHONY: unit-tests
-unit-tests:
+unit-tests: ## run unit-tests
 	@pytest
 
 .PHONY: unit-tests-cov
