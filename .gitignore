@@ -264,7 +264,6 @@ src/features/
 #src/models/predict_model.py
 #src/models/train_model.py
 src/visualization/
-.flake8
 .gitlab-ci.yml
 #LICENSE
 Makefile
