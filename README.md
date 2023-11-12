@@ -1,3 +1,5 @@
+[![Linting](https://github.com/kirill-push/polony-counting/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/kirill-push/polony-counting/actions/workflows/lint.yml)
+
 ## Project Description
 **Polony Counter**
 

@@ -44,7 +44,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 79
+line-length = 88
 
 [tool.isort]
 profile = "black"
@@ -73,10 +73,6 @@ warn_return_any = false
 warn_unreachable = true
 # Misc
 pretty = true
-
-[tool.flake8]
-max-line-length = 79
-ignore = ["E203", "W503", "C901"]
 
 [tool.poetry.scripts]
 fix = "poetry_fix:main"
