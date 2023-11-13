@@ -281,7 +281,7 @@ polony/valid.h5
 COMMIT.md
 resources/dataset_files/id_list
 resources/dataset_files/errors.txt
-resources/dataset_files/path_dict.json
+# resources/dataset_files/path_dict.json
 resources/external
 resources/interim
 resources/processed
