@@ -56,10 +56,10 @@ unit-tests-cov-fail: ## run unit-tests with coverage and cov-fail level
 
 ##@ Documentation
 docs-build: ## build documentation locally
-   @mkdocs build
+	@mkdocs build
 
 docs-deploy: ## build & deploy documentation to "gh-pages" branch
-   @mkdocs gh-deploy -m "docs: update documentation" -v --force
+	@mkdocs gh-deploy -m "docs: update documentation" -v --force
 
 ##@ Clean-up
 
@@ -70,4 +70,4 @@ clean-cov: ## run cleaning from reports
 	@rm -rf pytest-coverage.txt
 
 clean-docs: ## remove output files from mkdocs
-   @rm -rf site
+	@rm -rf site
