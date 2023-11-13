@@ -253,7 +253,7 @@ cython_debug/
 .vscode/
 
 # Project files
-/docs/
+docs/.old
 /notebooks/
 /references/
 /reports/
