@@ -23,6 +23,7 @@ def test_remove_img_without_roi(tmp_path):
         data_root=tmp_path,
         id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
         delete_data=False,
+        is_path=False,
     )
     remove_img_without_roi(location=tmp_path, remove=False)
 

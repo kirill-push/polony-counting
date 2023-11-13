@@ -28,5 +28,6 @@ def test_generate_polony_data(tmp_path):
         data_root=tmp_path,
         id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
         delete_data=False,
+        is_path=False,
     )
     assert os.path.exists(os.path.join(tmp_path, "polony"))
