@@ -196,6 +196,7 @@ def generate_polony_data(
     channels: int = config["generate_polony_data"]["channels"],
     evaluation: bool = config["generate_polony_data"]["evaluation"],
     delete_data: bool = config["generate_polony_data"]["delete_data"],
+    is_path: bool = config["generate_polony_data"]["is_path"],
 ):
     """
     Generate HDF5 files for polony dataset.
@@ -370,9 +371,10 @@ def generate_polony_data(
             fill_h5(train_h5, image_list[:train_size])
         fill_h5(valid_h5, image_list[train_size:])
 
-    # writing a path_dict to a json file for further use
-    with open(config["json_path"], "w") as file:
-        json.dump(path_dict, file)
+    if is_path:
+        # writing a path_dict to a json file for further use
+        with open(config["json_path"], "w") as file:
+            json.dump(path_dict, file)
 
     # close HDF5 files
     if train_h5 is not None:

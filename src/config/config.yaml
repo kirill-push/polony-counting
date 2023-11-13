@@ -41,6 +41,7 @@ generate_polony_data:
   channels: *img_channels
   evaluation: false
   delete_data: true
+  is_path: true
 
 read_tiff:
   new_size: null
