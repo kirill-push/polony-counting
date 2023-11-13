@@ -193,9 +193,7 @@ class Config(dict):
     def __getattr__(self, key):
         if key in self:
             return self[key]
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{key}'"
-        )
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{key}'")
 
 
 def evaluate(
