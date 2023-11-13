@@ -54,6 +54,13 @@ unit-tests-cov: ## run unit-tests with coverage
 unit-tests-cov-fail: ## run unit-tests with coverage and cov-fail level
 	@pytest --cov=src --cov-report term-missing --cov-report=html --cov-fail-under=50 --junitxml=pytest.xml | tee pytest-coverage.txt
 
+##@ Documentation
+docs-build: ## build documentation locally
+	@mkdocs build
+
+docs-deploy: ## build & deploy documentation to "gh-pages" branch
+	@mkdocs gh-deploy -m "docs: update documentation" -v --force
+
 ##@ Clean-up
 
 clean-cov: ## run cleaning from reports
@@ -61,3 +68,6 @@ clean-cov: ## run cleaning from reports
 	@rm -rf htmlcov
 	@rm -rf pytest.xml
 	@rm -rf pytest-coverage.txt
+
+clean-docs: ## remove output files from mkdocs
+	@rm -rf site
