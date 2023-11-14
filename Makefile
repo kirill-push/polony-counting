@@ -68,6 +68,7 @@ clean-cov: ## run cleaning from reports
 	@rm -rf htmlcov
 	@rm -rf pytest.xml
 	@rm -rf pytest-coverage.txt
+	@rm -rf coverage.xml
 
 clean-docs: ## remove output files from mkdocs
 	@rm -rf site
