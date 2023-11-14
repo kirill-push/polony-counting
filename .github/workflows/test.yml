@@ -49,5 +49,5 @@ jobs:
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: /home/runner/work/mdopt/mdopt/coverage.xml
+          files: /home/runner/work/polony-counting/coverage.xml
           verbose: true
