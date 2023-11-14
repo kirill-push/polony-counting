@@ -1,10 +1,9 @@
 ---
-    name: Deploy Documentation
+    name: Documentation
     
     on:
-      push:
-        branches:
-          - main
+      release:
+        types: [published]
     
     jobs:
       deploy-documentation:
