@@ -52,7 +52,7 @@ unit-tests-cov: ## run unit-tests with coverage
 
 .PHONY: unit-tests-cov-fail
 unit-tests-cov-fail: ## run unit-tests with coverage and cov-fail level
-	@pytest --cov=src --cov-report term-missing --cov-report=html --cov-fail-under=50 --junitxml=pytest.xml | tee pytest-coverage.txt
+	@pytest --cov=src --cov-report term-missing --cov-report=xml --cov-fail-under=50 --junitxml=pytest.xml | tee pytest-coverage.txt
 
 ##@ Documentation
 docs-build: ## build documentation locally
