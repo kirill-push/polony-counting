@@ -87,9 +87,6 @@ pretty = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-p no:cacheprovider" # deactivating pytest caching.
-filterwarnings = [
-    "ignore::DeprecationWarning:wandb.sdk.launch.builder.build",
-]
 
 [tool.coverage.report]
 exclude_lines = [
