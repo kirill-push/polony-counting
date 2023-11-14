@@ -1,6 +1,7 @@
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/kirill-push/polony-counting?sort=semver&color=brightgreen)
 [![Linting](https://github.com/kirill-push/polony-counting/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/kirill-push/polony-counting/actions/workflows/lint.yml)
 [![Testing](https://github.com/kirill-push/polony-counting/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kirill-push/polony-counting/actions/workflows/test.yml)
+[![Documentation](https://github.com/kirill-push/polony-counting/actions/workflows/pages.yml/badge.svg)](https://github.com/kirill-push/polony-counting/actions/workflows/pages.yml)
 
 ## Project Description
 **Polony Counter**
