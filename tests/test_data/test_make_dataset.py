@@ -79,7 +79,7 @@ def test_length(mock_hdf5, mock_json) -> None:
 
 
 # Test for getitem method
-@pytest.mark.parametrize("flip", [0.0, 0.5])
+@pytest.mark.parametrize("flip", [0.0, 1.0])
 def test_getitem(mock_hdf5, mock_json, flip) -> None:
     dataset = PolonyDataset(mock_hdf5, flip, flip, False, mock_json)
     image, label, n_points, path = dataset[0]
