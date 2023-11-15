@@ -305,7 +305,7 @@ def generate_polony_data(
             if i not in path_dict:
                 path_dict[i] = img_path
             if is_squares:
-                squares_list = grid_to_squares(img_path)
+                squares_list = grid_to_squares(img_path, new_size=new_size)
                 for tt, square_dict in enumerate(squares_list):
                     if channels == 1:
                         image = square_dict["square"]
