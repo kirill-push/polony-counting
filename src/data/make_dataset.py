@@ -386,8 +386,11 @@ def generate_polony_data(
     #     shutil.rmtree(os.path.join(data_path, "slides"))
     # else:
     if delete_data:
-        for i in range(len(os.listdir(data_path))):
-            shutil.rmtree(os.path.join(data_path, str(i)))
+        try:
+            for i in range(len(os.listdir(data_path))):
+                shutil.rmtree(os.path.join(data_path, str(i)))
+        except FileNotFoundError:
+            print("File already was deleted")
 
 
 def main(args):
