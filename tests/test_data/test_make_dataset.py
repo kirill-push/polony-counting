@@ -25,8 +25,9 @@ def mock_download():
         yield
 
 
+@pytest.mark.parametrize("is_squares", [True, False])
 @pytest.mark.parametrize("evaluation", [True, False])
-def test_generate_polony_data(tmp_path, mock_download, evaluation) -> None:
+def test_generate_polony_data(tmp_path, mock_download, is_squares, evaluation) -> None:
     # Create the directory if it doesn't exist
     os.makedirs(os.path.join(tmp_path, "polony"), exist_ok=True)
     open(os.path.join(tmp_path, "polony", "valid.h5"), "w").close()
@@ -37,7 +38,8 @@ def test_generate_polony_data(tmp_path, mock_download, evaluation) -> None:
         delete_data=False,
         is_path=False,
         download=True,
-        evaluation=evaluation
+        is_squares=is_squares,
+        evaluation=evaluation,
     )
     assert os.path.exists(os.path.join(tmp_path, "polony"))
 
