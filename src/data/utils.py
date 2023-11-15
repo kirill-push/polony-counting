@@ -191,12 +191,36 @@ def create_density_roi(
     return density
 
 
-def grid_to_squares(path: str) -> List[Dict[str, Any]]:
+def reshape_numpy(arr: np.ndarray, new_size: List[int]) -> np.ndarray:
+    """Reshape numpy arrays (3d and 2d)
+
+    Args:
+        arr (np.ndarray): source vector
+        new_size (List[int]): new size to reshape
+
+    Returns:
+        np.ndarray: numpy array after reshape to new_size
+    """
+    dim = len(arr.shape)
+    if dim not in [2, 3]:
+        raise ValueError("Shape mismatch")
+    h, w = new_size[::-1]
+    if dim == 3:
+        new_arr = np.transpose(arr, (1, 2, 0))
+        new_arr = cv2.resize(new_arr, (w, h))
+        return np.transpose(new_arr, (2, 0, 1))
+    return cv2.resize(arr, (w, h))
+
+
+def grid_to_squares(
+    path: str, new_size: Optional[List[int]] = None
+) -> List[Dict[str, Any]]:
     """Make dict with squares and other data for model training
         from original tiff file with image
 
     Args:
         path (str): path to tiff file with image
+        new_size (List[int] | None): new_size for squares
 
     Returns:
         List[Dict[str, Any]]: List with dicts. Each dict for square image and
@@ -258,8 +282,13 @@ def grid_to_squares(path: str) -> List[Dict[str, Any]]:
             square = img[y : y + square_size, x : x + square_size]
             square_2c = imgs[:, y : y + square_size, x : x + square_size]
 
-            square_dict["square"] = square
-            square_dict["square_2c"] = square_2c
+            if new_size is None:
+                square_dict["square"] = square
+                square_dict["square_2c"] = square_2c
+            else:
+                square = np.transpose(square)
+                square_dict["square"] = reshape_numpy(square, new_size)
+                square_dict["square_2c"] = reshape_numpy(square_2c, new_size)
             square_dict["points"] = square_points - np.array(
                 [x, y]
             )  # points in relative coordinates for a given square
@@ -269,7 +298,7 @@ def grid_to_squares(path: str) -> List[Dict[str, Any]]:
             square_dict["n_points"] = len(square_points)
 
             square_dict["label"] = create_density_roi(
-                square_dict["points"], size=config["model_size"]
+                square_dict["points"], size=[square_size] * 2, new_size=new_size
             )
             if square_dict["label"] is False:
                 print(
