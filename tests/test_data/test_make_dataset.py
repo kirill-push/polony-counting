@@ -38,7 +38,7 @@ def test_generate_polony_data(
     generate_polony_data(
         data_root=tmp_path,
         id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
-        delete_data=False,
+        delete_data=True,
         is_path=False,
         download=True,
         is_squares=is_squares,
