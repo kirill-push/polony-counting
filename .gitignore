@@ -288,3 +288,5 @@ resources/processed
 resources/raw/polony
 checkpoints/polony_49_1.7496.pth
 checkpoints/polony_64_1.8386.pth
+
+.python-version
