@@ -9,7 +9,7 @@ packages = [
  {include = "tests"},
 ]
 license = "MIT"
-homepage = "https://github.com/kirill-push/polony-counting"
+homepage = "https://kirill-push.github.io/polony-counting/"
 repository = "https://github.com/kirill-push/polony-counting"
 
 [tool.poetry.dependencies]
