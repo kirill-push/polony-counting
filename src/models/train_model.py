@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 import wandb
+import yaml
 from torch import nn
 from torchvision import transforms
 
@@ -10,6 +11,13 @@ from data.make_dataset import PolonyDataset
 from data.utils import mean_std
 from models.models import UNet
 from models.utils import Config, Looper
+
+# folder to load config file
+CONFIG_PATH = "src/config/config.yaml"
+
+with open(CONFIG_PATH, "r") as file:
+    config = yaml.load(file, Loader=yaml.FullLoader)
+train_params = config["train"]
 
 
 def train(
@@ -24,10 +32,10 @@ def train(
     convolutions: int,
     lr_patience: int,
     input_channels: int,
-    loss=nn.MSELoss(),
-    wandb_bool=False,
-    factor=0.5,
-    res=False,
+    loss: nn.MSELoss = nn.MSELoss(),
+    wandb_bool: bool = False,
+    factor: float = 0.5,
+    res: bool = False,
 ):
     """Train chosen model on selected dataset."""
     # use GPU if avilable
@@ -177,3 +185,8 @@ def train(
     torch.save(network.state_dict(), f"{dataset_name}_last.pth")
     if wandb_bool:
         run.finish()
+
+
+if __name__ == "__main__":
+    print("Training parameters were taken from the config file")
+    train(**train_params)
