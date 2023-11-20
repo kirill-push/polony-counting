@@ -16,8 +16,8 @@ from models.utils import Config, Looper
 CONFIG_PATH = "src/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
-    config = yaml.load(file, Loader=yaml.FullLoader)
-train_params = config["train"]
+    config_yaml = yaml.load(file, Loader=yaml.FullLoader)
+train_params = config_yaml["train"]
 
 
 def train(
@@ -79,13 +79,13 @@ def train(
 
     for mode in ["train", "valid"]:
         # expected HDF5 files in dataset_name/(train | valid).h5
-        data_path = os.path.join(dataset_name, f"{mode}.h5")
         # turn on flips only for training dataset
-        dataset[mode] = PolonyDataset(
-            data_path,
-            horizontal_flip if mode == "train" else 0,
-            vertical_flip if mode == "train" else 0,
+        polony_dataset_params = (
+            config_yaml["PolonyDataset_train"]
+            if mode == "train"
+            else config_yaml["PolonyDataset_val"]
         )
+        dataset[mode] = PolonyDataset(**polony_dataset_params)
         dataloader[mode] = torch.utils.data.DataLoader(
             dataset[mode], batch_size=batch_size, shuffle=shuffle[mode]
         )
