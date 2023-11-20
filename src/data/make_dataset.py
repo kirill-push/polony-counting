@@ -4,7 +4,7 @@ import os
 import shutil
 from glob import glob
 from random import random
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, List, Optional
 
 import h5py
 import numpy as np
@@ -133,7 +133,7 @@ def create_empty_hdf5_files(
     dataset_name: str,
     train_size: Optional[int],
     valid_size: int,
-    img_size: Tuple[int, int],
+    img_size: List[int],
     in_channels: int,
     root_path: str,
 ):
@@ -176,7 +176,7 @@ def create_empty_hdf5_files(
     # add two HDF5 datasets (images and labels) for each HDF5 file
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
         if h5 is not None:
-            h5.create_dataset("images", (size, in_channels, *config["square_size"]))
+            h5.create_dataset("images", (size, in_channels, *img_size))
             h5.create_dataset("labels", (size, 1, *img_size))
             h5.create_dataset("n_points", (size, 1)),
             h5.create_dataset("path", (size, 1))
@@ -188,7 +188,7 @@ def generate_polony_data(
     download: bool = config["generate_polony_data"]["download"],
     # id: str = config["generate_polony_data"]["id"],
     train_size: int = config["generate_polony_data"]["train_size"],
-    new_size: Tuple[int] = config["generate_polony_data"]["new_size"],
+    new_size: Optional[List[int]] = config["generate_polony_data"]["new_size"],
     data_root: str = config["generate_polony_data"]["data_root"],
     is_squares: bool = config["generate_polony_data"]["is_squares"],
     # all_files: bool = config["generate_polony_data"]["all_files"],
@@ -305,7 +305,7 @@ def generate_polony_data(
             if i not in path_dict:
                 path_dict[i] = img_path
             if is_squares:
-                squares_list = grid_to_squares(img_path)
+                squares_list = grid_to_squares(img_path, new_size=new_size)
                 for tt, square_dict in enumerate(squares_list):
                     if channels == 1:
                         image = square_dict["square"]
@@ -386,8 +386,11 @@ def generate_polony_data(
     #     shutil.rmtree(os.path.join(data_path, "slides"))
     # else:
     if delete_data:
-        for i in range(len(os.listdir(data_path))):
-            shutil.rmtree(os.path.join(data_path, str(i)))
+        try:
+            for i in range(len(os.listdir(data_path))):
+                shutil.rmtree(os.path.join(data_path, str(i)))
+        except FileNotFoundError:
+            print("File already was deleted")
 
 
 def main(args):

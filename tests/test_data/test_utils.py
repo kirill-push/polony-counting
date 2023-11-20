@@ -10,6 +10,7 @@ from data.utils import (
     grid_to_squares,
     read_tiff,
     remove_img_without_roi,
+    reshape_numpy,
 )
 
 CONFIG_PATH = "src/config/config.yaml"
@@ -80,3 +81,17 @@ def test_grid_to_squares():
     list_with_dicts = grid_to_squares(path=path_to_roi_img)
     assert isinstance(list_with_dicts, list)
     assert isinstance(list_with_dicts[0], dict)
+
+
+@pytest.mark.parametrize("dim", [2, 3])
+def test_reshape_numpy(dim):
+    arr_shape = tuple([40] * dim)
+    arr = np.zeros(arr_shape)
+    arr = reshape_numpy(arr, [2, 2])
+    assert arr.shape[-2:] == (2, 2)
+
+
+def test_reshape_numpy_raising():
+    arr = np.zeros((4, 4, 4, 4))
+    with pytest.raises(ValueError):
+        reshape_numpy(arr, [1, 1])

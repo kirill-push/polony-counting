@@ -25,7 +25,12 @@ def mock_download():
         yield
 
 
-def test_generate_polony_data(tmp_path, mock_download) -> None:
+@pytest.mark.parametrize("new_size", [None, [100, 100]])
+@pytest.mark.parametrize("is_squares", [True, False])
+@pytest.mark.parametrize("evaluation", [True, False])
+def test_generate_polony_data(
+    tmp_path, mock_download, new_size, is_squares, evaluation
+) -> None:
     # Create the directory if it doesn't exist
     os.makedirs(os.path.join(tmp_path, "polony"), exist_ok=True)
     open(os.path.join(tmp_path, "polony", "valid.h5"), "w").close()
@@ -33,9 +38,12 @@ def test_generate_polony_data(tmp_path, mock_download) -> None:
     generate_polony_data(
         data_root=tmp_path,
         id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
-        delete_data=False,
+        delete_data=True,
         is_path=False,
         download=True,
+        is_squares=is_squares,
+        evaluation=evaluation,
+        new_size=new_size,
     )
     assert os.path.exists(os.path.join(tmp_path, "polony"))
 
@@ -79,7 +87,7 @@ def test_length(mock_hdf5, mock_json) -> None:
 
 
 # Test for getitem method
-@pytest.mark.parametrize("flip", [0.0, 0.5])
+@pytest.mark.parametrize("flip", [0.0, 1.0])
 def test_getitem(mock_hdf5, mock_json, flip) -> None:
     dataset = PolonyDataset(mock_hdf5, flip, flip, False, mock_json)
     image, label, n_points, path = dataset[0]
