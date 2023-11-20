@@ -40,3 +40,12 @@ jobs:
                 git config --global user.email "github-actions@github.com"
                 # run semantic-release
                 poetry run semantic-release publish -v DEBUG -D commit-author="github-actions <action@github.com>"
+            
+            # Build package
+            - name: Build package
+              run: poetry build
+
+            # Publish package to PyPI
+            - name: Publish package
+              if: github.ref == 'refs/heads/main' # or the branch of your choice
+              run: poetry publish --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
