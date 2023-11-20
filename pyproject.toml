@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "polony-counting"
+name = "polony"
 version = "0.3.0"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
