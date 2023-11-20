@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "polony-counting"
-version = "0.2.1"
+version = "0.3.0"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
