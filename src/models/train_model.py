@@ -3,9 +3,9 @@ import os
 import numpy as np
 import torch
 import wandb
+import yaml
 from torch import nn
 from torchvision import transforms
-import yaml
 
 from data.make_dataset import PolonyDataset
 from data.utils import mean_std
@@ -17,7 +17,8 @@ CONFIG_PATH = "src/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
-train_params = config['train']
+train_params = config["train"]
+
 
 def train(
     dataset_name: str,
@@ -187,5 +188,5 @@ def train(
 
 
 if __name__ == "__main__":
-    print('Training parameters were taken from the config file')
+    print("Training parameters were taken from the config file")
     train(**train_params)
