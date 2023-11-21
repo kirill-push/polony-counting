@@ -6,6 +6,7 @@ import h5py
 import numpy as np
 import pytest
 import yaml
+
 from polony import PolonyDataset, generate_polony_data
 
 CONFIG_PATH = "src/polony/config/config.yaml"

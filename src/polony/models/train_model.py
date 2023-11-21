@@ -2,12 +2,13 @@ import numpy as np
 import torch
 import wandb
 import yaml
+from torch import nn
+from torchvision import transforms
+
 from ..data.make_dataset import PolonyDataset
 from ..data.utils import mean_std
 from .models import UNet
 from .utils import Config, Looper
-from torch import nn
-from torchvision import transforms
 
 # folder to load config file
 CONFIG_PATH = "src/polony/config/config.yaml"

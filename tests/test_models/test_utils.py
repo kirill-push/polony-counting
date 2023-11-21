@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 import torch
+
 from src.polony.models.utils import Looper, predict
 
 
