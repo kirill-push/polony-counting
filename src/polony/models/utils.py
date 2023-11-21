@@ -4,10 +4,9 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 import wandb
+from ..data.utils import grid_to_squares, read_tiff
+from .models import UNet
 from torchvision import transforms
-
-from data.utils import grid_to_squares, read_tiff
-from models.models import UNet
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158

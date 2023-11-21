@@ -3,8 +3,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 import torch
-
-from models.utils import Looper, predict
+from src.polony.models.utils import Looper, predict
 
 
 def test_predict_single_file() -> None:
@@ -12,7 +11,7 @@ def test_predict_single_file() -> None:
     with patch("os.path.isdir", return_value=False):
         # Mock predict_one_image to return a predefined dictionary
         with patch(
-            "models.utils.predict_one_image",
+            "src.polony.models.utils.predict_one_image",
             return_value={1: {"result": 10, "density": "mocked_density"}},
         ):
             # Call the predict function
@@ -31,7 +30,7 @@ def test_predict_directory() -> None:
         with patch("os.listdir", return_value=["image1", "image2"]):
             # Mock predict_one_image
             with patch(
-                "models.utils.predict_one_image",
+                "src.polony.models.utils.predict_one_image",
                 side_effect=[
                     {1: {"result": 10, "density": "density1"}},
                     {2: {"result": 20, "density": "density2"}},

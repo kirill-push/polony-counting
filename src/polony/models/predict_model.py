@@ -20,7 +20,7 @@ import argparse
 import os
 import tempfile
 
-from models.utils import predict
+from .utils import predict
 
 # Configuring Argument parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
