@@ -4,16 +4,15 @@ version = "0.3.0"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
-packages = [
- {include = "*", from = "src" },
- {include = "tests"},
-]
+packages = [{include = "polony", from = "src" }]
+include = [{ path = "tests", format = "sdist" }]
 license = "MIT"
 homepage = "https://kirill-push.github.io/polony-counting/"
 repository = "https://github.com/kirill-push/polony-counting"
 
+
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.7, <3.11"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 gdown = "^4.7.1"
 roifile = "^2023.5.12"
