@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 import yaml
 
-from data.make_dataset import generate_polony_data
-from data.utils import (
+from polony import generate_polony_data
+from src.polony.data.utils import (
     create_density_roi,
     get_and_unzip,
     get_roi_coordinates,
@@ -13,7 +13,7 @@ from data.utils import (
     reshape_numpy,
 )
 
-CONFIG_PATH = "src/config/config.yaml"
+CONFIG_PATH = "src/polony/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)

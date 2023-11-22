@@ -29,17 +29,21 @@ The primary objective of this project is to streamline and automate the counting
     ├── config             <- Configuration files for the project.
     │
     ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   ├── make_dataset.py
-    │   │   └── utils.py
-    │   │
-    │   └── models         <- Scripts with models
-    │       ├── models.py
-    │       ├── predict_model.py
-    │       ├── train_model.py
-    │       └── utils.py
+    │   └── polony
+    │       │
+    │       ├── __init__.py    <- Makes src a Python module
+    │       │
+    │       ├── data           <- Scripts to download or generate data
+    │       │   ├── __init__.py 
+    │       │   ├── make_dataset.py
+    │       │   └── utils.py
+    │       │
+    │       └── models         <- Scripts with models
+    │           ├── __init__.py 
+    │           ├── models.py
+    │           ├── predict_model.py
+    │           ├── train_model.py
+    │           └── utils.py
     │
     └── tests              <- Scripts for functions and module testing
 
