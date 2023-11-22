@@ -26,7 +26,7 @@ from .utils import (
 # folder to load config file
 current_script_path = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.dirname(current_script_path)
-CONFIG_PATH = os.path.join(root_path, 'config', 'config.yaml')
+CONFIG_PATH = os.path.join(root_path, "config", "config.yaml")
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)

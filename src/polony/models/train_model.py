@@ -1,5 +1,6 @@
-import numpy as np
 import os
+
+import numpy as np
 import torch
 import wandb
 import yaml
@@ -14,7 +15,7 @@ from .utils import Config, Looper
 # folder to load config file
 current_script_path = os.path.dirname(os.path.abspath(__file__))
 root_path = os.path.dirname(current_script_path)
-CONFIG_PATH = os.path.join(root_path, 'config', 'config.yaml')
+CONFIG_PATH = os.path.join(root_path, "config", "config.yaml")
 
 with open(CONFIG_PATH, "r") as file:
     config_yaml = yaml.load(file, Loader=yaml.FullLoader)
