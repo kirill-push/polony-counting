@@ -12,7 +12,9 @@ from PIL import Image
 from roifile import roiread
 from scipy.ndimage import gaussian_filter
 
-CONFIG_PATH = "src/polony/config/config.yaml"
+current_script_path = os.path.dirname(os.path.abspath(__file__))
+root_path = os.path.dirname(current_script_path)
+CONFIG_PATH = os.path.join(root_path, 'config', 'config.yaml')
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
