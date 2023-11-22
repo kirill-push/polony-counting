@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v0.3.1 (2023-11-22)
+
+### Fix
+
+* :bricks: update imports and paths for new layout ([`33b4dac`](https://github.com/kirill-push/polony-counting/commit/33b4dac7a13a1ec4d6c2eeb3d3d769faf1a66900))
+* :building_construction: change project layout ([`d4deb1a`](https://github.com/kirill-push/polony-counting/commit/d4deb1a02e14107b93e3383f27e3f09f2485c7ac))
+
+### Documentation
+
+* :bookmark: add project version ([`9dafb26`](https://github.com/kirill-push/polony-counting/commit/9dafb261c42aea2481e42e066899e81860a8e5f2))
+* :memo: update project layout in readme ([`5bc2308`](https://github.com/kirill-push/polony-counting/commit/5bc2308c405cb04971c4d480cc9b65ace69b08a9))
+
 ## v0.3.0 (2023-11-20)
 
 ### Feature
