@@ -5,13 +5,13 @@ import yaml
 from torch import nn
 from torchvision import transforms
 
-from data.make_dataset import PolonyDataset
-from data.utils import mean_std
-from models.models import UNet
-from models.utils import Config, Looper
+from ..data.make_dataset import PolonyDataset
+from ..data.utils import mean_std
+from .models import UNet
+from .utils import Config, Looper
 
 # folder to load config file
-CONFIG_PATH = "src/config/config.yaml"
+CONFIG_PATH = "src/polony/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
     config_yaml = yaml.load(file, Loader=yaml.FullLoader)

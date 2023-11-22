@@ -12,7 +12,7 @@ import yaml
 from PIL import Image
 from torch.utils.data import Dataset
 
-from data.utils import (
+from .utils import (
     count_data_size,
     create_density_roi,
     delete_duplicates,
@@ -24,7 +24,7 @@ from data.utils import (
 )
 
 # folder to load config file
-CONFIG_PATH = "src/config/config.yaml"
+CONFIG_PATH = "src/polony/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)

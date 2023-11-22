@@ -7,9 +7,9 @@ import numpy as np
 import pytest
 import yaml
 
-from data.make_dataset import PolonyDataset, generate_polony_data
+from polony import PolonyDataset, generate_polony_data
 
-CONFIG_PATH = "src/config/config.yaml"
+CONFIG_PATH = "src/polony/config/config.yaml"
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
@@ -21,7 +21,7 @@ def mock_get_and_unzip(url: str, location: str) -> None:
 
 @pytest.fixture
 def mock_download():
-    with patch("data.utils.get_and_unzip", side_effect=mock_get_and_unzip):
+    with patch("src.polony.data.utils.get_and_unzip", side_effect=mock_get_and_unzip):
         yield
 
 

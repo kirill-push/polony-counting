@@ -1,24 +1,22 @@
 [tool.poetry]
-name = "polony-counting"
-version = "0.3.0"
+name = "polony"
+version = "0.3.1"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
-packages = [
- {include = "*", from = "src" },
- {include = "tests"},
-]
+packages = [{include = "polony", from = "src" }]
 license = "MIT"
-homepage = "https://github.com/kirill-push/polony-counting"
+homepage = "https://kirill-push.github.io/polony-counting/"
 repository = "https://github.com/kirill-push/polony-counting"
 
+
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.9, <3.11"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 gdown = "^4.7.1"
 roifile = "^2023.5.12"
 wandb = "^0.15.5"
-numpy = "^1.23.0"
+numpy = "^1.16.0"
 opencv-python-headless = "^4.8.0"
 scipy = "^1.7.0"
 torchvision = "^0.15.0"
@@ -96,7 +94,7 @@ exclude_lines = [
 
 [tool.semantic_release]
 branch = "main"
-version_variable = "src/__init__.py:__version__"
+version_variable = "src/polony/__init__.py:__version__"
 version_toml = "pyproject.toml:tool.poetry.version"
 version_source = "tag"
 commit_version_number = true
