@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "polony"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
@@ -16,7 +16,6 @@ torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 gdown = "^4.7.1"
 roifile = "^2023.5.12"
 wandb = "^0.15.5"
-numpy = "^1.16.0"
 opencv-python-headless = "^4.8.0"
 scipy = "^1.7.0"
 torchvision = "^0.15.0"
@@ -27,6 +26,7 @@ argparse = "^1.4.0"
 pyyaml = "^6.0.1"
 tifffile = "^2023.9.26"
 types-pyyaml = "^6.0.12.12"
+numpy = "^1.16"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
@@ -99,7 +99,8 @@ version_toml = "pyproject.toml:tool.poetry.version"
 version_source = "tag"
 commit_version_number = true
 tag_commit = true
-upload_to_pypi = false
+upload_to_pypi = true
+repository = "testpypi"
 upload_to_release = false
 hvcs = "github"
 commit_message = "{version} [skip ci]"

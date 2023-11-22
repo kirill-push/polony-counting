@@ -33,6 +33,8 @@ jobs:
             - name: Python Semantic Release
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
+                REPOSITORY_USERNAME: __token__
+                REPOSITORY_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
               run: |
                 set -o pipefail
                 # Set git details
@@ -40,10 +42,3 @@ jobs:
                 git config --global user.email "github-actions@github.com"
                 # run semantic-release
                 poetry run semantic-release publish -v DEBUG -D commit-author="github-actions <action@github.com>"
-            
-            - name: Build and publish to pypi
-              uses: JRubics/poetry-publish@v1.17
-              with:
-                pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
-                repository_name: "testpypi"
-                repository_url: "https://test.pypi.org/legacy/"
