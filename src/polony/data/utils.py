@@ -44,7 +44,11 @@ def remove_img_without_roi(location: str, remove: bool = True) -> None:
             error_list.append(roi_path)
             continue
     if error_list:
-        errors_path = os.path.join(os.getcwd(), "errors_path.txt")
+        if isinstance(config["errors_path"], List):
+            errors_path = "/".join(config["errors_path"])
+        elif isinstance(config["errors_path"], str):
+            errors_path = config["errors_path"]
+
         with open(errors_path, "w") as file:
             for path in error_list:
                 file.write(path + "\n")
