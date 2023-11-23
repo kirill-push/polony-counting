@@ -83,7 +83,6 @@ train:
   vertical_flip: 0.5
   unet_filters: 64
   convolutions: 2
-  plot: false
   lr_patience: 10
   input_channels: 2
   wandb_bool: true
