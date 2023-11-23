@@ -4,7 +4,9 @@ project: &project polony
 seed: 19
 img_size: &img_size [2450, 1438]
 img_channels: &img_channels 2
-json_path: &json_path resources/dataset_files/path_dict.json
+json_path: &json_path
+  - *project
+  - resources/path_dict.json
 square_size: [316, 316]
 model_size: &model_size [316, 316]
 model_architecture: &model_architecture UNet
