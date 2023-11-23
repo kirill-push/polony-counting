@@ -34,7 +34,7 @@ generate_polony_data:
   train_size: 90
   new_size: *model_size
   download: true
-  data_root: D:\Temp
+  data_root: ./
   is_squares: true
   all_files: true
   id_list: [*id_polony0, *id_polony1, *id_polony2, *id_polony3]
