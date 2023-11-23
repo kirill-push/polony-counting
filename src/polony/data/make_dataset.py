@@ -31,6 +31,11 @@ CONFIG_PATH = os.path.join(root_path, "config", "config.yaml")
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
 
+if isinstance(config["json_path"], List):
+    JSON_PATH = "/".join(config["json_path"])
+elif isinstance(config["json_path"], str):
+    JSON_PATH = config["json_path"]
+
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument(
@@ -75,7 +80,7 @@ class PolonyDataset(Dataset):
         horizontal_flip: float,
         vertical_flip: float,
         to_gray: bool,
-        json_path: str,
+        json_path: List[str] | str,
     ):
         """
         Initialize flips probabilities and pointers to a HDF5 file.
@@ -94,7 +99,11 @@ class PolonyDataset(Dataset):
         self.horizontal_flip = horizontal_flip
         self.vertical_flip = vertical_flip
         self.to_gray = to_gray
-        with open(json_path, "r") as file:
+        if isinstance(json_path, List):
+            self.json_path = "/".join(json_path)
+        elif isinstance(json_path, str):
+            self.json_path = json_path
+        with open(self.json_path, "r") as file:
             self.path_dict = json.load(file)
 
     def __len__(self):
@@ -375,7 +384,7 @@ def generate_polony_data(
 
     if is_path:
         # writing a path_dict to a json file for further use
-        with open(config["json_path"], "w") as file:
+        with open(JSON_PATH, "w") as file:
             json.dump(path_dict, file)
 
     # close HDF5 files
