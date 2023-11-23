@@ -28,7 +28,9 @@ first_horizontal: 158
 first_vertical: 158
 number_of_lines: [8, 5]
 path_to_data: resources/raw/
-errors_path: resources/dataset_files/errors.txt
+errors_path:
+  - *project
+  - errors.txt
 
 # Function settings
 generate_polony_data:
