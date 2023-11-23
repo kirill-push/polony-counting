@@ -4,7 +4,9 @@ project: &project polony
 seed: 19
 img_size: &img_size [2450, 1438]
 img_channels: &img_channels 2
-json_path: &json_path resources/dataset_files/path_dict.json
+json_path: &json_path
+  - *project
+  - resources/path_dict.json
 square_size: [316, 316]
 model_size: &model_size [316, 316]
 model_architecture: &model_architecture UNet
@@ -34,7 +36,7 @@ generate_polony_data:
   train_size: 90
   new_size: *model_size
   download: true
-  data_root: D:\Temp
+  data_root: ./
   is_squares: true
   all_files: true
   id_list: [*id_polony0, *id_polony1, *id_polony2, *id_polony3]
