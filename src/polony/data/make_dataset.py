@@ -76,7 +76,7 @@ class PolonyDataset(Dataset):
 
     def __init__(
         self,
-        dataset_path: str,
+        dataset_path: List[str] | str,
         horizontal_flip: float,
         vertical_flip: float,
         to_gray: bool,
@@ -91,7 +91,11 @@ class PolonyDataset(Dataset):
             vertical_flip: the probability of applying vertical flip
         """
         super(PolonyDataset, self).__init__()
-        self.h5 = h5py.File(dataset_path, "r")
+        if isinstance(dataset_path, List):
+            self.dataset_path = "/".join(dataset_path)
+        elif isinstance(dataset_path, str):
+            self.dataset_path = dataset_path
+        self.h5 = h5py.File(self.dataset_path, "r")
         self.images = self.h5["images"]
         self.labels = self.h5["labels"]
         self.n_points = self.h5["n_points"]
