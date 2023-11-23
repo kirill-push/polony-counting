@@ -60,14 +60,18 @@ create_density_roi:
   channel: 1
 
 PolonyDataset_train:
-  dataset_path: polony/train.h5
+  dataset_path:
+    - *project
+    - train.h5
   horizontal_flip: 0.5
   vertical_flip: 0.5
   to_gray: false
   json_path: *json_path
 
 PolonyDataset_val:
-  dataset_path: polony/val.h5
+  dataset_path:
+    - *project
+    - val.h5
   horizontal_flip: 0
   vertical_flip: 0
   to_gray: false
