@@ -1,6 +1,6 @@
 __version__ = "0.4.0"
 from .data import PolonyDataset, generate_polony_data, make_dataset
-from .models import UNet, evaluate, predict, train
+from .models import UNet, evaluate, predict, predict_one_image, train
 
 __all__ = [
     "PolonyDataset",
@@ -9,5 +9,6 @@ __all__ = [
     "UNet",
     "evaluate",
     "predict",
+    "predict_one_image",
     "train",
 ]
