@@ -71,7 +71,7 @@ PolonyDataset_train:
 PolonyDataset_val:
   dataset_path:
     - *project
-    - val.h5
+    - valid.h5
   horizontal_flip: 0
   vertical_flip: 0
   to_gray: false
