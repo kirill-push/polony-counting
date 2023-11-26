@@ -23,21 +23,21 @@ train_params = config_yaml["train"]
 
 
 def train(
-    dataset_name: str,
-    network_architecture: str,
-    learning_rate: float,
-    epochs: int,
-    batch_size: int,
-    horizontal_flip: float,
-    vertical_flip: float,
-    unet_filters: int,
-    convolutions: int,
-    lr_patience: int,
-    input_channels: int,
+    dataset_name: str = train_params["dataset_name"],
+    network_architecture: str = train_params["network_architecture"],
+    learning_rate: float = train_params["learning_rate"],
+    epochs: int = train_params["epochs"],
+    batch_size: int = train_params["batch_size"],
+    horizontal_flip: float = train_params["horizontal_flip"],
+    vertical_flip: float = train_params["vertical_flip"],
+    unet_filters: int = train_params["unet_filters"],
+    convolutions: int = train_params["convolutions"],
+    lr_patience: int = train_params["lr_patience"],
+    input_channels: int = train_params["input_channels"],
+    wandb_bool: bool = train_params["wandb_bool"],
+    factor: float = train_params["factor"],
+    res: bool = train_params["res"],
     loss: nn.MSELoss = nn.MSELoss(),
-    wandb_bool: bool = False,
-    factor: float = 0.5,
-    res: bool = False,
 ):
     """Train chosen model on selected dataset."""
     # use GPU if avilable
