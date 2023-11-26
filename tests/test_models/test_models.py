@@ -1,7 +1,7 @@
-import torch
 import pytest
+import torch
 
-from polony import UNet, Classifier
+from polony import Classifier, UNet
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -25,12 +25,11 @@ def test_forward_pass_with_res():
 def test_classifier():
     model = Classifier().to(device)
     inp = torch.randn(size=(4, 3, 256, 256)).to(device)
-    model.freeze_layers('on')
+    model.freeze_layers("on")
     assert model(inp).shape == (4, 1)
-    
-    model.freeze_layers('off')
+
+    model.freeze_layers("off")
     assert model(inp).shape == (4, 1)
 
     with pytest.raises(ValueError):
-        model.freeze_layers('onn')
-
+        model.freeze_layers("onn")
