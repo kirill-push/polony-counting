@@ -2,6 +2,28 @@
 
 <!--next-version-placeholder-->
 
+## v0.4.0 (2023-11-26)
+
+### Feature
+
+* :sparkles: add default train function parameters from config ([`f9b81e9`](https://github.com/kirill-push/polony-counting/commit/f9b81e94f40d827e8e6b49bc677c22ab3eb3992f))
+
+### Fix
+
+* :bug: correct indexing in path dict from dataset ([`e2fadb6`](https://github.com/kirill-push/polony-counting/commit/e2fadb61f5718cb8ae2071934ab20498e1ea40d5))
+* :wrench: update learning_rate format to decimal in training config ([`83f9061`](https://github.com/kirill-push/polony-counting/commit/83f9061cfafa48945c7a11b224c5fe6c25da9f4f))
+* :bug: correct string-based indexing in path dictionary ([`16056d3`](https://github.com/kirill-push/polony-counting/commit/16056d3a7dd8bf9939ac3b2c8a3ed4455353d3e2))
+* :pencil2: fix typos in dataset config ([`2f58d6f`](https://github.com/kirill-push/polony-counting/commit/2f58d6f01d173aa10986be7661a286d46dc6e491))
+* :art: change format of dataset_path param in PolonyDataset ([`4f0be85`](https://github.com/kirill-push/polony-counting/commit/4f0be85174d2475a54a9cd23b9316c35539b37e4))
+* :bug: remove deprecated parameter from train ([`c0757b1`](https://github.com/kirill-push/polony-counting/commit/c0757b1ea4c910b74333611649e15377fa86f6b0))
+* :art: change train import in init ([`4cb9ba8`](https://github.com/kirill-push/polony-counting/commit/4cb9ba81e1d3297d6e6508e0fb8b0befa035c8aa))
+* :sparkles: update reading of sys json with paths to images ([`d558798`](https://github.com/kirill-push/polony-counting/commit/d558798473b58aa8f25dfec1a3a413eb50860c04))
+* :bug: change json path for correct work of package ([`1b2bbd3`](https://github.com/kirill-push/polony-counting/commit/1b2bbd3cf7b4931e456f771150510f8133f74dc6))
+* :zap: change standart path to save data after download ([`e9cddda`](https://github.com/kirill-push/polony-counting/commit/e9cddda5765aef6616bec207056fb4240255041f))
+* :bug: change path for list of images with errors ([`03c75b0`](https://github.com/kirill-push/polony-counting/commit/03c75b006404738b4ec2d72d5024b473a7fbd6bc))
+* :truck: change config path ([`2ed478e`](https://github.com/kirill-push/polony-counting/commit/2ed478ed1dbd30f0ad1faf2cce5bbd6840501ce6))
+* :pushpin: change numpy version to resolve bug ([`a6caf24`](https://github.com/kirill-push/polony-counting/commit/a6caf247a5f903dff68f640296d35f8e65266df1))
+
 ## v0.3.1 (2023-11-22)
 
 ### Fix
