@@ -104,3 +104,4 @@ repository = "testpypi"
 upload_to_release = false
 hvcs = "github"
 commit_message = "{version} [skip ci]"
+build_command = "pip install poetry && poetry build"
