@@ -121,7 +121,7 @@ class PolonyDataset(Dataset):
             image = self.images[index]
             label = self.labels[index]
             n_points = self.n_points[index]
-            path = self.path_dict[str(self.path_id[str(index)][0])]
+            path = self.path_dict[str(self.path_id[index][0])]
             if self.to_gray:
                 image = rgb_to_gray(image)
 
@@ -140,7 +140,7 @@ class PolonyDataset(Dataset):
             np.flip(self.images[index], axis=axis_to_flip).copy(),
             np.flip(self.labels[index], axis=axis_to_flip).copy(),
             self.n_points[index],
-            self.path_dict[str(self.path_id[str(index)][0])],
+            self.path_dict[str(self.path_id[index][0])],
         )
 
 
