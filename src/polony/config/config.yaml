@@ -4,7 +4,9 @@ project: &project polony
 seed: 19
 img_size: &img_size [2450, 1438]
 img_channels: &img_channels 2
-json_path: &json_path resources/dataset_files/path_dict.json
+json_path: &json_path
+  - *project
+  - path_dict.json
 square_size: [316, 316]
 model_size: &model_size [316, 316]
 model_architecture: &model_architecture UNet
@@ -26,7 +28,9 @@ first_horizontal: 158
 first_vertical: 158
 number_of_lines: [8, 5]
 path_to_data: resources/raw/
-errors_path: resources/dataset_files/errors.txt
+errors_path:
+  - *project
+  - errors.txt
 
 # Function settings
 generate_polony_data:
@@ -34,7 +38,7 @@ generate_polony_data:
   train_size: 90
   new_size: *model_size
   download: true
-  data_root: D:\Temp
+  data_root: ./
   is_squares: true
   all_files: true
   id_list: [*id_polony0, *id_polony1, *id_polony2, *id_polony3]
@@ -56,14 +60,18 @@ create_density_roi:
   channel: 1
 
 PolonyDataset_train:
-  dataset_path: polony/train.h5
+  dataset_path:
+    - *project
+    - train.h5
   horizontal_flip: 0.5
   vertical_flip: 0.5
   to_gray: false
   json_path: *json_path
 
 PolonyDataset_val:
-  dataset_path: polony/val.h5
+  dataset_path:
+    - *project
+    - valid.h5
   horizontal_flip: 0
   vertical_flip: 0
   to_gray: false
@@ -72,17 +80,16 @@ PolonyDataset_val:
 train:
   dataset_name: *project
   network_architecture: *model_architecture
-  learning_rate: 1e-2
+  learning_rate: 0.01
   epochs: 120
   batch_size: 16
   horizontal_flip: 0.5
   vertical_flip: 0.5
   unet_filters: 64
   convolutions: 2
-  plot: false
   lr_patience: 10
   input_channels: 2
-  wandb_bool: true
+  wandb_bool: false
   factor: 0.5
   res: false
 

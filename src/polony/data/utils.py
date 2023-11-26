@@ -12,7 +12,9 @@ from PIL import Image
 from roifile import roiread
 from scipy.ndimage import gaussian_filter
 
-CONFIG_PATH = "src/polony/config/config.yaml"
+current_script_path = os.path.dirname(os.path.abspath(__file__))
+root_path = os.path.dirname(current_script_path)
+CONFIG_PATH = os.path.join(root_path, "config", "config.yaml")
 
 with open(CONFIG_PATH, "r") as file:
     config = yaml.load(file, Loader=yaml.FullLoader)
@@ -42,7 +44,11 @@ def remove_img_without_roi(location: str, remove: bool = True) -> None:
             error_list.append(roi_path)
             continue
     if error_list:
-        errors_path = config["errors_path"]
+        if isinstance(config["errors_path"], List):
+            errors_path = "/".join(config["errors_path"])
+        elif isinstance(config["errors_path"], str):
+            errors_path = config["errors_path"]
+
         with open(errors_path, "w") as file:
             for path in error_list:
                 file.write(path + "\n")
