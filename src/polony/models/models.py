@@ -3,7 +3,7 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import ResNet18_Weights, resnet18
 
 
 class ConvCat(nn.Module):
@@ -186,13 +186,13 @@ class Classifier(nn.Module):
 
     def forward(self, inp: torch.Tensor) -> torch.Tensor:
         return self.net(inp)
-    
-    def freeze_layers(self, mode: str = 'on') -> None:
-        if mode == 'on':
+
+    def freeze_layers(self, mode: str = "on") -> None:
+        if mode == "on":
             for param in self.parameters():
                 param.requires_grad_ = False
             self.net.fc.requires_grad_ = True
-        elif mode == 'off':
+        elif mode == "off":
             for param in self.parameters():
                 param.requires_grad_ = True
         else:
