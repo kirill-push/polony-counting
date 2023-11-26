@@ -89,7 +89,7 @@ train:
   convolutions: 2
   lr_patience: 10
   input_channels: 2
-  wandb_bool: true
+  wandb_bool: false
   factor: 0.5
   res: false
 
