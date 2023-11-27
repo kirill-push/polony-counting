@@ -151,6 +151,7 @@ def create_empty_hdf5_files(
     img_size: List[int],
     in_channels: int,
     root_path: str,
+    mode: str = "density",
 ):
     """
     Create empty training and validation HDF5 files (one file for training and
@@ -167,6 +168,7 @@ def create_empty_hdf5_files(
         img_size: (width, height) of a single image / density map
         in_channels: no. of channels of an input image
         root_path: path to root dir for h5 files
+        mode: 'density' or 'classifier' - mode to create hdf5 files
 
     Returns:
         A tuple of pointers to training and validation HDF5 files.
@@ -192,9 +194,14 @@ def create_empty_hdf5_files(
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
         if h5 is not None:
             h5.create_dataset("images", (size, in_channels, *img_size))
-            h5.create_dataset("labels", (size, 1, *img_size))
-            h5.create_dataset("n_points", (size, 1)),
-            h5.create_dataset("path", (size, 1))
+            if mode == "density":
+                h5.create_dataset("labels", (size, 1, *img_size))
+                h5.create_dataset("n_points", (size, 1)),
+                h5.create_dataset("path", (size, 1))
+            elif mode == "classifier":
+                h5.create_dataset("class", (size, 1)),
+            else:
+                raise ValueError("Wrong mode, should be 'density or 'classifier'")
 
     return train_h5, valid_h5
 
