@@ -28,8 +28,6 @@ def train(
     learning_rate: float = train_params["learning_rate"],
     epochs: int = train_params["epochs"],
     batch_size: int = train_params["batch_size"],
-    horizontal_flip: float = train_params["horizontal_flip"],
-    vertical_flip: float = train_params["vertical_flip"],
     unet_filters: int = train_params["unet_filters"],
     convolutions: int = train_params["convolutions"],
     lr_patience: int = train_params["lr_patience"],
@@ -42,6 +40,12 @@ def train(
     """Train chosen model on selected dataset."""
     # use GPU if avilable
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if network_architecture == "UNet":
+        looper_mode = "density"
+        lr_mode = "min"
+    elif network_architecture == "Classifier":
+        looper_mode = "classifier"
+        lr_mode = "max"
 
     if wandb_bool:
         # start a new wandb run to track this script
@@ -111,6 +115,7 @@ def train(
 
     lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
+        mode=lr_mode,
         patience=config.lr_patience,
         verbose=True,
         factor=config.factor,
@@ -128,6 +133,7 @@ def train(
         len(dataset["train"]),
         wandb_bool=wandb_bool,
         transforms=normalize,
+        mode=looper_mode,
     )
     valid_looper = Looper(
         network,
@@ -139,6 +145,7 @@ def train(
         validation=True,
         wandb_bool=wandb_bool,
         transforms=normalize,
+        mode=looper_mode,
     )
 
     # current best results (lowest mean absolute error on validation set)
