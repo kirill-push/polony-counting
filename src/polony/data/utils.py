@@ -229,7 +229,7 @@ def grid_to_squares(
     Args:
         path (str): path to tiff file with image
         new_size (List[int] | None): new_size for squares
-        mode (str): for which model should be prepared squares - 'density' or 'classifier'
+        mode (str): for which model should be prepared squares 'density' or 'classifier'
 
     Returns:
         List[Dict[str, Any]]: List with dicts. Each dict for square image and
@@ -291,7 +291,7 @@ def grid_to_squares(
             true_square_id = id_value[id_counts == max(id_counts)].item()
 
             # CHECK AND BRING BACK TO SQUARE POINTS if points are out of bounds
-            ### TODO: (28.11) may be better idea to delete such squares
+            # ###TODO: (28.11) may be better idea to delete such squares
             square_points = bring_back_points(
                 true_square_id, points, counters, x, y, square_size
             )
