@@ -36,8 +36,38 @@ def train(
     factor: float = train_params["factor"],
     res: bool = train_params["res"],
     loss: nn.MSELoss = nn.MSELoss(),
-):
-    """Train chosen model on selected dataset."""
+) -> None:
+    """Train chosen model on selected dataset.
+
+    Args:
+        dataset_name (str, optional): _description_.
+            Defaults to train_params["dataset_name"].
+        network_architecture (str, optional): _description_.
+            Defaults to train_params["network_architecture"].
+        learning_rate (float, optional): _description_.
+            Defaults to train_params["learning_rate"].
+        epochs (int, optional): _description_.
+            Defaults to train_params["epochs"].
+        batch_size (int, optional): _description_.
+            Defaults to train_params["batch_size"].
+        unet_filters (int, optional): _description_.
+            Defaults to train_params["unet_filters"].
+        convolutions (int, optional): _description_.
+            Defaults to train_params["convolutions"].
+        lr_patience (int, optional): _description_.
+            Defaults to train_params["lr_patience"].
+        input_channels (int, optional): _description_.
+            Defaults to train_params["input_channels"].
+        wandb_bool (bool, optional): _description_.
+            Defaults to train_params["wandb_bool"].
+        factor (float, optional): _description_.
+            Defaults to train_params["factor"].
+        res (bool, optional): _description_.
+            Defaults to train_params["res"].
+        loss (nn.MSELoss, optional): _description_.
+            Defaults to nn.MSELoss().
+    """
+
     # use GPU if avilable
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if network_architecture == "UNet":
