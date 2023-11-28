@@ -8,6 +8,7 @@ import cv2
 import gdown
 import numpy as np
 import yaml
+from numpy.typing import NDArray
 from PIL import Image
 from roifile import roiread
 from scipy.ndimage import gaussian_filter
@@ -93,7 +94,7 @@ def read_tiff(path: str, new_size: Optional[Tuple[int]] = None) -> np.ndarray:
 
 def get_roi_coordinates(
     roi_path: str, channel: Union[int, None] = None, counter: bool = False
-) -> Union[np.ndarray, Tuple]:
+) -> Union[NDArray[np.float64], Tuple[NDArray[np.float64]]]:
     """
     From ROI file with image get arrays with coordinates
     Args:
@@ -104,7 +105,8 @@ def get_roi_coordinates(
         counter (False): return or not also array with points areas id
 
     Returns:
-        np.ndarray or Tuple: Array with points coordinates
+        NDArray[np.float64] or Tuple[NDArray[np.float64]]]:
+            Numpy array with points coordinates
             or if counter == True
                 tuple with 2 arrays: (point coordinates, point area id)
             or if channel is None
@@ -156,7 +158,7 @@ def create_density_roi(
     coordinates: np.ndarray,
     size: Tuple[int] = config["img_size"],
     new_size: Optional[Tuple[int]] = None,
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """Create density map by points coordinates
 
     Args:
@@ -167,7 +169,7 @@ def create_density_roi(
             Defaults to None.
 
     Returns:
-        np.ndarray: Output density map
+        NDArray[np.float64]: Output density map
     """
     if new_size is not None:
         density = np.zeros(new_size, dtype=np.float32)
@@ -336,15 +338,26 @@ def grid_to_squares(
     return squares
 
 
-def bring_back_points(square_id, points, counters, x, y, square_size):
-    """
-    This function makes INPLACE changes in the list points
+def bring_back_points(
+    square_id: int,
+    points: NDArray[np.float64],
+    counters: NDArray[np.float64],
+    x: int,
+    y: int,
+    square_size: int,
+) -> NDArray[np.float64]:
+    """This function makes INPLACE changes in the list points
+
     Args:
-        square_id - id of square
-        points - list with coordinates (full list)
-        counters - list with points id (same id -> same square)
-    Return:
-        list of correct points of square with square_id
+        square_id (int): id of square
+        points (NDArray[np.float64]): list with coordinates (full list)
+        counters (NDArray[np.float64]): list with points id (same id -> same square)
+        x (int): x coordinate of square
+        y (int): y coordinate of square
+        square_size (int): size of square
+
+    Returns:
+        NDArray[np.float64]: list of correct points of square with square_id
     """
     true_points = points[counters == square_id]  # square points by id of square
     points_condition = (
