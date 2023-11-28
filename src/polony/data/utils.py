@@ -290,7 +290,10 @@ def grid_to_squares(
             else:
                 square_class = 1
 
-            true_square_id = id_value[id_counts == max(id_counts)].item()
+            if id_counts:
+                true_square_id = id_value[id_counts == max(id_counts)].item()
+            else:
+                true_square_id = -1
 
             # CHECK AND BRING BACK TO SQUARE POINTS if points are out of bounds
             # ###TODO: (28.11) may be better idea to delete such squares
