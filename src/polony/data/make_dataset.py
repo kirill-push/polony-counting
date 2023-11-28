@@ -213,6 +213,7 @@ def generate_polony_data(
     evaluation: bool = config["generate_polony_data"]["evaluation"],
     delete_data: bool = config["generate_polony_data"]["delete_data"],
     is_path: bool = config["generate_polony_data"]["is_path"],
+    mode: str = "density",
 ):
     """
     Generate HDF5 files for polony dataset.
@@ -223,7 +224,11 @@ def generate_polony_data(
         new_size: - if not None, then the new image size is specified
         download: bool - download data or no
         is_squares: bool - divide into squares or no
+        mode: str - for which model ('density' or 'classifier') should be prepared data
     """
+    if mode == "classifier":
+        is_squares = True
+        new_size = 256
     if not download:
         delete_data = False
     # download and extract dataset
@@ -260,7 +265,7 @@ def generate_polony_data(
 
     if is_squares:
         # count the number of squares in all images that contain dots
-        n_data = count_data_size(image_list)
+        n_data = count_data_size(image_list, mode=mode)
         if not evaluation:
             train_size = int((train_size / 100) * n_data)
             valid_size = n_data - train_size
@@ -286,6 +291,7 @@ def generate_polony_data(
         img_size=img_size,
         in_channels=channels,
         root_path=data_root,
+        mode=mode,
     )
 
     # creating a dictionary of paths to collect information in the process of
@@ -329,24 +335,29 @@ def generate_polony_data(
                         image = square_dict["square_2c"]
 
                     label = square_dict["label"]
-
                     # get number of points for image
                     n_points = square_dict["n_points"]
+
+                    # for classifier
+                    square_class = square_dict["class"]
 
                     if train_j < train_size:
                         # save data to HDF5 file
                         h5["images"][train_j] = image
+                        h5["path"][train_j] = i
                         h5["labels"][train_j, 0] = label
                         h5["n_points"][train_j] = n_points
-                        h5["path"][train_j] = i
+                        # for classifier
+                        h5["class"][train_j] = square_class
                         train_j += 1
                     elif h5_val is not None:
                         h5_val["images"][val_j] = image
+                        h5_val["path"][val_j] = i
                         h5_val["labels"][val_j, 0] = label
                         h5_val["n_points"][val_j] = n_points
-                        h5_val["path"][val_j] = i
+                        # for classifier
+                        h5_val["class"][train_j] = square_class
                         val_j += 1
-
             else:
                 # get an image as numpy array
                 if new_size is None:
