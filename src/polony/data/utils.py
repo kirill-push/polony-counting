@@ -219,7 +219,9 @@ def reshape_numpy(arr: np.ndarray, new_size: List[int]) -> np.ndarray:
 
 
 def grid_to_squares(
-    path: str, new_size: Optional[List[int]] = None
+    path: str,
+    new_size: Optional[List[int]] = None,
+    mode: str = "density",
 ) -> List[Dict[str, Any]]:
     """Make dict with squares and other data for model training
         from original tiff file with image
@@ -227,6 +229,7 @@ def grid_to_squares(
     Args:
         path (str): path to tiff file with image
         new_size (List[int] | None): new_size for squares
+        mode (str): for which model should be prepared squares - 'density' or 'classifier'
 
     Returns:
         List[Dict[str, Any]]: List with dicts. Each dict for square image and
@@ -272,14 +275,23 @@ def grid_to_squares(
             square_id = counters[points_condition]
             id_value, id_counts = np.unique(square_id, return_counts=True)
 
-            if len(square_points) <= 1 or (
+            # skip squares with 1 or 0 points or with more than 2 types of points
+            if len(square_points) == 1 or (
                 len(id_value) > 1 and max(id_counts) - min(id_counts) <= 2
             ):
                 continue
+            elif len(square_points) == 0:
+                square_class = 0
+                # skip empty squares for 'density' mode
+                if mode == "density":
+                    continue
+            else:
+                square_class = 1
 
             true_square_id = id_value[id_counts == max(id_counts)].item()
 
             # CHECK AND BRING BACK TO SQUARE POINTS if points are out of bounds
+            ### TODO: (28.11) may be better idea to delete such squares
             square_points = bring_back_points(
                 true_square_id, points, counters, x, y, square_size
             )
@@ -306,7 +318,8 @@ def grid_to_squares(
             square_dict["label"] = create_density_roi(
                 square_dict["points"], size=[square_size] * 2, new_size=new_size
             )
-            if square_dict["label"] is False:
+            square_dict["class"] = square_class
+            if square_dict["label"] is False and square_class == 1:
                 print(
                     "x ",
                     x,
