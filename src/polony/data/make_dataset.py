@@ -81,6 +81,7 @@ class PolonyDataset(Dataset):
         vertical_flip: float,
         to_gray: bool,
         json_path: List[str] | str,
+        mode: str = "density",
     ):
         """
         Initialize flips probabilities and pointers to a HDF5 file.
@@ -89,6 +90,7 @@ class PolonyDataset(Dataset):
             dataset_path: a path to a HDF5 file
             horizontal_flip: the probability of applying horizontal flip
             vertical_flip: the probability of applying vertical flip
+            mode (str): for which model Dataset - 'density' or 'classifier'
         """
         super(PolonyDataset, self).__init__()
         if isinstance(dataset_path, List):
@@ -100,6 +102,7 @@ class PolonyDataset(Dataset):
         self.labels = self.h5["labels"]
         self.n_points = self.h5["n_points"]
         self.path_id = self.h5["path"]
+        self.square_class = self.h5["class"]
         self.horizontal_flip = horizontal_flip
         self.vertical_flip = vertical_flip
         self.to_gray = to_gray
@@ -109,6 +112,7 @@ class PolonyDataset(Dataset):
             self.json_path = json_path
         with open(self.json_path, "r") as file:
             self.path_dict = json.load(file)
+        self.mode = mode
 
     def __len__(self):
         """Return no. of samples in HDF5 file."""
@@ -124,7 +128,9 @@ class PolonyDataset(Dataset):
             path = self.path_dict[str(int(self.path_id[index][0]))]
             if self.to_gray:
                 image = rgb_to_gray(image)
-
+            if self.mode == "classifier":
+                square_class = self.square_class[index]
+                return image, square_class, path
             return image, label, n_points, path
 
         # axis = 1 (vertical flip), axis = 2 (horizontal flip)
@@ -135,18 +141,18 @@ class PolonyDataset(Dataset):
 
         if random() < self.horizontal_flip:
             axis_to_flip.append(2)
-
+        if self.mode == "classifier":
+            return (
+                np.flip(self.images[index], axis=axis_to_flip).copy(),
+                self.square_class[index],
+                self.path_dict[str(int(self.path_id[index][0]))],
+            )
         return (
             np.flip(self.images[index], axis=axis_to_flip).copy(),
             np.flip(self.labels[index], axis=axis_to_flip).copy(),
             self.n_points[index],
             self.path_dict[str(int(self.path_id[index][0]))],
         )
-
-
-class ClassifierDataset(Dataset):
-    def __init__(self, data_path, transform):
-        self.transform = transform
 
 
 def create_empty_hdf5_files(
