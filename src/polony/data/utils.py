@@ -376,10 +376,10 @@ def bring_back_points(square_id, points, counters, x, y, square_size):
     return true_points
 
 
-def count_data_size(image_list):
+def count_data_size(image_list, mode="density"):
     counter = 0
     for img_path in image_list:
-        squares_list = grid_to_squares(img_path)
+        squares_list = grid_to_squares(img_path, mode=mode)
         counter += len(squares_list)
 
     return counter
