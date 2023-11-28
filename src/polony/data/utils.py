@@ -312,12 +312,10 @@ def grid_to_squares(
                 square = np.transpose(square)
                 square_dict["square"] = reshape_numpy(square, new_size)
                 square_dict["square_2c"] = reshape_numpy(square_2c, new_size)
-            square_dict["points"] = square_points - np.array(
-                [x, y]
-            )  # points in relative coordinates for a given square
-            square_dict["square_coordinate"] = np.array(
-                [x, y]
-            )  # coordinates of the upper-left corner of the square
+            # points in relative coordinates for a given square
+            square_dict["points"] = square_points
+            # coordinates of the upper-left corner of the square
+            square_dict["square_coordinate"] = np.array([x, y])
             square_dict["n_points"] = len(square_points)
 
             square_dict["label"] = create_density_roi(
@@ -362,6 +360,8 @@ def bring_back_points(
     Returns:
         NDArray[np.float64]: list of correct points of square with square_id
     """
+    if square_id == -1:
+        return np.array([])
     true_points = points[counters == square_id]  # square points by id of square
     points_condition = (
         (true_points[:, 1] >= y)
@@ -377,7 +377,7 @@ def bring_back_points(
     if (
         np.sum(points_anti_condition) == 0
     ):  # check if we don't have any points out of square
-        return true_points  # return list of square_points
+        return true_points - np.array([x, y])  # return list of square_points
     mistake_points = true_points[points_anti_condition]
     for i, (p_x, p_y) in enumerate(mistake_points):
         if p_x < x:
@@ -389,7 +389,7 @@ def bring_back_points(
         if p_y >= y + square_size:
             mistake_points[i][1] = y + square_size - 0.5
     true_points[points_anti_condition] = mistake_points
-    return true_points
+    return true_points - np.array([x, y])
 
 
 def count_data_size(image_list, mode="density"):
