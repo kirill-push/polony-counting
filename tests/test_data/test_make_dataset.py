@@ -59,6 +59,7 @@ def mock_hdf5(tmp_path):
         f.create_dataset("labels", data=np.random.randint(0, 2, (10, 1, 100, 100)))
         f.create_dataset("n_points", data=np.random.randint(1, 100, (10, 1)))
         f.create_dataset("path", data=np.arange(10).reshape(-1, 1))
+        f.create_dataset("class", data=np.ones(shape=(10, 1)))
     return str(h5_file)
 
 
@@ -72,8 +73,9 @@ def mock_json(tmp_path):
 
 
 # Test for initialization
-def test_initialization(mock_hdf5, mock_json) -> None:
-    dataset = PolonyDataset(mock_hdf5, 0.5, 0.5, True, mock_json)
+@pytest.mark.parametrize("mode", ['density', 'classifier'])
+def test_initialization(mock_hdf5, mock_json, mode) -> None:
+    dataset = PolonyDataset(mock_hdf5, 0.5, 0.5, True, mock_json, mode)
     assert dataset.horizontal_flip == 0.5
     assert dataset.vertical_flip == 0.5
     assert dataset.to_gray is True
@@ -88,10 +90,15 @@ def test_length(mock_hdf5, mock_json) -> None:
 
 # Test for getitem method
 @pytest.mark.parametrize("flip", [0.0, 1.0])
-def test_getitem(mock_hdf5, mock_json, flip) -> None:
-    dataset = PolonyDataset(mock_hdf5, flip, flip, False, mock_json)
-    image, label, n_points, path = dataset[0]
+@pytest.mark.parametrize("mode", ['density', 'classifier'])
+def test_getitem(mock_hdf5, mock_json, flip, mode) -> None:
+    dataset = PolonyDataset(mock_hdf5, flip, flip, False, mock_json, mode)
+    if mode == 'density':
+        image, label, n_points, path = dataset[0]
+        assert label.shape == (1, 100, 100)
+        assert isinstance(n_points, np.ndarray)
+    elif mode == 'classifier':
+        image, square_class, path = dataset[0]
+        assert isinstance(square_class, np.ndarray)
     assert image.shape == (3, 100, 100)
-    assert label.shape == (1, 100, 100)
-    assert isinstance(n_points, np.ndarray)
     assert isinstance(path, str)
