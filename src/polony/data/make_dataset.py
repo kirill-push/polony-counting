@@ -144,6 +144,11 @@ class PolonyDataset(Dataset):
         )
 
 
+class ClassifierDataset(Dataset):
+    def __init__(self, data_path, transform):
+        self.transform = transform
+
+
 def create_empty_hdf5_files(
     dataset_name: str,
     train_size: Optional[int],
@@ -291,7 +296,6 @@ def generate_polony_data(
         img_size=img_size,
         in_channels=channels,
         root_path=data_root,
-        mode=mode,
     )
 
     # creating a dictionary of paths to collect information in the process of
@@ -356,7 +360,7 @@ def generate_polony_data(
                         h5_val["labels"][val_j, 0] = label
                         h5_val["n_points"][val_j] = n_points
                         # for classifier
-                        h5_val["class"][train_j] = square_class
+                        h5_val["class"][val_j] = square_class
                         val_j += 1
             else:
                 # get an image as numpy array
