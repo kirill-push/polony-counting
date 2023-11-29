@@ -317,6 +317,7 @@ def generate_polony_data(
         train_size=train_size,
         valid_size=valid_size,
         channels=channels,
+        mode=mode,
     ):
         """
         Save images and labels in given HDF5 file.
@@ -337,7 +338,7 @@ def generate_polony_data(
             if i not in path_dict:
                 path_dict[i] = img_path
             if is_squares:
-                squares_list = grid_to_squares(img_path, new_size=new_size)
+                squares_list = grid_to_squares(img_path, new_size=new_size, mode=mode)
                 for tt, square_dict in enumerate(squares_list):
                     if channels == 1:
                         image = square_dict["square"]
