@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from unittest.mock import patch
 
 import h5py
@@ -16,16 +17,18 @@ with open(CONFIG_PATH, "r") as file:
 
 
 def mock_get_and_unzip(url: str, location: str) -> None:
-    os.makedirs(os.path.join(location, "polony"), exist_ok=True)
-    open(os.path.join(location, "polony", "valid.h5"), "w").close()
-    open(os.path.join(location, "polony", "train.h5"), "w").close()
+    os.makedirs(os.path.join(location), exist_ok=True)
+    # for i in range(10):
+    shutil.copy("resources/raw/test/test_img.tif", os.path.join(location, "test_0.tif"))
 
 
 @pytest.mark.parametrize("new_size", [None, [100, 100]])
 @pytest.mark.parametrize("is_squares", [True, False])
 @pytest.mark.parametrize("evaluation", [True, False])
 @pytest.mark.parametrize("mode", ["density", "classifier"])
-def test_generate_polony_data(tmp_path, new_size, is_squares, evaluation, mode) -> None:
+def test_generate_polony_data_mock_download(
+    tmp_path, new_size, is_squares, evaluation, mode
+) -> None:
     # Create the directory if it doesn't exist
     with patch(
         "polony.make_dataset.get_and_unzip", side_effect=mock_get_and_unzip
@@ -43,6 +46,15 @@ def test_generate_polony_data(tmp_path, new_size, is_squares, evaluation, mode) 
         )
         assert os.path.exists(os.path.join(tmp_path, "polony"))
         mock_zip.assert_called_once()
+
+
+def test_generate_polony_data(tmp_path):
+    generate_polony_data(
+        data_root=tmp_path,
+        id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
+        is_path=False,
+        mode="classifier",
+    )
 
 
 # Fixture for creating a mock hdf5
