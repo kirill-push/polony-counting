@@ -261,11 +261,6 @@ def generate_polony_data(
     else:
         img_size = new_size
 
-    # get the list of all samples and sort it
-    # if not all_files:
-    #     image_list = glob(os.path.join(data_path, "slides", "*.tif"))
-    #     image_list.sort()
-    # else:
     image_list = []
     for i in range(len(os.listdir(data_path))):
         image_list += glob(os.path.join(data_path, str(i), "slides", "*.tif"))
