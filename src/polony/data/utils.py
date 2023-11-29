@@ -285,15 +285,12 @@ def grid_to_squares(
             elif len(square_points) == 0:
                 square_class = 0
                 # skip empty squares for 'density' mode
+                true_square_id = -1
                 if mode == "density":
                     continue
             else:
                 square_class = 1
-
-            if id_counts.size:
                 true_square_id = id_value[id_counts == max(id_counts)].item()
-            else:
-                true_square_id = -1
 
             # CHECK AND BRING BACK TO SQUARE POINTS if points are out of bounds
             # ###TODO: (28.11) may be better idea to delete such squares
