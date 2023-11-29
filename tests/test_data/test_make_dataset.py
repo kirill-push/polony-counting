@@ -17,6 +17,8 @@ with open(CONFIG_PATH, "r") as file:
 
 def mock_get_and_unzip(url: str, location: str) -> None:
     os.makedirs(os.path.join(location, "polony"), exist_ok=True)
+    open(os.path.join(location, "polony", "valid.h5"), "w").close()
+    open(os.path.join(location, "polony", "train.h5"), "w").close()
 
 
 @pytest.mark.parametrize("new_size", [None, [100, 100]])
@@ -25,12 +27,9 @@ def mock_get_and_unzip(url: str, location: str) -> None:
 @pytest.mark.parametrize("mode", ["density", "classifier"])
 def test_generate_polony_data(tmp_path, new_size, is_squares, evaluation, mode) -> None:
     # Create the directory if it doesn't exist
-    os.makedirs(os.path.join(tmp_path, "polony"), exist_ok=True)
     with patch(
         "polony.make_dataset.get_and_unzip", side_effect=mock_get_and_unzip
     ) as mock_zip:
-        open(os.path.join(tmp_path, "polony", "valid.h5"), "w").close()
-        open(os.path.join(tmp_path, "polony", "train.h5"), "w").close()
         generate_polony_data(
             data_root=tmp_path,
             id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
