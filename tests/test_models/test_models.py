@@ -24,7 +24,7 @@ def test_forward_pass_with_res():
 
 def test_classifier():
     model = Classifier().to(device)
-    inp = torch.randn(size=(4, 3, 256, 256)).to(device)
+    inp = torch.randn(size=(4, 2, 256, 256)).to(device)
     model.freeze_layers("on")
     assert model(inp).shape == (4, 1)
 
