@@ -81,6 +81,7 @@ class PolonyDataset(Dataset):
         vertical_flip: float,
         to_gray: bool,
         json_path: List[str] | str,
+        mode: str = "density",
     ):
         """
         Initialize flips probabilities and pointers to a HDF5 file.
@@ -89,6 +90,7 @@ class PolonyDataset(Dataset):
             dataset_path: a path to a HDF5 file
             horizontal_flip: the probability of applying horizontal flip
             vertical_flip: the probability of applying vertical flip
+            mode (str): for which model Dataset - 'density' or 'classifier'
         """
         super(PolonyDataset, self).__init__()
         if isinstance(dataset_path, List):
@@ -100,6 +102,7 @@ class PolonyDataset(Dataset):
         self.labels = self.h5["labels"]
         self.n_points = self.h5["n_points"]
         self.path_id = self.h5["path"]
+        self.square_class = self.h5["class"]
         self.horizontal_flip = horizontal_flip
         self.vertical_flip = vertical_flip
         self.to_gray = to_gray
@@ -109,6 +112,7 @@ class PolonyDataset(Dataset):
             self.json_path = json_path
         with open(self.json_path, "r") as file:
             self.path_dict = json.load(file)
+        self.mode = mode
 
     def __len__(self):
         """Return no. of samples in HDF5 file."""
@@ -124,7 +128,9 @@ class PolonyDataset(Dataset):
             path = self.path_dict[str(int(self.path_id[index][0]))]
             if self.to_gray:
                 image = rgb_to_gray(image)
-
+            if self.mode == "classifier":
+                square_class = self.square_class[index]
+                return image, square_class, path
             return image, label, n_points, path
 
         # axis = 1 (vertical flip), axis = 2 (horizontal flip)
@@ -135,7 +141,12 @@ class PolonyDataset(Dataset):
 
         if random() < self.horizontal_flip:
             axis_to_flip.append(2)
-
+        if self.mode == "classifier":
+            return (
+                np.flip(self.images[index], axis=axis_to_flip).copy(),
+                self.square_class[index],
+                self.path_dict[str(int(self.path_id[index][0]))],
+            )
         return (
             np.flip(self.images[index], axis=axis_to_flip).copy(),
             np.flip(self.labels[index], axis=axis_to_flip).copy(),
@@ -192,9 +203,10 @@ def create_empty_hdf5_files(
     for h5, size in ((train_h5, train_size), (valid_h5, valid_size)):
         if h5 is not None:
             h5.create_dataset("images", (size, in_channels, *img_size))
+            h5.create_dataset("path", (size, 1))
             h5.create_dataset("labels", (size, 1, *img_size))
             h5.create_dataset("n_points", (size, 1)),
-            h5.create_dataset("path", (size, 1))
+            h5.create_dataset("class", (size, 1)),
 
     return train_h5, valid_h5
 
@@ -212,6 +224,7 @@ def generate_polony_data(
     evaluation: bool = config["generate_polony_data"]["evaluation"],
     delete_data: bool = config["generate_polony_data"]["delete_data"],
     is_path: bool = config["generate_polony_data"]["is_path"],
+    mode: str = "density",
 ):
     """
     Generate HDF5 files for polony dataset.
@@ -222,7 +235,11 @@ def generate_polony_data(
         new_size: - if not None, then the new image size is specified
         download: bool - download data or no
         is_squares: bool - divide into squares or no
+        mode: str - for which model ('density' or 'classifier') should be prepared data
     """
+    if mode == "classifier":
+        is_squares = True
+        new_size = [256] * 2
     if not download:
         delete_data = False
     # download and extract dataset
@@ -244,11 +261,6 @@ def generate_polony_data(
     else:
         img_size = new_size
 
-    # get the list of all samples and sort it
-    # if not all_files:
-    #     image_list = glob(os.path.join(data_path, "slides", "*.tif"))
-    #     image_list.sort()
-    # else:
     image_list = []
     for i in range(len(os.listdir(data_path))):
         image_list += glob(os.path.join(data_path, str(i), "slides", "*.tif"))
@@ -259,7 +271,7 @@ def generate_polony_data(
 
     if is_squares:
         # count the number of squares in all images that contain dots
-        n_data = count_data_size(image_list)
+        n_data = count_data_size(image_list, mode=mode)
         if not evaluation:
             train_size = int((train_size / 100) * n_data)
             valid_size = n_data - train_size
@@ -300,6 +312,7 @@ def generate_polony_data(
         train_size=train_size,
         valid_size=valid_size,
         channels=channels,
+        mode=mode,
     ):
         """
         Save images and labels in given HDF5 file.
@@ -320,7 +333,7 @@ def generate_polony_data(
             if i not in path_dict:
                 path_dict[i] = img_path
             if is_squares:
-                squares_list = grid_to_squares(img_path, new_size=new_size)
+                squares_list = grid_to_squares(img_path, new_size=new_size, mode=mode)
                 for tt, square_dict in enumerate(squares_list):
                     if channels == 1:
                         image = square_dict["square"]
@@ -328,24 +341,29 @@ def generate_polony_data(
                         image = square_dict["square_2c"]
 
                     label = square_dict["label"]
-
                     # get number of points for image
                     n_points = square_dict["n_points"]
+
+                    # for classifier
+                    square_class = square_dict["class"]
 
                     if train_j < train_size:
                         # save data to HDF5 file
                         h5["images"][train_j] = image
+                        h5["path"][train_j] = i
                         h5["labels"][train_j, 0] = label
                         h5["n_points"][train_j] = n_points
-                        h5["path"][train_j] = i
+                        # for classifier
+                        h5["class"][train_j] = square_class
                         train_j += 1
                     elif h5_val is not None:
                         h5_val["images"][val_j] = image
+                        h5_val["path"][val_j] = i
                         h5_val["labels"][val_j, 0] = label
                         h5_val["n_points"][val_j] = n_points
-                        h5_val["path"][val_j] = i
+                        # for classifier
+                        h5_val["class"][val_j] = square_class
                         val_j += 1
-
             else:
                 # get an image as numpy array
                 if new_size is None:
