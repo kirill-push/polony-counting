@@ -239,7 +239,7 @@ def generate_polony_data(
     """
     if mode == "classifier":
         is_squares = True
-        new_size = 256
+        new_size = [256] * 2
     if not download:
         delete_data = False
     # download and extract dataset
@@ -259,7 +259,7 @@ def generate_polony_data(
         else:
             img_size = config["img_size"]
     else:
-        img_size = [new_size] * 2
+        img_size = new_size
 
     # get the list of all samples and sort it
     # if not all_files:
