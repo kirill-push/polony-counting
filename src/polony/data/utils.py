@@ -290,7 +290,7 @@ def grid_to_squares(
             else:
                 square_class = 1
 
-            if id_counts:
+            if id_counts.size:
                 true_square_id = id_value[id_counts == max(id_counts)].item()
             else:
                 true_square_id = -1
