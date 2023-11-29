@@ -62,13 +62,17 @@ def test_get_roi_coordinates(channel, counter):
 
 
 @pytest.mark.parametrize("new_size", [(200, 200), (10, 10), None])
-def test_create_density_roi(new_size):
-    path_to_roi_img = "resources/raw/test/test_img.tif"
-    coordinates = get_roi_coordinates(
-        roi_path=path_to_roi_img,
-        channel=1,
-        counter=False,
-    )
+@pytest.mark.parametrize("image_type", ["real_image", "empty_file"])
+def test_create_density_roi(new_size, image_type):
+    if image_type == "real_image":
+        path_to_roi_img = "resources/raw/test/test_img.tif"
+        coordinates = get_roi_coordinates(
+            roi_path=path_to_roi_img,
+            channel=1,
+            counter=False,
+        )
+    elif image_type == "empty_file":
+        coordinates = np.array([])
     density = create_density_roi(coordinates=coordinates, new_size=new_size)
     if new_size is not None:
         assert density.shape == new_size
@@ -76,9 +80,10 @@ def test_create_density_roi(new_size):
         assert density.shape == tuple(config["img_size"])
 
 
-def test_grid_to_squares():
+@pytest.mark.parametrize("mode", ['density', 'classifier'])
+def test_grid_to_squares(mode):
     path_to_roi_img = "resources/raw/test/test_img.tif"
-    list_with_dicts = grid_to_squares(path=path_to_roi_img)
+    list_with_dicts = grid_to_squares(path=path_to_roi_img, mode=mode)
     assert isinstance(list_with_dicts, list)
     assert isinstance(list_with_dicts[0], dict)
 
