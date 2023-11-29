@@ -4,6 +4,15 @@ from typing import Dict, List, Tuple
 import numpy as np
 import torch
 import wandb
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
+from torch.nn.modules.loss import BCEWithLogitsLoss
 from torchvision import transforms
 
 from ..data.utils import grid_to_squares, read_tiff
@@ -37,6 +46,7 @@ class Looper:
         relative_error=False,
         wandb_bool=False,
         transforms=None,
+        mode: str = "density",
     ):
         """
         Initialize Looper.
@@ -51,6 +61,7 @@ class Looper:
             plot: matplotlib axes
             validation: flag to set train or eval mode
             regressor: None or model for counting objects from network output
+            mode (str): for which model Looper works 'density' or 'classifier'
 
         """
         self.network = network
@@ -66,6 +77,7 @@ class Looper:
         self.relative_error = relative_error
         self.wandb_bool = wandb_bool
         self.transforms = transforms
+        self.mode = mode
 
     def run(self):
         """Run a single epoch loop.
@@ -73,6 +85,10 @@ class Looper:
         Returns:
             Mean absolute error.
         """
+        if self.mode == "classifier":
+            self.loss = BCEWithLogitsLoss()
+            return self._run_classifier()
+
         # reset current results and add next entry for running loss
         self.true_values = []
         self.predicted_values = []
@@ -142,51 +158,150 @@ class Looper:
             return self.mean_abs_rel_err, self.mean_abs_err
         return self.mean_abs_err
 
+    def _run_classifier(self, freeze_threshold: int = 10):
+        # reset current results and add next entry for running loss
+        self.true_values = []
+        self.predicted_values = []
+        self.running_loss.append(0)
+
+        self.network.train(not self.validation)
+        if not self.validation:
+            try:
+                self.network.freeze_layers("on")
+            except Exception as e:
+                print(f"Error {e} during freezing layers")
+                print("Better to choose Classifier model from polony package")
+
+        for i, (image, image_class, _) in enumerate(self.loader):
+            if i == freeze_threshold:
+                try:
+                    self.network.freeze_layers("off")
+                except Exception as e:
+                    print(f"Error {e} during unfreezing layers")
+                    print("Better to choose Classifier model from polony package")
+
+            # move images and images classes to given device
+            image = self.transforms(image).to(self.device)
+            image_class = image_class.to(self.device)
+
+            # clear accumulated gradient if in train mode
+            if not self.validation:
+                self.optimizer.zero_grad()
+
+            # get classifier prediction
+            result = self.network(image)
+
+            # calculate loss and update running loss
+            loss = self.loss(result, image_class)
+
+            self.running_loss[-1] += image.shape[0] * loss.item() / self.size
+
+            # update weights if in train mode
+            if not self.validation:
+                loss.backward()
+                self.optimizer.step()
+
+            # loop over batch samples
+            for true, predicted in zip(image_class, result):
+                # update current epoch results
+                self.true_values.append(true.item())
+                self.predicted_values.append(predicted.item())
+
+        # calculate errors and standard deviation
+        if self.mode == "classifier":
+            self.predicted_values = self.to_binary(self.predicted_values)
+        self.update_errors()
+
+        # print epoch summary
+        self.log()
+        if self.mode == "classifier":
+            return self.f1
+        if self.relative_error:
+            return self.mean_abs_rel_err, self.mean_abs_err
+        return self.mean_abs_err
+
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def to_binary(self, logits, threshold=0.5):
+        probabilities = self.sigmoid(logits)
+        return (probabilities > threshold).astype(float)
+
     def update_errors(self):
         """
         Calculate errors and standard deviation based on current
         true and predicted values.
         """
-        self.err = [
-            true - predicted
-            for true, predicted in zip(self.true_values, self.predicted_values)
-        ]
-        self.relative_err = [
-            (true - predicted) / true
-            for true, predicted in zip(self.true_values, self.predicted_values)
-        ]
-        self.square_err = [error * error for error in self.err]
-        self.abs_err = [abs(error) for error in self.err]
-        self.abs_rel_err = [abs(error) for error in self.relative_err]
-        self.mean_err = sum(self.err) / self.size
-        self.mean_abs_err = sum(self.abs_err) / self.size
-        self.mean_abs_rel_err = sum(self.abs_rel_err) / self.size
-        self.mean_square_error = sum(self.square_err) / self.size
-        self.std = np.array(self.err).std()
+        if self.mode == "classifier":
+            self.accuracy = accuracy_score(self.true_values, self.predicted_classes)
+            self.precision = precision_score(self.true_values, self.predicted_classes)
+            self.recall = recall_score(self.true_values, self.predicted_classes)
+            self.f1 = f1_score(self.true_values, self.predicted_classes)
+            self.roc_auc = roc_auc_score(self.true_values, self.predicted_probs)
+            self.confusion = confusion_matrix(self.true_values, self.predicted_classes)
+            stage = "train" if not self.validation else "val"
+            metrics = {
+                f"{stage}/loss": self.running_loss[-1],
+                f"{stage}/accuracy": self.accuracy,
+                f"{stage}/precision": self.precision,
+                f"{stage}/recall": self.recall,
+                f"{stage}/f1": self.f1,
+                f"{stage}/confusion": self.confusion,
+            }
 
-        stage = "train" if not self.validation else "val"
-        metrics = {
-            f"{stage}/loss": self.running_loss[-1],
-            f"{stage}/mean_err": self.mean_err,
-            f"{stage}/MAE": self.mean_abs_err,
-            f"{stage}/MARE": self.mean_abs_rel_err,
-            f"{stage}/std": self.std,
-            f"{stage}/MSE": self.mean_square_error,
-        }
+        elif self.mode == "density":
+            self.err = [
+                true - predicted
+                for true, predicted in zip(self.true_values, self.predicted_values)
+            ]
+            self.relative_err = [
+                (true - predicted) / true
+                for true, predicted in zip(self.true_values, self.predicted_values)
+            ]
+            self.square_err = [error * error for error in self.err]
+            self.abs_err = [abs(error) for error in self.err]
+            self.abs_rel_err = [abs(error) for error in self.relative_err]
+            self.mean_err = sum(self.err) / self.size
+            self.mean_abs_err = sum(self.abs_err) / self.size
+            self.mean_abs_rel_err = sum(self.abs_rel_err) / self.size
+            self.mean_square_error = sum(self.square_err) / self.size
+            self.std = np.array(self.err).std()
+
+            stage = "train" if not self.validation else "val"
+            metrics = {
+                f"{stage}/loss": self.running_loss[-1],
+                f"{stage}/mean_err": self.mean_err,
+                f"{stage}/MAE": self.mean_abs_err,
+                f"{stage}/MARE": self.mean_abs_rel_err,
+                f"{stage}/std": self.std,
+                f"{stage}/MSE": self.mean_square_error,
+            }
+
         if self.wandb_bool:
             wandb.log(metrics)
 
     def log(self):
         """Print current epoch results."""
-        print(
-            f"{'Train' if not self.validation else 'Valid'}:\n"
-            f"\tAverage loss: {self.running_loss[-1]:3.4f}\n"
-            f"\tMean error: {self.mean_err:3.3f}\n"
-            f"\tMean absolute error: {self.mean_abs_err:3.3f}\n"
-            f"\tMean absolute relative error: {self.mean_abs_rel_err:1.4f}\n"
-            f"\tError deviation: {self.std:3.3f}\n"
-            f"\tMean square error: {self.mean_square_error:3.3f}"
-        )
+        if self.mode == "density":
+            print(
+                f"{'Train' if not self.validation else 'Valid'}:\n"
+                f"\tAverage loss: {self.running_loss[-1]:3.4f}\n"
+                f"\tMean error: {self.mean_err:3.3f}\n"
+                f"\tMean absolute error: {self.mean_abs_err:3.3f}\n"
+                f"\tMean absolute relative error: {self.mean_abs_rel_err:1.4f}\n"
+                f"\tError deviation: {self.std:3.3f}\n"
+                f"\tMean square error: {self.mean_square_error:3.3f}"
+            )
+        elif self.mode == "classifier":
+            print(
+                f"{'Train' if not self.validation else 'Valid'}:\n"
+                f"\tAverage loss: {self.running_loss[-1]:3.4f}\n"
+                f"\tAccuracy: {self.accuracy:3.3f}\n"
+                f"\tPrecision: {self.precision:3.3f}\n"
+                f"\tRecall: {self.recall:3.3f}\n"
+                f"\tF1: {self.f1:3.3f}\n"
+                f"\tConfusion: {self.confusion:3.3f}"
+            )
 
 
 class Config(dict):
