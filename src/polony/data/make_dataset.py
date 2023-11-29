@@ -213,12 +213,10 @@ def create_empty_hdf5_files(
 
 def generate_polony_data(
     download: bool = config["generate_polony_data"]["download"],
-    # id: str = config["generate_polony_data"]["id"],
     train_size: int = config["generate_polony_data"]["train_size"],
     new_size: Optional[List[int]] = config["generate_polony_data"]["new_size"],
     data_root: str = config["generate_polony_data"]["data_root"],
     is_squares: bool = config["generate_polony_data"]["is_squares"],
-    # all_files: bool = config["generate_polony_data"]["all_files"],
     id_list: Optional[Iterable[str]] = config["generate_polony_data"]["id_list"],
     channels: int = config["generate_polony_data"]["channels"],
     evaluation: bool = config["generate_polony_data"]["evaluation"],
@@ -245,9 +243,6 @@ def generate_polony_data(
     # download and extract dataset
     data_path = os.path.join(data_root, "polony")
     if download:
-        # if id_list is None:
-        #     get_and_unzip(id, location=data_path)
-        # else:
         for i, id_to_zip in enumerate(id_list):
             location = os.path.join(data_path, str(i))
             get_and_unzip(id_to_zip, location=location)
@@ -255,7 +250,7 @@ def generate_polony_data(
 
     if new_size is None:
         if is_squares:
-            img_size = config["square_size"]  # TODO need to check
+            img_size = config["square_size"]
         else:
             img_size = config["img_size"]
     else:
@@ -399,7 +394,6 @@ def generate_polony_data(
     if is_squares:
         fill_h5(train_h5, image_list, h5_val=valid_h5)
     else:
-        # use first 150 samples for training and the last 50 for validation
         if train_h5 is not None:
             fill_h5(train_h5, image_list[:train_size])
         fill_h5(valid_h5, image_list[train_size:])
@@ -414,10 +408,6 @@ def generate_polony_data(
         train_h5.close()
     valid_h5.close()
 
-    # cleanup
-    # if not all_files:
-    #     shutil.rmtree(os.path.join(data_path, "slides"))
-    # else:
     if delete_data:
         try:
             for i in range(len(os.listdir(data_path))):
