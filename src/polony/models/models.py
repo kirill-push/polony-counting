@@ -178,11 +178,21 @@ class UNet(nn.Module):
 
 
 class Classifier(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, in_channel: int = 2) -> None:
         super().__init__()
+        self.in_channel = in_channel
         self.weights = ResNet18_Weights.DEFAULT
         self.net = resnet18(weights=self.weights)
         self.net.fc = nn.Linear(self.net.fc.in_features, 1)
+        if self.in_channel != 3:
+            self.net.conv1 = nn.Conv2d(
+                self.in_channel,
+                self.net.conv1.out_channels,
+                kernel_size=(7, 7),
+                stride=(2, 2),
+                padding=(3, 3),
+                bias=False,
+            )
 
     def forward(self, inp: torch.Tensor) -> torch.Tensor:
         return self.net(inp)
@@ -192,6 +202,8 @@ class Classifier(nn.Module):
             for param in self.parameters():
                 param.requires_grad_ = False
             self.net.fc.requires_grad_ = True
+            if self.in_channel != 3:
+                self.net.conv1.requires_grad_ = True
         elif mode == "off":
             for param in self.parameters():
                 param.requires_grad_ = True
