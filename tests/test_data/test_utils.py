@@ -1,8 +1,10 @@
+import os
+import shutil
+
 import numpy as np
 import pytest
 import yaml
 
-from polony import generate_polony_data
 from src.polony.data.utils import (
     create_density_roi,
     get_and_unzip,
@@ -20,12 +22,7 @@ with open(CONFIG_PATH, "r") as file:
 
 
 def test_remove_img_without_roi(tmp_path):
-    generate_polony_data(
-        data_root=tmp_path,
-        id_list=["11qu58SyRl1VCnRN4ujQvmJXU5k0UTJPS"],
-        delete_data=False,
-        is_path=False,
-    )
+    shutil.copy("resources/raw/test/test_img.tif", os.path.join(tmp_path, "slides"))
     remove_img_without_roi(location=tmp_path, remove=False)
 
 
@@ -80,7 +77,7 @@ def test_create_density_roi(new_size, image_type):
         assert density.shape == tuple(config["img_size"])
 
 
-@pytest.mark.parametrize("mode", ['density', 'classifier'])
+@pytest.mark.parametrize("mode", ["density", "classifier"])
 def test_grid_to_squares(mode):
     path_to_roi_img = "resources/raw/test/test_img.tif"
     list_with_dicts = grid_to_squares(path=path_to_roi_img, mode=mode)
