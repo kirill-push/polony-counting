@@ -9,7 +9,7 @@ from torchvision import transforms
 
 from ..data.make_dataset import PolonyDataset
 from ..data.utils import mean_std
-from .models import UNet, Classifier
+from .models import Classifier, UNet
 from .utils import Config, Looper
 
 # folder to load config file
@@ -134,13 +134,15 @@ def train(
             N=convolutions,
             res=res,
         ).to(device)
-    elif network_architecture == 'Classifier':
+    elif network_architecture == "Classifier":
         # ###TODO 29/11 after merge to develop add input_channels
         network = Classifier().to(device)
     elif isinstance(network_architecture, nn.Module):
         network = network_architecture.to(device)
     else:
-        raise ValueError("Wrong network, shoud be nn.Module or string: 'Classifier' or 'UNet'")
+        raise ValueError(
+            "Wrong network, shoud be nn.Module or string: 'Classifier' or 'UNet'"
+        )
     network = torch.nn.DataParallel(network)
     optimizer = torch.optim.AdamW(
         network.parameters(),
