@@ -121,7 +121,7 @@ def train(
             if mode == "train"
             else config_yaml["PolonyDataset_val"]
         )
-        dataset[mode] = PolonyDataset(**polony_dataset_params)
+        dataset[mode] = PolonyDataset(**polony_dataset_params, mode=looper_mode)
         dataloader[mode] = torch.utils.data.DataLoader(
             dataset[mode], batch_size=batch_size, shuffle=shuffle[mode]
         )
