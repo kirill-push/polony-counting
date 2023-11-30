@@ -135,8 +135,7 @@ def train(
             res=res,
         ).to(device)
     elif network_architecture == "Classifier":
-        # ###TODO 29/11 after merge to develop add input_channels
-        network = Classifier().to(device)
+        network = Classifier(in_channel=input_channels).to(device)
     elif isinstance(network_architecture, nn.Module):
         network = network_architecture.to(device)
     else:
