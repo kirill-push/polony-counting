@@ -167,10 +167,14 @@ class Looper:
         self.network.train(not self.validation)
         if not self.validation:
             try:
-                self.network.freeze_layers("on")
+                if isinstance(self.netwotk, torch.nn.DataParallel):
+                    self.network.module.freeze_layers("on")
+                else:
+                    self.network.freeze_layers("on")
             except Exception as e:
                 print(f"Error {e} during freezing layers")
                 print("Better to choose Classifier model from polony package")
+                raise (e)
 
         for i, (image, image_class, _) in enumerate(self.loader):
             if i == freeze_threshold:
@@ -179,6 +183,7 @@ class Looper:
                 except Exception as e:
                     print(f"Error {e} during unfreezing layers")
                     print("Better to choose Classifier model from polony package")
+                    raise (e)
 
             # move images and images classes to given device
             image = self.transforms(image).to(self.device)
