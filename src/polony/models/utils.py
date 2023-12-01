@@ -79,7 +79,7 @@ class Looper:
         self.transforms = transforms
         self.mode = mode
 
-    def run(self) -> float | Tuple(float):
+    def run(self) -> float | Tuple[float]:
         """Run a single epoch loop.
 
         Returns:
