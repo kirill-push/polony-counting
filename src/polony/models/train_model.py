@@ -176,6 +176,7 @@ def train(
     # turn on freezing layers for better learning
     if looper_mode == "classifier":
         train_looper.freeze_layers("on")
+        print("Layers were frozen")
 
     valid_looper = Looper(
         network,
@@ -197,6 +198,7 @@ def train(
         # turn off freezing layers after freeze_threshold epochs
         if epoch == freeze_threshold and looper_mode == "classifier":
             train_looper.freeze_layers("off")
+            print("Layers were unfrozen")
 
         print(f"Epoch {epoch + 1}\n")
 
