@@ -157,7 +157,7 @@ class Looper:
         if self.relative_error:
             return self.mean_abs_rel_err, self.mean_abs_err
         return self.mean_abs_err
-    
+
     def freeze_layers(self, mode: str) -> None:
         if isinstance(self.network, torch.nn.DataParallel):
             self.network.module.freeze_layers(mode)
