@@ -79,7 +79,7 @@ class Looper:
         self.transforms = transforms
         self.mode = mode
 
-    def run(self):
+    def run(self) -> float | Tuple(float):
         """Run a single epoch loop.
 
         Returns:
@@ -157,8 +157,7 @@ class Looper:
         if self.relative_error:
             return self.mean_abs_rel_err, self.mean_abs_err
         return self.mean_abs_err
-
-    def _run_classifier(self, freeze_threshold: int = 10):
+    def _run_classifier(self) -> float:
         # reset current results and add next entry for running loss
         self.true_values = []
         self.predicted_values = []
