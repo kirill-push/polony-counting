@@ -2,9 +2,9 @@ import os
 from typing import Dict, List, Tuple
 
 import numpy as np
-from numpy.typing import NDArray
 import torch
 import wandb
+from numpy.typing import NDArray
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
