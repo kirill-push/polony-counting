@@ -2,6 +2,7 @@ import os
 from typing import Dict, List, Tuple
 
 import numpy as np
+from numpy.typing import NDArray
 import torch
 import wandb
 from sklearn.metrics import (
@@ -202,7 +203,7 @@ class Looper:
 
         # calculate errors and standard deviation
         if self.mode == "classifier":
-            self.predicted_values = self.to_binary(self.predicted_values)
+            self.predicted_values = self.to_binary(np.array(self.predicted_values))
         self.update_errors()
 
         # print epoch summary
@@ -213,12 +214,12 @@ class Looper:
             return self.mean_abs_rel_err, self.mean_abs_err
         return self.mean_abs_err
 
-    def sigmoid(self, x):
+    def sigmoid(self, x: NDArray) -> NDArray:
         return 1 / (1 + np.exp(-x))
 
-    def to_binary(self, logits, threshold=0.5):
+    def to_binary(self, logits: NDArray, threshold=0.5) -> List[float]:
         probabilities = self.sigmoid(logits)
-        return (probabilities > threshold).astype(float)
+        return (probabilities > threshold).astype(float).tolist()
 
     def update_errors(self):
         """
