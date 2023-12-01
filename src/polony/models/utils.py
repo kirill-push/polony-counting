@@ -167,7 +167,7 @@ class Looper:
         self.network.train(not self.validation)
         if not self.validation:
             try:
-                if isinstance(self.netwotk, torch.nn.DataParallel):
+                if isinstance(self.network, torch.nn.DataParallel):
                     self.network.module.freeze_layers("on")
                 else:
                     self.network.freeze_layers("on")
