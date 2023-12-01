@@ -36,6 +36,7 @@ def train(
     factor: float = train_params["factor"],
     res: bool = train_params["res"],
     loss: nn.MSELoss = nn.MSELoss(),
+    freeze_threshold: int = 10,
 ) -> None:
     """Train chosen model on selected dataset.
 
@@ -66,6 +67,8 @@ def train(
             Defaults to train_params["res"].
         loss (nn.MSELoss, optional): _description_.
             Defaults to nn.MSELoss().
+        freeze_threshold (int, optional): _description_.
+            Defaults to 10.
     """
 
     # use GPU if avilable
@@ -170,6 +173,10 @@ def train(
         transforms=normalize,
         mode=looper_mode,
     )
+    # turn on freezing layers for better learning
+    if looper_mode == "classifier":
+        train_looper.freeze_layers("on")
+
     valid_looper = Looper(
         network,
         device,
@@ -187,6 +194,10 @@ def train(
     current_best = 100
     second_best = np.infty
     for epoch in range(config.epochs):
+        # turn off freezing layers after freeze_threshold epochs
+        if epoch == freeze_threshold and looper_mode == "classifier":
+            train_looper.freeze_layers("off")
+
         print(f"Epoch {epoch + 1}\n")
 
         # run training epoch and update learning rate
