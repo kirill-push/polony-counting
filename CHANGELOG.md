@@ -2,6 +2,20 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (2023-12-02)
+
+### Feature
+
+* :sparkles: add new method pos_weight to PolonyDataset ([`1eb3e2a`](https://github.com/kirill-push/polony-counting/commit/1eb3e2af46aa407f87a143ab0fc199678edba400))
+* :sparkles: add new mode to Looper for training classifier ([`b6cb927`](https://github.com/kirill-push/polony-counting/commit/b6cb927aeace9af477f9d79dfa41d1b47aa51f77))
+* :sparkles: add new mode to train classifier ([`9f8b94f`](https://github.com/kirill-push/polony-counting/commit/9f8b94f3a8be04d9a48d1ca0b0825a5d1d6fb6b5))
+* :sparkles: new mode for PolonyDataset ([`420d2e9`](https://github.com/kirill-push/polony-counting/commit/420d2e918bbecada2581c454fae6780c4a695bef))
+* :sparkles: new mode for count data func ([`62d91e3`](https://github.com/kirill-push/polony-counting/commit/62d91e396cebdc30b7902e2d2ea9d4488545acd0))
+* :sparkles: new working mode for generate squares ([`3dd71fb`](https://github.com/kirill-push/polony-counting/commit/3dd71fb821e56f2cac0fbcf23f14a01a781950d9))
+* :sparkles: new working mode for generate data ([`40962ed`](https://github.com/kirill-push/polony-counting/commit/40962edd0239177711fee8012c1cc2c5fd8fcd6b))
+* :sparkles: new working mode for creating empth hdf5 ([`d640a2d`](https://github.com/kirill-push/polony-counting/commit/d640a2d78b3149ddebb1ce87efd7253e82877dea))
+* :sparkles: add squares classifier model ([`c508e4d`](https://github.com/kirill-push/polony-counting/commit/c508e4d1d2ea1304153495895d6f28df79176523))
+
 ## v0.4.0 (2023-11-26)
 
 ### Feature
