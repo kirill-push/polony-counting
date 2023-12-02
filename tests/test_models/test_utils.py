@@ -156,7 +156,7 @@ def test_looper_log_method(capsys, looper_instance, mode):
         looper_instance.precision = 0.2
         looper_instance.recall = 0.3
         looper_instance.f1 = 0.4
-        looper_instance.confusion = 0.5
+        looper_instance.confusion = [[0.5]]
 
     looper_instance.log()
 
@@ -173,4 +173,4 @@ def test_looper_log_method(capsys, looper_instance, mode):
         assert "Precision: 0.200" in captured.out
         assert "Recall: 0.300" in captured.out
         assert "F1: 0.400" in captured.out
-        assert "Confusion: 0.500" in captured.out
+        assert "Confusion matrix:" in captured.out
