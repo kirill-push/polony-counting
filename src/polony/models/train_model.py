@@ -80,7 +80,6 @@ def train(
     elif network_architecture == "Classifier":
         looper_mode = "classifier"
         lr_mode = "max"
-        loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([3798 / 2331]))
 
     if wandb_bool:
         # start a new wandb run to track this script
@@ -130,7 +129,6 @@ def train(
         dataloader[mode] = torch.utils.data.DataLoader(
             dataset[mode], batch_size=batch_size, shuffle=shuffle[mode]
         )
-
     # initialize a model based on chosen network_architecture
     if network_architecture == "UNet":
         network = UNet(
@@ -141,6 +139,9 @@ def train(
         ).to(device)
     elif network_architecture == "Classifier":
         network = Classifier(in_channel=input_channels).to(device)
+        loss = nn.BCEWithLogitsLoss(
+            pos_weight=torch.tensor(dataset["train"].pos_weight())
+        )
     elif isinstance(network_architecture, nn.Module):
         network = network_architecture.to(device)
     else:
