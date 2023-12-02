@@ -192,10 +192,10 @@ def train(
     )
 
     # current best results (lowest mean absolute error on validation set)
-    if lr_mode == 'min':
+    if lr_mode == "min":
         current_best = 100
         second_best = np.infty
-    elif lr_mode == 'max':
+    elif lr_mode == "max":
         current_best = 0
         second_best = -1
     for epoch in range(config.epochs):
