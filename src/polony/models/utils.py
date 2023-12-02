@@ -227,12 +227,12 @@ class Looper:
         true and predicted values.
         """
         if self.mode == "classifier":
-            self.accuracy = accuracy_score(self.true_values, self.predicted_classes)
-            self.precision = precision_score(self.true_values, self.predicted_classes)
-            self.recall = recall_score(self.true_values, self.predicted_classes)
-            self.f1 = f1_score(self.true_values, self.predicted_classes)
-            self.roc_auc = roc_auc_score(self.true_values, self.predicted_probs)
-            self.confusion = confusion_matrix(self.true_values, self.predicted_classes)
+            self.accuracy = accuracy_score(self.true_values, self.predicted_values)
+            self.precision = precision_score(self.true_values, self.predicted_values)
+            self.recall = recall_score(self.true_values, self.predicted_values)
+            self.f1 = f1_score(self.true_values, self.predicted_values)
+            self.roc_auc = roc_auc_score(self.true_values, self.predicted_values)
+            self.confusion = confusion_matrix(self.true_values, self.predicted_values)
             stage = "train" if not self.validation else "val"
             metrics = {
                 f"{stage}/loss": self.running_loss[-1],
@@ -294,7 +294,7 @@ class Looper:
                 f"\tPrecision: {self.precision:3.3f}\n"
                 f"\tRecall: {self.recall:3.3f}\n"
                 f"\tF1: {self.f1:3.3f}\n"
-                f"\tConfusion: {self.confusion:3.3f}"
+                f"\tConfusion matrix:\n{self.confusion}"
             )
 
 
