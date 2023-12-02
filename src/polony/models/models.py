@@ -3,6 +3,7 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.models import ResNet18_Weights, resnet18
 
 
 class ConvCat(nn.Module):
@@ -174,3 +175,37 @@ class UNet(nn.Module):
         # density prediction
         block7 = self.block7(block6)
         return self.density_pred(block7)
+
+
+class Classifier(nn.Module):
+    def __init__(self, in_channel: int = 2) -> None:
+        super().__init__()
+        self.in_channel = in_channel
+        self.weights = ResNet18_Weights.DEFAULT
+        self.net = resnet18(weights=self.weights)
+        self.net.fc = nn.Linear(self.net.fc.in_features, 1)
+        if self.in_channel != 3:
+            self.net.conv1 = nn.Conv2d(
+                self.in_channel,
+                self.net.conv1.out_channels,
+                kernel_size=(7, 7),
+                stride=(2, 2),
+                padding=(3, 3),
+                bias=False,
+            )
+
+    def forward(self, inp: torch.Tensor) -> torch.Tensor:
+        return self.net(inp)
+
+    def freeze_layers(self, mode: str = "on") -> None:
+        if mode == "on":
+            for param in self.parameters():
+                param.requires_grad_ = False
+            self.net.fc.requires_grad_ = True
+            if self.in_channel != 3:
+                self.net.conv1.requires_grad_ = True
+        elif mode == "off":
+            for param in self.parameters():
+                param.requires_grad_ = True
+        else:
+            raise ValueError("Wrong mode, should be 'on' or 'off'")

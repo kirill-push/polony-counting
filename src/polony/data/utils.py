@@ -8,6 +8,7 @@ import cv2
 import gdown
 import numpy as np
 import yaml
+from numpy.typing import NDArray
 from PIL import Image
 from roifile import roiread
 from scipy.ndimage import gaussian_filter
@@ -93,7 +94,7 @@ def read_tiff(path: str, new_size: Optional[Tuple[int]] = None) -> np.ndarray:
 
 def get_roi_coordinates(
     roi_path: str, channel: Union[int, None] = None, counter: bool = False
-) -> Union[np.ndarray, Tuple]:
+) -> Union[NDArray[np.float64], Tuple[NDArray[np.float64]]]:
     """
     From ROI file with image get arrays with coordinates
     Args:
@@ -104,7 +105,8 @@ def get_roi_coordinates(
         counter (False): return or not also array with points areas id
 
     Returns:
-        np.ndarray or Tuple: Array with points coordinates
+        NDArray[np.float64] or Tuple[NDArray[np.float64]]]:
+            Numpy array with points coordinates
             or if counter == True
                 tuple with 2 arrays: (point coordinates, point area id)
             or if channel is None
@@ -156,7 +158,7 @@ def create_density_roi(
     coordinates: np.ndarray,
     size: Tuple[int] = config["img_size"],
     new_size: Optional[Tuple[int]] = None,
-) -> np.ndarray:
+) -> NDArray[np.float64]:
     """Create density map by points coordinates
 
     Args:
@@ -167,7 +169,7 @@ def create_density_roi(
             Defaults to None.
 
     Returns:
-        np.ndarray: Output density map
+        NDArray[np.float64]: Output density map
     """
     if new_size is not None:
         density = np.zeros(new_size, dtype=np.float32)
@@ -219,7 +221,9 @@ def reshape_numpy(arr: np.ndarray, new_size: List[int]) -> np.ndarray:
 
 
 def grid_to_squares(
-    path: str, new_size: Optional[List[int]] = None
+    path: str,
+    new_size: Optional[List[int]] = None,
+    mode: str = "density",
 ) -> List[Dict[str, Any]]:
     """Make dict with squares and other data for model training
         from original tiff file with image
@@ -227,6 +231,7 @@ def grid_to_squares(
     Args:
         path (str): path to tiff file with image
         new_size (List[int] | None): new_size for squares
+        mode (str): for which model should be prepared squares 'density' or 'classifier'
 
     Returns:
         List[Dict[str, Any]]: List with dicts. Each dict for square image and
@@ -272,14 +277,23 @@ def grid_to_squares(
             square_id = counters[points_condition]
             id_value, id_counts = np.unique(square_id, return_counts=True)
 
-            if len(square_points) <= 1 or (
+            # skip squares with 1 or 0 points or with more than 2 types of points
+            if len(square_points) == 1 or (
                 len(id_value) > 1 and max(id_counts) - min(id_counts) <= 2
             ):
                 continue
-
-            true_square_id = id_value[id_counts == max(id_counts)].item()
+            elif len(square_points) == 0:
+                square_class = 0
+                # skip empty squares for 'density' mode
+                true_square_id = -1
+                if mode == "density":
+                    continue
+            else:
+                square_class = 1
+                true_square_id = id_value[id_counts == max(id_counts)].item()
 
             # CHECK AND BRING BACK TO SQUARE POINTS if points are out of bounds
+            # ###TODO: (28.11) may be better idea to delete such squares
             square_points = bring_back_points(
                 true_square_id, points, counters, x, y, square_size
             )
@@ -295,18 +309,17 @@ def grid_to_squares(
                 square = np.transpose(square)
                 square_dict["square"] = reshape_numpy(square, new_size)
                 square_dict["square_2c"] = reshape_numpy(square_2c, new_size)
-            square_dict["points"] = square_points - np.array(
-                [x, y]
-            )  # points in relative coordinates for a given square
-            square_dict["square_coordinate"] = np.array(
-                [x, y]
-            )  # coordinates of the upper-left corner of the square
+            # points in relative coordinates for a given square
+            square_dict["points"] = square_points
+            # coordinates of the upper-left corner of the square
+            square_dict["square_coordinate"] = np.array([x, y])
             square_dict["n_points"] = len(square_points)
 
             square_dict["label"] = create_density_roi(
                 square_dict["points"], size=[square_size] * 2, new_size=new_size
             )
-            if square_dict["label"] is False:
+            square_dict["class"] = square_class
+            if square_dict["label"] is False and square_class == 1:
                 print(
                     "x ",
                     x,
@@ -323,16 +336,29 @@ def grid_to_squares(
     return squares
 
 
-def bring_back_points(square_id, points, counters, x, y, square_size):
-    """
-    This function makes INPLACE changes in the list points
+def bring_back_points(
+    square_id: int,
+    points: NDArray[np.float64],
+    counters: NDArray[np.float64],
+    x: int,
+    y: int,
+    square_size: int,
+) -> NDArray[np.float64]:
+    """This function makes INPLACE changes in the list points
+
     Args:
-        square_id - id of square
-        points - list with coordinates (full list)
-        counters - list with points id (same id -> same square)
-    Return:
-        list of correct points of square with square_id
+        square_id (int): id of square
+        points (NDArray[np.float64]): list with coordinates (full list)
+        counters (NDArray[np.float64]): list with points id (same id -> same square)
+        x (int): x coordinate of square
+        y (int): y coordinate of square
+        square_size (int): size of square
+
+    Returns:
+        NDArray[np.float64]: list of correct points of square with square_id
     """
+    if square_id == -1:
+        return np.array([])
     true_points = points[counters == square_id]  # square points by id of square
     points_condition = (
         (true_points[:, 1] >= y)
@@ -348,7 +374,7 @@ def bring_back_points(square_id, points, counters, x, y, square_size):
     if (
         np.sum(points_anti_condition) == 0
     ):  # check if we don't have any points out of square
-        return true_points  # return list of square_points
+        return true_points - np.array([x, y])  # return list of square_points
     mistake_points = true_points[points_anti_condition]
     for i, (p_x, p_y) in enumerate(mistake_points):
         if p_x < x:
@@ -360,13 +386,13 @@ def bring_back_points(square_id, points, counters, x, y, square_size):
         if p_y >= y + square_size:
             mistake_points[i][1] = y + square_size - 0.5
     true_points[points_anti_condition] = mistake_points
-    return true_points
+    return true_points - np.array([x, y])
 
 
-def count_data_size(image_list):
+def count_data_size(image_list, mode="density"):
     counter = 0
     for img_path in image_list:
-        squares_list = grid_to_squares(img_path)
+        squares_list = grid_to_squares(img_path, mode=mode)
         counter += len(squares_list)
 
     return counter
