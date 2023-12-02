@@ -73,12 +73,14 @@ def train(
 
     # use GPU if avilable
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    # update params of training
     if network_architecture == "UNet":
         looper_mode = "density"
         lr_mode = "min"
     elif network_architecture == "Classifier":
         looper_mode = "classifier"
         lr_mode = "max"
+        loss = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([3798 / 2331]))
 
     if wandb_bool:
         # start a new wandb run to track this script

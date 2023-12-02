@@ -87,7 +87,6 @@ class Looper:
             Mean absolute error.
         """
         if self.mode == "classifier":
-            self.loss = BCEWithLogitsLoss()
             return self._run_classifier()
 
         # reset current results and add next entry for running loss
