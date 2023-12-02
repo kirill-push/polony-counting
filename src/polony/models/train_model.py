@@ -192,8 +192,12 @@ def train(
     )
 
     # current best results (lowest mean absolute error on validation set)
-    current_best = 100
-    second_best = np.infty
+    if lr_mode == 'min':
+        current_best = 100
+        second_best = np.infty
+    elif lr_mode == 'max':
+        current_best = 0
+        second_best = -1
     for epoch in range(config.epochs):
         # turn off freezing layers after freeze_threshold epochs
         if epoch == freeze_threshold and looper_mode == "classifier":
@@ -213,29 +217,42 @@ def train(
         lr_scheduler.step(result)
 
         # update checkpoint if new best is reached
-        if result < current_best:
-            # second_best = current_best
-            current_best = result
-            if result < 3:
-                torch.save(
-                    network.state_dict(),
-                    f"{dataset_name}_{epoch}_{result:.4f}.pth",
-                )
-            #                 # Save model as an Artifact
+        if lr_mode == "min":
+            if result < current_best:
+                current_best = result
+                if result < 3:
+                    torch.save(
+                        network.state_dict(),
+                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                    )
 
-            #                 artifact.add_file('neural_network.h5')
-            #                 run.log_artifact(artifact)
+                print(f"\nNew best result: {result}")
+            elif result <= second_best:
+                second_best = result
+                if result < 3:
+                    torch.save(
+                        network.state_dict(),
+                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                    )
+                print(f"\nNew best second result: {result}")
+        elif lr_mode == "max":
+            if result > current_best:
+                current_best = result
+                if result >= 0.7:
+                    torch.save(
+                        network.state_dict(),
+                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                    )
 
-            print(f"\nNew best result: {result}")
-        elif result <= second_best:
-            second_best = result
-            if result < 3:
-                torch.save(
-                    network.state_dict(),
-                    f"{dataset_name}_{epoch}_{result:.4f}.pth",
-                )
-
-            print(f"\nNew best second result: {result}")
+                print(f"\nNew best result: {result}")
+            elif result >= second_best:
+                second_best = result
+                if result >= 0.7:
+                    torch.save(
+                        network.state_dict(),
+                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                    )
+                print(f"\nNew best second result: {result}")
         print("\n", "-" * 80, "\n", sep="")
 
     print(f"[Training done] Best result: {current_best}")
