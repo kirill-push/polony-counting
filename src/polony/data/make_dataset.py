@@ -118,6 +118,23 @@ class PolonyDataset(Dataset):
         """Return no. of samples in HDF5 file."""
         return len(self.images)
 
+    def pos_weight(self) -> float:
+        """Returns a weight of positive examples for BCELoss
+
+        Returns:
+            float: a weight of positive examples for BCELoss
+        """
+        pos = 0.
+        neg = 0.
+        for i in range(len(self)):
+            if self[i][1].item() == 0:
+                neg += 1
+            else:
+                pos += 1
+        self.postive_objects = pos
+        self.negative_objects = neg
+        return pos / neg
+
     def __getitem__(self, index: int):
         """Return next sample (randomly flipped)."""
         # if both flips probabilities are zero return an image and a label
