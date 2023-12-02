@@ -13,7 +13,6 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from torch.nn.modules.loss import BCEWithLogitsLoss
 from torchvision import transforms
 
 from ..data.utils import grid_to_squares, read_tiff

@@ -219,13 +219,19 @@ def train(
         lr_scheduler.step(result)
 
         # update checkpoint if new best is reached
+        filename = (
+            f"{dataset_name}_"
+            f"{network_architecture}_"
+            f"{epoch}_"
+            f"{result:.4f}.pth"
+        )
         if lr_mode == "min":
             if result < current_best:
                 current_best = result
                 if result < 3:
                     torch.save(
                         network.state_dict(),
-                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                        filename,
                     )
 
                 print(f"\nNew best result: {result}")
@@ -234,7 +240,7 @@ def train(
                 if result < 3:
                     torch.save(
                         network.state_dict(),
-                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                        filename,
                     )
                 print(f"\nNew best second result: {result}")
         elif lr_mode == "max":
@@ -243,7 +249,7 @@ def train(
                 if result >= 0.7:
                     torch.save(
                         network.state_dict(),
-                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                        filename,
                     )
 
                 print(f"\nNew best result: {result}")
@@ -252,7 +258,7 @@ def train(
                 if result >= 0.7:
                     torch.save(
                         network.state_dict(),
-                        f"{dataset_name}_{network_architecture}_{epoch}_{result:.4f}.pth",
+                        filename,
                     )
                 print(f"\nNew best second result: {result}")
         print("\n", "-" * 80, "\n", sep="")

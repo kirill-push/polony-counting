@@ -124,8 +124,8 @@ class PolonyDataset(Dataset):
         Returns:
             float: a weight of positive examples for BCELoss
         """
-        pos = 0.
-        neg = 0.
+        pos = 0.0
+        neg = 0.0
         for i in range(len(self)):
             if self[i][1].item() == 0:
                 neg += 1
