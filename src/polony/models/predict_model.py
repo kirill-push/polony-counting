@@ -38,9 +38,16 @@ NUMBER_OF_LINES = [8, 5]
 MEAN, STD = ([12.69365111, 2.47628206], [13.35308926, 2.45260453])
 normalize = transforms.Normalize(MEAN, STD)
 
+# paths to checkpoints
+current_file_path = os.path.abspath(__file__)
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file_path))))
+
+# Путь к папке checkpoints
+density_checkpoint = os.path.join(project_root, 'checkpoints', 'unet_49_1.7496.pth')
+classifier_checkpoint = os.path.join(project_root, 'checkpoints', 'classifier_57_0.8896.pth')
+
 # Configuring Argument parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
 
 parser.add_argument(
     "--path",
@@ -61,9 +68,9 @@ parser.add_argument(
 def predict(
     path: str,
     density: torch.nn.Module = UNet(res=False),
-    path_to_density: str = "../checkpoints/unet_49_1.7496.pth",
+    path_to_density: str = density_checkpoint,
     classifier: torch.nn.Module = Classifier(),
-    path_to_classifier: str = "../checkpoints/classifier_57_0.8896.pth",
+    path_to_classifier: str = classifier_checkpoint,
     device: torch.device = torch.device(
         "cuda:0" if torch.cuda.is_available() else "cpu"
     ),
