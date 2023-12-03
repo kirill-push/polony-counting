@@ -99,7 +99,7 @@ class Looper:
             self.regressor.train(not self.validation)
             self.network.train(False)
 
-        for i, (image, label, n_points, path) in enumerate(self.loader):
+        for i, (image, label, n_points, _) in enumerate(self.loader):
             # move images and labels to given device
             image = self.transforms(image).to(self.device)
             label = label.to(self.device)
