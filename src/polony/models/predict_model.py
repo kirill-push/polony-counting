@@ -122,11 +122,11 @@ def predict(
         print("Files and folders in the directory:")
         for image_path in images:
             predictions.append(
-                predict_one_image(image_path, density, classifier, channels, device)
+                predict_one_image(image_path, density, classifier, channels, device, classifier_threshold)
             )
     else:
         predictions.append(
-            predict_one_image(path, density, classifier, channels, device)
+            predict_one_image(path, density, classifier, channels, device, classifier_threshold)
         )
 
     return predictions
@@ -181,15 +181,16 @@ def predict_one_image(
                 square = imgs[:, y : y + square_size, x : x + square_size]
             square = torch.from_numpy(square).float().to(device)
             square = normalize(square)
-            square_class = classifier(square.unsqueeze(0))
-            square_class = logit_to_class(square_class, classifier_threshold).item()
-            if square_class == 0:
-                continue
+            logit = classifier(square.unsqueeze(0))
+            square_class = logit_to_class(logit, classifier_threshold).item()
+            # if square_class == 0:
+            #     continue
             density = network(square.unsqueeze(0))
             result = torch.sum(density).item() // 100
 
             result_dict["result"] = int(result)
             result_dict["class"] = square_class
+            result_dict["probs"] = torch.sigmoid(logit).item()
             result_dict["density"] = density
             squares_dict[square_id] = result_dict
 
