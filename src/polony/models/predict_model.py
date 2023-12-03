@@ -122,11 +122,20 @@ def predict(
         print("Files and folders in the directory:")
         for image_path in images:
             predictions.append(
-                predict_one_image(image_path, density, classifier, channels, device, classifier_threshold)
+                predict_one_image(
+                    image_path,
+                    density,
+                    classifier,
+                    channels,
+                    device,
+                    classifier_threshold,
+                )
             )
     else:
         predictions.append(
-            predict_one_image(path, density, classifier, channels, device, classifier_threshold)
+            predict_one_image(
+                path, density, classifier, channels, device, classifier_threshold
+            )
         )
 
     return predictions
