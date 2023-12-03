@@ -29,17 +29,33 @@ def mock_optimizer():
 
 @pytest.fixture
 def mock_data_loader():
-    return MagicMock(
-        return_value=[
-            (
-                torch.randn(1, 2, 224, 224),
-                torch.randn(1, 1, 224, 224),
-                torch.tensor([1]),
-                torch.tensor([1]),
-                "path",
-            )
-        ]
-    )
+    mock_loader = MagicMock()
+    mock_data = [
+        (
+            torch.randn(size=(1, 2, 224, 224)),
+            torch.randn(size=(1, 1, 224, 224)),
+            torch.tensor([1]),
+            "path",
+        )
+    ]
+
+    mock_loader.__iter__.return_value = iter(mock_data)
+    return mock_loader
+
+
+@pytest.fixture
+def mock_data_loader_classifier():
+    mock_loader = MagicMock()
+    mock_data = [
+        (
+            torch.randn(size=(1, 2, 224, 224)),
+            torch.tensor([1.0]),
+            "path",
+        )
+    ]
+
+    mock_loader.__iter__.return_value = iter(mock_data)
+    return mock_loader
 
 
 @pytest.fixture
@@ -57,6 +73,21 @@ def looper_instance(
     )
 
 
+@pytest.fixture
+def looper_instance_classifier(
+    mock_network, mock_device, mock_loss, mock_optimizer, mock_data_loader_classifier
+):
+    return Looper(
+        network=mock_network,
+        device=mock_device,
+        loss=mock_loss,
+        optimizer=mock_optimizer,
+        data_loader=mock_data_loader_classifier,
+        dataset_size=1,
+        validation=False,
+    )
+
+
 def test_looper_initialization(looper_instance):
     assert looper_instance is not None
     assert not looper_instance.validation
@@ -64,18 +95,35 @@ def test_looper_initialization(looper_instance):
 
 @pytest.mark.parametrize("validation", [True, False])
 @pytest.mark.parametrize("regressor", [None, True])
-def test_looper_run_method(looper_instance, mock_network, validation, regressor):
+def test_looper_run_method_density(
+    looper_instance, mock_network, validation, regressor
+):
     looper_instance.validation = validation  # False
     if regressor is None:
         looper_instance.regressor = regressor  # None
     else:
         looper_instance.regressor = mock_network
+    looper_instance.log = MagicMock()
+    looper_instance.update_errors = MagicMock()
+    looper_instance.mean_abs_err = 0.1
     result = looper_instance.run()
-    assert result is not None
+    assert result == 0.1
     if regressor is None:
         assert looper_instance.network.train.called_with(not validation)
     else:
         assert looper_instance.regressor.train.called_with(not validation)
+
+
+@pytest.mark.parametrize("validation", [True, False])
+def test_looper_run_method_classifier(looper_instance_classifier, validation):
+    looper_instance_classifier.validation = validation  # False
+    looper_instance_classifier.mode = "classifier"
+    looper_instance_classifier.log = MagicMock()
+    looper_instance_classifier.update_errors = MagicMock()
+    looper_instance_classifier.f1 = 0.2
+    result = looper_instance_classifier.run()
+    assert result == 0.2
+    assert looper_instance_classifier.network.train.called_with(not validation)
 
 
 @pytest.mark.parametrize("wandb", [True, False])
