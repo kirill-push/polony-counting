@@ -101,7 +101,9 @@ class Looper:
 
         for i, (image, label, n_points, _) in enumerate(self.loader):
             # move images and labels to given device
-            image = self.transforms(image).to(self.device)
+            if self.transforms:
+                image = self.transforms(image)
+            image = image.to(self.device)
             label = label.to(self.device)
             n_points = n_points.to(self.device)
 
@@ -172,7 +174,9 @@ class Looper:
 
         for i, (image, image_class, _) in enumerate(self.loader):
             # move images and images classes to given device
-            image = self.transforms(image).to(self.device)
+            if self.transforms:
+                image = self.transforms(image)
+            image = image.to(self.device)
             image_class = image_class.to(self.device)
 
             # clear accumulated gradient if in train mode
