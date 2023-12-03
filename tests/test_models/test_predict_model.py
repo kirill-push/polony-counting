@@ -9,7 +9,7 @@ def test_predict_single_file() -> None:
         # Mock predict_one_image to return a predefined dictionary
         with patch(
             "src.polony.models.predict_model.predict_one_image",
-            return_value={1: {"result": 10, "class": 1., "density": "mocked_density"}},
+            return_value={1: {"result": 10, "class": 1.0, "density": "mocked_density"}},
         ):
             # Call the predict function
             result = predict(path="mocked_path")
@@ -30,8 +30,8 @@ def test_predict_directory() -> None:
             with patch(
                 "src.polony.models.predict_model.predict_one_image",
                 side_effect=[
-                    {1: {"result": 10, "class": 1., "density": "density1"}},
-                    {2: {"result": 20, "class": 1., "density": "density2"}},
+                    {1: {"result": 10, "class": 1.0, "density": "density1"}},
+                    {2: {"result": 20, "class": 1.0, "density": "density2"}},
                 ],
             ):
                 result = predict(path="mocked_directory_path")

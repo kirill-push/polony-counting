@@ -40,11 +40,15 @@ normalize = transforms.Normalize(MEAN, STD)
 
 # paths to checkpoints
 current_file_path = os.path.abspath(__file__)
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file_path))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
+)
 
 # Путь к папке checkpoints
-density_checkpoint = os.path.join(project_root, 'checkpoints', 'unet_49_1.7496.pth')
-classifier_checkpoint = os.path.join(project_root, 'checkpoints', 'classifier_57_0.8896.pth')
+density_checkpoint = os.path.join(project_root, "checkpoints", "unet_49_1.7496.pth")
+classifier_checkpoint = os.path.join(
+    project_root, "checkpoints", "classifier_57_0.8896.pth"
+)
 
 # Configuring Argument parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
