@@ -5,7 +5,6 @@ description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
 packages = [{include = "polony", from = "src" }]
-include = ["checkpoints"]
 license = "MIT"
 homepage = "https://kirill-push.github.io/polony-counting/"
 repository = "https://github.com/kirill-push/polony-counting"
