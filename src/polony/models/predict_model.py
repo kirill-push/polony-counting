@@ -26,6 +26,7 @@ from torchvision import transforms
 
 from ..data.utils import read_tiff
 from .models import UNet
+from .utils import logit_to_class
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158
@@ -96,30 +97,24 @@ def predict(
 
 def predict_one_image(
     path: str,
-    path_to_model: str,
-    model: torch.nn.Module = UNet(res=False),
-    device: torch.device = torch.device(
-        "cuda:0" if torch.cuda.is_available() else "cpu"
-    ),
-    channels: int = 2,
+    network: torch.nn.Module,
+    classifier: torch.nn.Module,
+    channels: int,
+    device: torch.device,
+    classifier_threshold: float,
 ) -> Dict[int, int]:
+    """Make prediction for one image from path.
+
+    Args:
+        path (str): path to one image
+        network (torch.nn.Module, optional): density network.
+        classifier (torch.nn.Module, optional): classifier network.
+        channels (int, optional): image channels.
+        device (torch.device, optional): device for models.
+        classifier_threshold (float, optional): threshold for classifier.
+    Returns:
+        Dict[int, int]: dictionary with keys and values {square_id: number_of_points}
     """
-    args:
-        path - path to image
-        path_to_model - path to saved state dict of model
-        model - network which state dict was saved
-
-        channels - 1 or 2 channels of image we need (depends on model)
-
-    return:
-        dictionary: {square_id: number_of_points}
-    """
-    network = torch.nn.DataParallel(model).to(device)
-    network.load_state_dict(torch.load(path_to_model, map_location=device))
-    network = network.eval()
-
-    if channels not in [1, 2]:
-        raise ValueError("Not correct value of channels, must be 1 or 2")
 
     imgs = read_tiff(path)
     img = imgs[0]
@@ -149,10 +144,15 @@ def predict_one_image(
                 square = imgs[:, y : y + square_size, x : x + square_size]
             square = torch.from_numpy(square).float().to(device)
             square = normalize(square)
+            square_class = classifier(square.unsqueeze(0))
+            square_class = logit_to_class(square_class, classifier_threshold).item()
+            if square_class == 0:
+                continue
             density = network(square.unsqueeze(0))
             result = torch.sum(density).item() // 100
 
             result_dict["result"] = int(result)
+            result_dict["class"] = square_class
             result_dict["density"] = density
             squares_dict[square_id] = result_dict
 
