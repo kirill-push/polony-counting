@@ -51,14 +51,14 @@ parser.add_argument(
     "--path_to_model",
     "-m",
     type=str,
-    default="../models/polony_49_1.7496.pth",
+    default="../checkpoints/polony_49_1.7496.pth",
     help="Path to saved state dict",
 )
 
 
 def predict(
     path: str,
-    path_to_model: str,
+    path_to_model: str = "..checkpoints/classifier_57_0.8896.pth",
     model: torch.nn.Module = UNet(res=False),
     device: torch.device = torch.device(
         "cuda:0" if torch.cuda.is_available() else "cpu"
