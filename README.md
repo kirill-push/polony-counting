@@ -24,28 +24,30 @@ The primary objective of this project is to streamline and automate the counting
 ## Project Organization
 
     ├── LICENSE
-    ├── README.md          <- The top-level README for developers using this project.
+    ├── README.md               <- The top-level README for developers using this project
     │
-    ├── src                <- Source code for use in this project.
+    ├── src                     <- Source code for use in this project
     │   └── polony
     │       │
-    │       ├── __init__.py    <- Makes src a Python module
+    │       ├── __init__.py     <- Makes src a Python module
     │       │
-    │       ├── config         <- Configuration files for the project.
+    │       ├── checkpoints     <- Model savings
     │       │
-    │       ├── data           <- Scripts to download or generate data
+    │       ├── config          <- Configuration files for the project
+    │       │
+    │       ├── data            <- Scripts to download or generate data
     │       │   ├── __init__.py 
     │       │   ├── make_dataset.py
     │       │   └── utils.py
     │       │
-    │       └── models         <- Scripts with models
+    │       └── models          <- Scripts with models
     │           ├── __init__.py 
     │           ├── models.py
     │           ├── predict_model.py
     │           ├── train_model.py
     │           └── utils.py
     │
-    └── tests              <- Scripts for functions and module testing
+    └── tests                   <- Scripts for functions and module testing
 
 --------
 
@@ -67,16 +69,4 @@ I would like to express my gratitude to Lindell's Lab at Technion for their pion
 ### License
 
 This project is open-source and released under the MIT License. Please refer to the project's LICENSE file for more details on licensing.
-<!-- 
-### About the Project
-
-This project is a labor of love and a volunteer effort by me. I have a deep passion for advancing science and simplifying the work of researchers in the field. As a result, I have dedicated my time and expertise to develop and maintain the Polony Counter project with no financial compensation.
-
-**Key Points:**
-
-- 🌟 Voluntary Contribution: This project is developed on a voluntary basis, driven by a commitment to contribute to the scientific community.
-
-- 💪 Sole Developer: I am the sole developer of this project, working tirelessly to make it accessible and useful for researchers worldwide.
-
-- 🆓 No Cost: The Polony Counter project is completely free and open-source, with no charges for its usage. -->
 
