@@ -25,7 +25,8 @@ import torch
 from torchvision import transforms
 
 from ..data.utils import read_tiff
-from .models import UNet
+from .models import Classifier, UNet
+from .utils import logit_to_class
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158
@@ -36,6 +37,15 @@ NUMBER_OF_LINES = [8, 5]
 
 MEAN, STD = ([12.69365111, 2.47628206], [13.35308926, 2.45260453])
 normalize = transforms.Normalize(MEAN, STD)
+
+# paths to checkpoints
+current_file_path = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_file_path)
+
+density_checkpoint = os.path.join(project_root, "checkpoints", "unet_49_1.7496.pth")
+classifier_checkpoint = os.path.join(
+    project_root, "checkpoints", "classifier_57_0.8896.pth"
+)
 
 # Configuring Argument parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -51,44 +61,81 @@ parser.add_argument(
     "--path_to_model",
     "-m",
     type=str,
-    default="../models/polony_49_1.7496.pth",
+    default="../checkpoints/unet_49_1.7496.pth",
     help="Path to saved state dict",
 )
 
 
 def predict(
     path: str,
-    path_to_model: str,
-    model: torch.nn.Module = UNet(res=False),
+    density: torch.nn.Module = UNet(res=False),
+    path_to_density: str = density_checkpoint,
+    classifier: torch.nn.Module = Classifier(),
+    path_to_classifier: str = classifier_checkpoint,
     device: torch.device = torch.device(
         "cuda:0" if torch.cuda.is_available() else "cpu"
     ),
     channels: int = 2,
+    classifier_threshold: float = 0.5,
 ) -> List[Dict[int, int]]:
-    """
-    args:
-        path: str - path to folder or to file
-        path_to_model - path to saved state dict
-        model - network which state dict was saved
-    return:
-        prediction - list with dictionaries;
-                     one dict for one image;
-                     dict = {square_id: number of points}
-    """
-    is_dir = os.path.isdir(path)
+    """Make prediction for all images from path folder or for one image from path.
 
+    Args:
+        path (str): path to folder or to file with images
+        density (torch.nn.Module, optional): density network which state dict was saved.
+            Defaults to UNet(res=False).
+        path_to_density (str, optional): path to saved state dict for density model.
+            Defaults to "../checkpoints/unet_49_1.7496.pth".
+        classifier (torch.nn.Module, optional): classifier network to predict class.
+            Defaults to Classifier().
+        path_to_classifier (str, optional): path to saved weights of classifier model.
+            Defaults to "../checkpoints/classifier_57_0.8896.pth".
+        device (torch.device, optional): device for models.
+            Defaults to torch.device("cuda:0" if torch.cuda.is_available() else "cpu").
+        channels (int, optional): images channels.
+            Defaults to 2.
+        classifier_threshold (float, optional): threshold for classifier.
+            Defaults to 0.5
+
+    Raises:
+        ValueError: Not correct value of input channels, must be 1 or 2.
+
+    Returns:
+        List[Dict[int, int]]: prediction - list with dictionaries;
+            one dict for one image;
+            dict = {square_id: number of points}
+    """
+    if channels not in [1, 2]:
+        raise ValueError("Not correct value of channels, must be 1 or 2")
+    is_dir = os.path.isdir(path)
     predictions = []
+    density = torch.nn.DataParallel(density).to(device)
+    density.load_state_dict(torch.load(path_to_density, map_location=device))
+    density = density.eval()
+
+    classifier = torch.nn.DataParallel(classifier).to(device)
+    classifier.load_state_dict(torch.load(path_to_classifier, map_location=device))
+    classifier = classifier.eval()
 
     if is_dir:
         images = os.listdir(path)
         print("Files and folders in the directory:")
         for image_path in images:
             predictions.append(
-                predict_one_image(image_path, path_to_model, model, device, channels)
+                predict_one_image(
+                    image_path,
+                    density,
+                    classifier,
+                    channels,
+                    device,
+                    classifier_threshold,
+                )
             )
     else:
         predictions.append(
-            predict_one_image(path, path_to_model, model, device, channels)
+            predict_one_image(
+                path, density, classifier, channels, device, classifier_threshold
+            )
         )
 
     return predictions
@@ -96,30 +143,24 @@ def predict(
 
 def predict_one_image(
     path: str,
-    path_to_model: str,
-    model: torch.nn.Module = UNet(res=False),
-    device: torch.device = torch.device(
-        "cuda:0" if torch.cuda.is_available() else "cpu"
-    ),
-    channels: int = 2,
+    network: torch.nn.Module,
+    classifier: torch.nn.Module,
+    channels: int,
+    device: torch.device,
+    classifier_threshold: float,
 ) -> Dict[int, int]:
+    """Make prediction for one image from path.
+
+    Args:
+        path (str): path to one image
+        network (torch.nn.Module, optional): density network.
+        classifier (torch.nn.Module, optional): classifier network.
+        channels (int, optional): image channels.
+        device (torch.device, optional): device for models.
+        classifier_threshold (float, optional): threshold for classifier.
+    Returns:
+        Dict[int, int]: dictionary with keys and values {square_id: number_of_points}
     """
-    args:
-        path - path to image
-        path_to_model - path to saved state dict of model
-        model - network which state dict was saved
-
-        channels - 1 or 2 channels of image we need (depends on model)
-
-    return:
-        dictionary: {square_id: number_of_points}
-    """
-    network = torch.nn.DataParallel(model).to(device)
-    network.load_state_dict(torch.load(path_to_model, map_location=device))
-    network = network.eval()
-
-    if channels not in [1, 2]:
-        raise ValueError("Not correct value of channels, must be 1 or 2")
 
     imgs = read_tiff(path)
     img = imgs[0]
@@ -149,10 +190,16 @@ def predict_one_image(
                 square = imgs[:, y : y + square_size, x : x + square_size]
             square = torch.from_numpy(square).float().to(device)
             square = normalize(square)
+            logit = classifier(square.unsqueeze(0))
+            square_class = logit_to_class(logit, classifier_threshold).item()
+            # if square_class == 0:
+            #     continue
             density = network(square.unsqueeze(0))
             result = torch.sum(density).item() // 100
 
             result_dict["result"] = int(result)
+            result_dict["class"] = square_class
+            result_dict["probs"] = torch.sigmoid(logit).item()
             result_dict["density"] = density
             squares_dict[square_id] = result_dict
 

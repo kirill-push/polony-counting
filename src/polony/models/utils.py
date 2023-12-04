@@ -306,6 +306,20 @@ class Config(dict):
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{key}'")
 
 
+def logit_to_class(logits: torch.Tensor, threshold: float = 0.5) -> torch.Tensor:
+    """Calculate class values from logits input
+
+    Args:
+        logits (torch.Tensor): logits after classifier
+        threshold (float, optional): _description_. Defaults to 0.5.
+
+    Returns:
+        torch.Tensor: _description_
+    """
+    probabilities = torch.sigmoid(logits)
+    return (probabilities > threshold).double()
+
+
 def evaluate(
     path_to_example: str,
     path_to_model: str,
