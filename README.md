@@ -26,12 +26,12 @@ The primary objective of this project is to streamline and automate the counting
     ├── LICENSE
     ├── README.md          <- The top-level README for developers using this project.
     │
-    ├── config             <- Configuration files for the project.
-    │
     ├── src                <- Source code for use in this project.
     │   └── polony
     │       │
     │       ├── __init__.py    <- Makes src a Python module
+    │       │
+    │       ├── config         <- Configuration files for the project.
     │       │
     │       ├── data           <- Scripts to download or generate data
     │       │   ├── __init__.py 
