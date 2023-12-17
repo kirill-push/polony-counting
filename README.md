@@ -21,7 +21,7 @@ Analyzing 20-30 samples of the ocean water using the Polony protocol typically t
 
 The primary objective of this project is to streamline and automate the Polony counting stage of the procedure. The aim is to reduce the amount of time that researchers spend on manual counting, which can be labor-intensive and time-consuming. The automation of counting will also help to standardize the process to eliminate the "human factor" from the final viruses concentrations meanings.
 
-## Project Organization
+## Project Repository Organization
 
     ├── LICENSE
     ├── README.md          <- The top-level README for developers using this project.
