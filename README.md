@@ -4,6 +4,18 @@
 [![Testing](https://github.com/kirill-push/polony-counting/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/kirill-push/polony-counting/actions/workflows/test.yml)
 [![Documentation](https://github.com/kirill-push/polony-counting/actions/workflows/pages.yml/badge.svg)](https://github.com/kirill-push/polony-counting/actions/workflows/pages.yml)
 
+# Polony counting project
+
+## Table of Contents
+1. [Project Description](#project-description)
+    - [Overview](#overview)
+    - [Project Goals](#project-goals)
+2. [Project Repository Organization](#project-repository-organization)
+3. [Contributions](#contributions)
+4. [Feedback](#feedback)
+5. [Acknowledgments](#acknowledgments)
+6. [License](#license)
+
 ## Project Description
 **Polony Counter**
 
@@ -21,7 +33,7 @@ Analyzing 20-30 samples of the ocean water using the Polony protocol typically t
 
 The primary objective of this project is to streamline and automate the Polony counting stage of the procedure. The aim is to reduce the amount of time that researchers spend on manual counting, which can be labor-intensive and time-consuming. The automation of counting will also help to standardize the process to eliminate the "human factor" from the final viruses concentrations meanings.
 
-## Project Organization
+## Project Repository Organization
 
     ├── LICENSE
     ├── README.md               <- The top-level README for developers using this project
