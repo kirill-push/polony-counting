@@ -27,9 +27,11 @@ model_saving: &model_saving /kaggle/working/polony_49_1.7496.pth
 first_horizontal: 158
 first_vertical: 158
 number_of_lines: [8, 5]
-path_to_data: resources/raw/
+path_to_data: ../resources/raw/
 errors_path:
-  - *project
+  - ..
+  - resources
+  - dataset_files
   - errors.txt
 
 # Function settings
