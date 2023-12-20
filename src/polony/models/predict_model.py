@@ -19,8 +19,9 @@ python predict_model.py --path /path/to/images --path_to_model /path/to/model
 import argparse
 import os
 import tempfile
-from typing import Dict, List
+from typing import Dict
 
+import pandas as pd
 import torch
 from torchvision import transforms
 
@@ -77,7 +78,7 @@ def predict(
     ),
     channels: int = 2,
     classifier_threshold: float = 0.5,
-) -> List[Dict[int, int]]:
+) -> Dict[str, Dict[int, int]]:
     """Make prediction for all images from path folder or for one image from path.
 
     Args:
@@ -101,14 +102,14 @@ def predict(
         ValueError: Not correct value of input channels, must be 1 or 2.
 
     Returns:
-        List[Dict[int, int]]: prediction - list with dictionaries;
-            one dict for one image;
-            dict = {square_id: number of points}
+        Dict[str, Dict[int, int]]: prediction - dict with name of image as key, and
+            dictionaries as values. One value dict for one image;
+            value dict = {square_id: number of points}
     """
     if channels not in [1, 2]:
         raise ValueError("Not correct value of channels, must be 1 or 2")
     is_dir = os.path.isdir(path)
-    predictions = []
+    predictions = dict()
     density = torch.nn.DataParallel(density).to(device)
     density.load_state_dict(torch.load(path_to_density, map_location=device))
     density = density.eval()
@@ -121,15 +122,13 @@ def predict(
         images = os.listdir(path)
         print("Files and folders in the directory:")
         for image_path in images:
-            predictions.append(
-                predict_one_image(
-                    image_path,
-                    density,
-                    classifier,
-                    channels,
-                    device,
-                    classifier_threshold,
-                )
+            predictions[image_path] = predict_one_image(
+                image_path,
+                density,
+                classifier,
+                channels,
+                device,
+                classifier_threshold,
             )
     else:
         predictions.append(
@@ -204,6 +203,76 @@ def predict_one_image(
             squares_dict[square_id] = result_dict
 
     return squares_dict
+
+
+def save_predictions_to_csv(
+    predictions: Dict[str, Dict[int, int]],
+    output_file: str,
+    assay: str,
+    dilution: float,
+    sample_volume_per_slide: float = 2.5,
+    wg_area: float = 29.0,
+) -> None:
+    """Save the predictions in a CSV file with a specified format and calculations.
+
+    Args:
+        predictions (Dict[str, Dict[int, int]]): Dictionary with predictions.
+        output_file (str): Path to the output CSV file.
+        assay (str): Type of points. Can be T4 or T7a.
+        dilution (float): Dilution values for each point.
+        sample_volume_per_slide (float): The sample volume per slide.
+            Default is 2.5.
+    """
+    # Create a list to hold all rows
+    rows = []
+
+    # Iterate over each prediction
+    for image_name, squares in predictions.items():
+        # Initialize an empty list for the square values
+        square_values = [squares.get(i, "") for i in range(1, 25)]
+
+        # Calculate the average number of polonies/grid
+        non_empty_values = [val for val in square_values if val != ""]
+        average_polonies_per_grid = (
+            sum(non_empty_values) / len(non_empty_values) if non_empty_values else 0
+        )
+
+        # Calculate polonies/slide
+        polonies_per_slide = wg_area * average_polonies_per_grid
+
+        # Calculate polonies/ml
+        polonies_per_ml = 1000 * polonies_per_slide * dilution / sample_volume_per_slide
+
+        # Create the row
+        row = (
+            [assay, image_name, wg_area]
+            + square_values
+            + [
+                average_polonies_per_grid,
+                polonies_per_slide,
+                dilution,
+                sample_volume_per_slide,
+                polonies_per_ml,
+            ]
+        )
+        rows.append(row)
+
+    # Create a DataFrame
+    column_names = (
+        ["Assay", "Slide_number", "Well_area/grid_area"]
+        + [f"Field-{i}" for i in range(1, 25)]
+        + [
+            "Average_number_of_polonies/grid",
+            "Polonies/slide",
+            "Dilution",
+            "Sample_volume/slide",
+            "Polonies/ml",
+        ]
+    )
+    df = pd.DataFrame(rows, columns=column_names)
+
+    # Save the DataFrame to a CSV file
+    df.to_csv(output_file, index=False)
 
 
 def main(args):

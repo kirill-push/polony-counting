@@ -28,12 +28,14 @@ tifffile = "^2023.8.12"
 types-pyyaml = "^6.0.12.12"
 numpy = "^1.16"
 scikit-learn = "^1.2.2"
+pandas = "^2.1.4"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
 black = "^23.7.0"
 mypy = "^1.5.1"
 flake8 = "^6.1.0"
+ipykernel = "^6.27.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
