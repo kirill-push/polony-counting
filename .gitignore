@@ -286,6 +286,7 @@ resources/external
 resources/interim
 resources/processed
 resources/raw/*
+resources/results
 checkpoints/polony_49_1.7496.pth
 checkpoints/polony_64_1.8386.pth
 
