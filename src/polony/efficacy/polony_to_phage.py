@@ -127,3 +127,26 @@ def T7_efficacy_to_csv(
 
     # Writing the results to a new CSV file
     result.to_csv(output_path, index=False)
+
+
+def T7c_efficacy_to_csv(
+    input_path: str, output_path: str, alpha: float = 0.05, n: int = 10000
+) -> None:
+    """Function to calculate T7c phages from input file and write to output file results.
+
+    Args:
+        input_path (str): Path to csv with polony countings.
+        output_path (str): Path to save results in csv file.
+        alpha (float, optional): Confidence level for the bootstrap interval.
+            Defaults to 0.05.
+        n (int, optional): Number of bootstrap samples.
+            Defaults to 10000.
+    """
+    # Reading data from a CSV file
+    df = pd.read_csv(input_path)
+
+    # Applying the dat_for_plot function to the data
+    result = dat_for_plot(df, virus_type="T7c", alpha=alpha, n=n)
+
+    # Writing the results to a new CSV file
+    result.to_csv(output_path, index=False)
