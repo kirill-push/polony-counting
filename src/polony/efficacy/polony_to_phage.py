@@ -46,3 +46,38 @@ def pol_to_phage(
     phages_mean = np.mean(product_bootstrap)
     phages_ci = np.quantile(product_bootstrap, [alpha / 2, 1 - alpha / 2])
     return phages_mean, (phages_ci[1] - phages_ci[0]) / 2
+
+
+def dat_for_plot(
+    df: pd.DataFrame, virus_type: str, alpha: float = 0.05, n: int = 10000
+) -> pd.DataFrame:
+    """Process data and apply the pol_to_phage function.
+
+    Args:
+    df (pd.DataFrame): Dataframe containing the raw data.
+    virus_type (str): Type of virus. Can be T4, T7 or T7c.
+    alpha (float): Confidence level for the bootstrap interval.
+        Defaulyts to 0.05
+    n (int): Number of bootstrap samples.
+        Defaults to 10000.
+
+    Returns:
+    pd.DataFrame: Dataframe with calculated phage abundances and confidence intervals.
+    """
+    # Grouping data by 'slide ID' and calculating mean of 'FAGE ABUNDENCE [fage mL-1]'
+    df_grouped = (
+        df.groupby("slide ID").agg({"FAGE ABUNDENCE [fage mL-1]": "mean"}).reset_index()
+    )
+
+    # Applying pol_to_phage function to each group
+    # and extracting phages and confidence interval
+    df_grouped["phages"], df_grouped["ci"] = zip(
+        *df_grouped["FAGE ABUNDENCE [fage mL-1]"].apply(
+            lambda x: pol_to_phage(x, virus_type=virus_type, alpha=alpha, n=n)
+        )
+    )
+
+    # Calculating upper and lower confidence intervals
+    df_grouped["upper_ci"] = df_grouped["phages"] + df_grouped["ci"]
+    df_grouped["lower_ci"] = df_grouped["phages"] - df_grouped["ci"]
+    return df_grouped[["slide ID", "phages", "upper_ci", "lower_ci"]]
