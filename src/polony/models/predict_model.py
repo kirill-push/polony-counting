@@ -230,7 +230,7 @@ def save_predictions_to_csv(
             Defaults to 0.1.
     """
     # Create a list to hold all rows
-    if virus_type not in ['T4', 'T7', 'T7c']:
+    if virus_type not in ["T4", "T7", "T7c"]:
         raise ValueError("Wrong type of virus. Should be T4, T7 or T7c")
     rows = []
     wg_area = field / grid
@@ -246,42 +246,37 @@ def save_predictions_to_csv(
         )
 
         # Calculate fage_abundance
-        fage_abundance = 1000 * wg_area * average_polonies_per_grid / sample_volume_per_slide
+        fage_abundance = (
+            1000 * wg_area * average_polonies_per_grid / sample_volume_per_slide
+        )
         fage_abundance *= concentration_factor
 
         # Create the row
-        row = (
-            [
-                virus_type,
-                image_name,
-                '',
-                '',
-                concentration_factor,
-                sample_volume_per_slide,
-                field,
-                grid,
-                fage_abundance,
-            ]
-            + square_values
-        )
+        row = [
+            virus_type,
+            image_name,
+            "",
+            "",
+            concentration_factor,
+            sample_volume_per_slide,
+            field,
+            grid,
+            fage_abundance,
+        ] + square_values
         rows.append(row)
 
     # Create a DataFrame
-    column_names = (
-        [
-            "TYPE",
-            "slide ID",
-            "SAMPLING DATE",
-            "POLONY DATE",
-            "CONCENTRATION FACTOR",
-            "SAMPLE VOLUM[ul]",
-            "field [Pixel^2]",
-            "grid [Pixel^2]",
-            "FAGE ABUNDENCE [fage mL-1]",
-        ]
-        + [f"field {i}" for i in range(1, 25)]
-
-    )
+    column_names = [
+        "TYPE",
+        "slide ID",
+        "SAMPLING DATE",
+        "POLONY DATE",
+        "CONCENTRATION FACTOR",
+        "SAMPLE VOLUM[ul]",
+        "field [Pixel^2]",
+        "grid [Pixel^2]",
+        "FAGE ABUNDENCE [fage mL-1]",
+    ] + [f"field {i}" for i in range(1, 25)]
     df = pd.DataFrame(rows, columns=column_names)
 
     # Save the DataFrame to a CSV file
