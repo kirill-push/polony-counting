@@ -2,6 +2,27 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2023-12-25)
+
+### Feature
+
+* :sparkles: add func to calculate T7c phages from input (mock) ([`0904c7c`](https://github.com/kirill-push/polony-counting/commit/0904c7c47381bb280c58de6aa63bf0ce72f83678))
+* :sparkles: add func to calculate T7 phages from input ([`0c7102f`](https://github.com/kirill-push/polony-counting/commit/0c7102f7df389c02d85f23426e1934a13f532f17))
+* :sparkles: add func to calculate T4 phages from input ([`fe5b50c`](https://github.com/kirill-push/polony-counting/commit/fe5b50c3dc8dc880c40291e786c9f5dba64d7a61))
+* :sparkles: add func to convert polony count to phage ([`dd4dc19`](https://github.com/kirill-push/polony-counting/commit/dd4dc19af683e1ab05570526901fd6bdcc1b848f))
+* :sparkles: add new func to save predictions to csv file ([`d030352`](https://github.com/kirill-push/polony-counting/commit/d03035242381f332a0f571be521dbbd2cbd148a8))
+* :sparkles: add to predict function classification ([`1cfc268`](https://github.com/kirill-push/polony-counting/commit/1cfc268014f6be51ce07d6c0ae901fb8f79276e2))
+* :sparkles: add classifier model to predict_one_image func ([`0bf5f62`](https://github.com/kirill-push/polony-counting/commit/0bf5f627f99ef34e4bacc1caa88ff43886a16dc4))
+
+### Documentation
+
+* :memo: add table of contents to readme ([`bced160`](https://github.com/kirill-push/polony-counting/commit/bced16058436de744dc477ab0b9078c90c7450c2))
+* :memo: update readme ([`d08b816`](https://github.com/kirill-push/polony-counting/commit/d08b8160c565543c9b116d00470900436c9e46af))
+* :memo: update main documentation page ([`17c4d7e`](https://github.com/kirill-push/polony-counting/commit/17c4d7e5a47d7c512cdb7d1d9a515ac72452f7af))
+* :memo: update readme according to researchers recommendations ([`e031d05`](https://github.com/kirill-push/polony-counting/commit/e031d0599dbb771cfe64481207b25ea90d6b89b4))
+* :memo: update project structure in readme ([`3b5dcd9`](https://github.com/kirill-push/polony-counting/commit/3b5dcd90d57fd256cf64c7c896f78fd8a013c14d))
+* :memo: update projects structure in readme ([`2f9f2ff`](https://github.com/kirill-push/polony-counting/commit/2f9f2ff15b1425472bb0aea7214630f781f3d0d2))
+
 ## v0.5.0 (2023-12-02)
 
 ### Feature
