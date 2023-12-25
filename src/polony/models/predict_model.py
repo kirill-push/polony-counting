@@ -208,24 +208,32 @@ def predict_one_image(
 def save_predictions_to_csv(
     predictions: Dict[str, Dict[int, int]],
     output_file: str,
-    assay: str,
-    dilution: float,
-    sample_volume_per_slide: float = 2.5,
-    wg_area: float = 29.0,
+    virus_type: str,
+    concentration_factor: float,
+    sample_volume_per_slide: float = 5.0,
+    field: float = 2.9,
+    grid: float = 0.1,
 ) -> None:
     """Save the predictions in a CSV file with a specified format and calculations.
 
     Args:
         predictions (Dict[str, Dict[int, int]]): Dictionary with predictions.
+            Key - video name, value - dictionary {frame_number: prediction}.
         output_file (str): Path to the output CSV file.
-        assay (str): Type of points. Can be T4 or T7a.
-        dilution (float): Dilution values for each point.
+        virus_type (str): Type of virus. Can be T4, T7 or T7c.
+        concentration_factor (float): Dilution values for each point.
         sample_volume_per_slide (float): The sample volume per slide.
-            Default is 2.5.
+            Default is 5.0.
+        field (float): Size of sample field.
+            Defauts to 2.9.
+        grid (float): Size of grid on sample field.
+            Defaults to 0.1.
     """
     # Create a list to hold all rows
+    if virus_type not in ["T4", "T7", "T7c"]:
+        raise ValueError("Wrong type of virus. Should be T4, T7 or T7c")
     rows = []
-
+    wg_area = field / grid
     # Iterate over each prediction
     for image_name, squares in predictions.items():
         # Initialize an empty list for the square values
@@ -237,38 +245,38 @@ def save_predictions_to_csv(
             sum(non_empty_values) / len(non_empty_values) if non_empty_values else 0
         )
 
-        # Calculate polonies/slide
-        polonies_per_slide = wg_area * average_polonies_per_grid
-
-        # Calculate polonies/ml
-        polonies_per_ml = 1000 * polonies_per_slide * dilution / sample_volume_per_slide
+        # Calculate fage_abundance
+        fage_abundance = (
+            1000 * wg_area * average_polonies_per_grid / sample_volume_per_slide
+        )
+        fage_abundance *= concentration_factor
 
         # Create the row
-        row = (
-            [assay, image_name, wg_area]
-            + square_values
-            + [
-                average_polonies_per_grid,
-                polonies_per_slide,
-                dilution,
-                sample_volume_per_slide,
-                polonies_per_ml,
-            ]
-        )
+        row = [
+            virus_type,
+            image_name,
+            "",
+            "",
+            concentration_factor,
+            sample_volume_per_slide,
+            field,
+            grid,
+            fage_abundance,
+        ] + square_values
         rows.append(row)
 
     # Create a DataFrame
-    column_names = (
-        ["Assay", "Slide_number", "Well_area/grid_area"]
-        + [f"Field-{i}" for i in range(1, 25)]
-        + [
-            "Average_number_of_polonies/grid",
-            "Polonies/slide",
-            "Dilution",
-            "Sample_volume/slide",
-            "Polonies/ml",
-        ]
-    )
+    column_names = [
+        "TYPE",
+        "slide ID",
+        "SAMPLING DATE",
+        "POLONY DATE",
+        "CONCENTRATION FACTOR",
+        "SAMPLE VOLUM[ul]",
+        "field [Pixel^2]",
+        "grid [Pixel^2]",
+        "FAGE ABUNDENCE [fage mL-1]",
+    ] + [f"field {i}" for i in range(1, 25)]
     df = pd.DataFrame(rows, columns=column_names)
 
     # Save the DataFrame to a CSV file
