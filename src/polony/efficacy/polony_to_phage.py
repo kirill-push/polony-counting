@@ -132,7 +132,8 @@ def T7_efficacy_to_csv(
 def T7c_efficacy_to_csv(
     input_path: str, output_path: str, alpha: float = 0.05, n: int = 10000
 ) -> None:
-    """Function to calculate T7c phages from input file and write to output file results.
+    """ Function to calculate T7c phages from input file and write to output file
+        results.
 
     Args:
         input_path (str): Path to csv with polony countings.
