@@ -19,13 +19,15 @@ python predict_model.py --path /path/to/images --path_to_model /path/to/model
 import argparse
 import os
 import tempfile
-from typing import Dict, List
+from typing import Dict
 
+import pandas as pd
 import torch
 from torchvision import transforms
 
 from ..data.utils import read_tiff
-from .models import UNet
+from .models import Classifier, UNet
+from .utils import logit_to_class
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158
@@ -36,6 +38,15 @@ NUMBER_OF_LINES = [8, 5]
 
 MEAN, STD = ([12.69365111, 2.47628206], [13.35308926, 2.45260453])
 normalize = transforms.Normalize(MEAN, STD)
+
+# paths to checkpoints
+current_file_path = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_file_path)
+
+density_checkpoint = os.path.join(project_root, "checkpoints", "unet_49_1.7496.pth")
+classifier_checkpoint = os.path.join(
+    project_root, "checkpoints", "classifier_57_0.8896.pth"
+)
 
 # Configuring Argument parser
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -51,44 +62,79 @@ parser.add_argument(
     "--path_to_model",
     "-m",
     type=str,
-    default="../checkpoints/polony_49_1.7496.pth",
+    default="../checkpoints/unet_49_1.7496.pth",
     help="Path to saved state dict",
 )
 
 
 def predict(
     path: str,
-    path_to_model: str = "..checkpoints/classifier_57_0.8896.pth",
-    model: torch.nn.Module = UNet(res=False),
+    density: torch.nn.Module = UNet(res=False),
+    path_to_density: str = density_checkpoint,
+    classifier: torch.nn.Module = Classifier(),
+    path_to_classifier: str = classifier_checkpoint,
     device: torch.device = torch.device(
         "cuda:0" if torch.cuda.is_available() else "cpu"
     ),
     channels: int = 2,
-) -> List[Dict[int, int]]:
-    """
-    args:
-        path: str - path to folder or to file
-        path_to_model - path to saved state dict
-        model - network which state dict was saved
-    return:
-        prediction - list with dictionaries;
-                     one dict for one image;
-                     dict = {square_id: number of points}
-    """
-    is_dir = os.path.isdir(path)
+    classifier_threshold: float = 0.5,
+) -> Dict[str, Dict[int, int]]:
+    """Make prediction for all images from path folder or for one image from path.
 
-    predictions = []
+    Args:
+        path (str): path to folder or to file with images
+        density (torch.nn.Module, optional): density network which state dict was saved.
+            Defaults to UNet(res=False).
+        path_to_density (str, optional): path to saved state dict for density model.
+            Defaults to "../checkpoints/unet_49_1.7496.pth".
+        classifier (torch.nn.Module, optional): classifier network to predict class.
+            Defaults to Classifier().
+        path_to_classifier (str, optional): path to saved weights of classifier model.
+            Defaults to "../checkpoints/classifier_57_0.8896.pth".
+        device (torch.device, optional): device for models.
+            Defaults to torch.device("cuda:0" if torch.cuda.is_available() else "cpu").
+        channels (int, optional): images channels.
+            Defaults to 2.
+        classifier_threshold (float, optional): threshold for classifier.
+            Defaults to 0.5
+
+    Raises:
+        ValueError: Not correct value of input channels, must be 1 or 2.
+
+    Returns:
+        Dict[str, Dict[int, int]]: prediction - dict with name of image as key, and
+            dictionaries as values. One value dict for one image;
+            value dict = {square_id: number of points}
+    """
+    if channels not in [1, 2]:
+        raise ValueError("Not correct value of channels, must be 1 or 2")
+    is_dir = os.path.isdir(path)
+    predictions = dict()
+    density = torch.nn.DataParallel(density).to(device)
+    density.load_state_dict(torch.load(path_to_density, map_location=device))
+    density = density.eval()
+
+    classifier = torch.nn.DataParallel(classifier).to(device)
+    classifier.load_state_dict(torch.load(path_to_classifier, map_location=device))
+    classifier = classifier.eval()
 
     if is_dir:
         images = os.listdir(path)
         print("Files and folders in the directory:")
         for image_path in images:
-            predictions.append(
-                predict_one_image(image_path, path_to_model, model, device, channels)
+            predictions[image_path] = predict_one_image(
+                image_path,
+                density,
+                classifier,
+                channels,
+                device,
+                classifier_threshold,
             )
     else:
         predictions.append(
-            predict_one_image(path, path_to_model, model, device, channels)
+            predict_one_image(
+                path, density, classifier, channels, device, classifier_threshold
+            )
         )
 
     return predictions
@@ -96,30 +142,24 @@ def predict(
 
 def predict_one_image(
     path: str,
-    path_to_model: str,
-    model: torch.nn.Module = UNet(res=False),
-    device: torch.device = torch.device(
-        "cuda:0" if torch.cuda.is_available() else "cpu"
-    ),
-    channels: int = 2,
+    network: torch.nn.Module,
+    classifier: torch.nn.Module,
+    channels: int,
+    device: torch.device,
+    classifier_threshold: float,
 ) -> Dict[int, int]:
+    """Make prediction for one image from path.
+
+    Args:
+        path (str): path to one image
+        network (torch.nn.Module, optional): density network.
+        classifier (torch.nn.Module, optional): classifier network.
+        channels (int, optional): image channels.
+        device (torch.device, optional): device for models.
+        classifier_threshold (float, optional): threshold for classifier.
+    Returns:
+        Dict[int, int]: dictionary with keys and values {square_id: number_of_points}
     """
-    args:
-        path - path to image
-        path_to_model - path to saved state dict of model
-        model - network which state dict was saved
-
-        channels - 1 or 2 channels of image we need (depends on model)
-
-    return:
-        dictionary: {square_id: number_of_points}
-    """
-    network = torch.nn.DataParallel(model).to(device)
-    network.load_state_dict(torch.load(path_to_model, map_location=device))
-    network = network.eval()
-
-    if channels not in [1, 2]:
-        raise ValueError("Not correct value of channels, must be 1 or 2")
 
     imgs = read_tiff(path)
     img = imgs[0]
@@ -149,14 +189,98 @@ def predict_one_image(
                 square = imgs[:, y : y + square_size, x : x + square_size]
             square = torch.from_numpy(square).float().to(device)
             square = normalize(square)
+            logit = classifier(square.unsqueeze(0))
+            square_class = logit_to_class(logit, classifier_threshold).item()
+            # if square_class == 0:
+            #     continue
             density = network(square.unsqueeze(0))
             result = torch.sum(density).item() // 100
 
             result_dict["result"] = int(result)
+            result_dict["class"] = square_class
+            result_dict["probs"] = torch.sigmoid(logit).item()
             result_dict["density"] = density
             squares_dict[square_id] = result_dict
 
     return squares_dict
+
+
+def save_predictions_to_csv(
+    predictions: Dict[str, Dict[int, int]],
+    output_file: str,
+    virus_type: str,
+    concentration_factor: float,
+    sample_volume_per_slide: float = 5.0,
+    field: float = 2.9,
+    grid: float = 0.1,
+) -> None:
+    """Save the predictions in a CSV file with a specified format and calculations.
+
+    Args:
+        predictions (Dict[str, Dict[int, int]]): Dictionary with predictions.
+            Key - video name, value - dictionary {frame_number: prediction}.
+        output_file (str): Path to the output CSV file.
+        virus_type (str): Type of virus. Can be T4, T7 or T7c.
+        concentration_factor (float): Dilution values for each point.
+        sample_volume_per_slide (float): The sample volume per slide.
+            Default is 5.0.
+        field (float): Size of sample field.
+            Defauts to 2.9.
+        grid (float): Size of grid on sample field.
+            Defaults to 0.1.
+    """
+    # Create a list to hold all rows
+    if virus_type not in ["T4", "T7", "T7c"]:
+        raise ValueError("Wrong type of virus. Should be T4, T7 or T7c")
+    rows = []
+    wg_area = field / grid
+    # Iterate over each prediction
+    for image_name, squares in predictions.items():
+        # Initialize an empty list for the square values
+        square_values = [squares.get(i, "") for i in range(1, 25)]
+
+        # Calculate the average number of polonies/grid
+        non_empty_values = [val for val in square_values if val != ""]
+        average_polonies_per_grid = (
+            sum(non_empty_values) / len(non_empty_values) if non_empty_values else 0
+        )
+
+        # Calculate fage_abundance
+        fage_abundance = (
+            1000 * wg_area * average_polonies_per_grid / sample_volume_per_slide
+        )
+        fage_abundance *= concentration_factor
+
+        # Create the row
+        row = [
+            virus_type,
+            image_name,
+            "",
+            "",
+            concentration_factor,
+            sample_volume_per_slide,
+            field,
+            grid,
+            fage_abundance,
+        ] + square_values
+        rows.append(row)
+
+    # Create a DataFrame
+    column_names = [
+        "TYPE",
+        "slide ID",
+        "SAMPLING DATE",
+        "POLONY DATE",
+        "CONCENTRATION FACTOR",
+        "SAMPLE VOLUM[ul]",
+        "field [Pixel^2]",
+        "grid [Pixel^2]",
+        "FAGE ABUNDENCE [fage mL-1]",
+    ] + [f"field {i}" for i in range(1, 25)]
+    df = pd.DataFrame(rows, columns=column_names)
+
+    # Save the DataFrame to a CSV file
+    df.to_csv(output_file, index=False)
 
 
 def main(args):

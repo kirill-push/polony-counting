@@ -36,28 +36,30 @@ The primary objective of this project is to streamline and automate the Polony c
 ## Project Repository Organization
 
     ├── LICENSE
-    ├── README.md          <- The top-level README for developers using this project.
+    ├── README.md               <- The top-level README for developers using this project
     │
-    ├── config             <- Configuration files for the project.
-    │
-    ├── src                <- Source code for use in this project.
+    ├── src                     <- Source code for use in this project
     │   └── polony
     │       │
-    │       ├── __init__.py    <- Makes src a Python module
+    │       ├── __init__.py     <- Makes src a Python module
     │       │
-    │       ├── data           <- Scripts to download or generate data
+    │       ├── checkpoints     <- Model savings
+    │       │
+    │       ├── config          <- Configuration files for the project
+    │       │
+    │       ├── data            <- Scripts to download or generate data
     │       │   ├── __init__.py 
     │       │   ├── make_dataset.py
     │       │   └── utils.py
     │       │
-    │       └── models         <- Scripts with models
+    │       └── models          <- Scripts with models
     │           ├── __init__.py 
     │           ├── models.py
     │           ├── predict_model.py
     │           ├── train_model.py
     │           └── utils.py
     │
-    └── tests              <- Scripts for functions and module testing
+    └── tests                   <- Scripts for functions and module testing
 
 --------
 
