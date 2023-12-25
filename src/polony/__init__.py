@@ -1,6 +1,6 @@
 __version__ = "0.5.0"
 from .data import PolonyDataset, generate_polony_data, make_dataset
-from .models import Classifier, UNet, evaluate, predict, predict_one_image, train
+from .models import Classifier, UNet, evaluate, predict, predict_one_image, train, save_predictions_to_csv
 
 __all__ = [
     "PolonyDataset",
@@ -12,4 +12,5 @@ __all__ = [
     "predict_one_image",
     "train",
     "Classifier",
+    "save_predictions_to_csv",
 ]
