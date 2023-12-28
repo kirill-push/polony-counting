@@ -17,11 +17,13 @@ python predict_model.py --path /path/to/images --path_to_model /path/to/model
 """
 
 import argparse
+import io
 import os
 from typing import Dict
 
 import pandas as pd
 import torch
+from fastapi import UploadFile
 from torchvision import transforms
 
 from ..data.utils import read_tiff
@@ -79,7 +81,7 @@ parser.add_argument(
 
 
 def predict(
-    path: str,
+    path: str | None,
     density: torch.nn.Module = UNet(res=False),
     path_to_density: str = density_checkpoint,
     classifier: torch.nn.Module = Classifier(),
@@ -89,11 +91,13 @@ def predict(
     ),
     channels: int = 2,
     classifier_threshold: float = 0.5,
+    file: UploadFile | None = None,
 ) -> Dict[str, Dict[int, int]]:
     """Make prediction for all images from path folder or for one image from path.
 
     Args:
-        path (str): path to folder or to file with images
+        path (str | None): path to folder or to file with images.
+            If None - then use param file with object from IO.
         density (torch.nn.Module, optional): density network which state dict was saved.
             Defaults to UNet(res=False).
         path_to_density (str, optional): path to saved state dict for density model.
@@ -108,7 +112,8 @@ def predict(
             Defaults to 2.
         classifier_threshold (float, optional): threshold for classifier.
             Defaults to 0.5
-
+        file (UploadFile | None): if path None, then should be used file from IO.
+            Defaults to None.
     Raises:
         ValueError: Not correct value of input channels, must be 1 or 2.
 
@@ -119,7 +124,10 @@ def predict(
     """
     if channels not in [1, 2]:
         raise ValueError("Not correct value of channels, must be 1 or 2")
-    is_dir = os.path.isdir(path)
+    if path is not None:
+        is_dir = os.path.isdir(path)
+    else:
+        is_dir = False
     predictions = dict()
     density = torch.nn.DataParallel(density).to(device)
     density.load_state_dict(torch.load(path_to_density, map_location=device))
@@ -144,7 +152,13 @@ def predict(
     else:
         predictions.append(
             predict_one_image(
-                path, density, classifier, channels, device, classifier_threshold
+                path,
+                density,
+                classifier,
+                channels,
+                device,
+                classifier_threshold,
+                file,
             )
         )
 
@@ -152,29 +166,38 @@ def predict(
 
 
 def predict_one_image(
-    path: str,
+    path: str | None,
     network: torch.nn.Module,
     classifier: torch.nn.Module,
     channels: int,
     device: torch.device,
     classifier_threshold: float,
+    file: UploadFile | None = None,
 ) -> Dict[int, int]:
     """Make prediction for one image from path.
 
     Args:
-        path (str): path to one image
+        path (str | None): path to one image.
+            If None - then use param file with object from IO.
         network (torch.nn.Module, optional): density network.
         classifier (torch.nn.Module, optional): classifier network.
         channels (int, optional): image channels.
         device (torch.device, optional): device for models.
         classifier_threshold (float, optional): threshold for classifier.
+        file (UploadFile | None): if path None, then should be used file from IO.
+            Defaults to None.
     Returns:
         Dict[int, int]: dictionary with keys and values {square_id: number_of_points}
     """
+    if path is not None:
+        imgs = read_tiff(path)
+    elif file is not None:
+        image_stream = io.BytesIO(file.file.read())
+        # Start the stream from the beginning (position zero)
+        image_stream.seek(0)
 
-    imgs = read_tiff(path)
+        imgs = read_tiff(image_stream)
     img = imgs[0]
-
     squares_dict = dict()
     # TODO find mean value of first lines
     first_horizontal = FIRST_HORIZONTAL
