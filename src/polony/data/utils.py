@@ -96,7 +96,7 @@ def read_tiff(
         file_stream.seek(0)
         img = Image.open(file_stream)
     else:
-        raise ValueError("Path of file should be not None")
+        raise ValueError("One of path or file_stream should be not None")
     images = []
     for i in range(img.n_frames):
         img.seek(i)
