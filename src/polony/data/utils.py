@@ -1,4 +1,5 @@
 import hashlib
+import io
 import os
 import zipfile
 from glob import glob
@@ -70,18 +71,32 @@ def get_and_unzip(url: str, location: str) -> None:
     remove_img_without_roi(location)
 
 
-def read_tiff(path: str, new_size: Optional[Tuple[int]] = None) -> np.ndarray:
+def read_tiff(
+    path: str | None,
+    new_size: Optional[Tuple[int]] = None,
+    file_stream: io.BytesIO | None = None,
+) -> np.ndarray:
     """Read tiff file from path, make resize and return numpy array wth image.
 
     Args:
-        path (str): Path to the multipage-tiff file.
+        path (str | None): Path to the multipage-tiff file. If path is None, then image
+            will be taken from param file.
         new_size (Optional[Tuple], optional): If not None - resize img
             to new_size. Defaults to None.
+        file_stream (io.BytesIO): Byte stream of the TIFF image.
+            Should be used only if path is None. Defaults to None.
 
     Returns:
         np.ndarray: Return numpy array with image
     """
-    img = Image.open(path)
+    if path is not None:
+        img = Image.open(path)
+    elif file is not None:
+        # Start the stream from the beginning (position zero)
+        file_stream.seek(0)
+        img = Image.open(file_stream)
+    else:
+        raise ValueError("Path of file should be not None")
     images = []
     for i in range(img.n_frames):
         img.seek(i)
