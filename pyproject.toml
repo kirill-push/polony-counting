@@ -29,6 +29,8 @@ types-pyyaml = "^6.0.12.12"
 numpy = "^1.16"
 scikit-learn = "^1.2.2"
 pandas = "^2.1.4"
+fastapi = "^0.108.0"
+uvicorn = "^0.25.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
