@@ -33,6 +33,7 @@ def pol_to_phage(
             [1.612903226, 2.222222222, 2.173913043, 3.225806452, 5.555555556]
         )
     elif virus_type == "T7c":
+        slope = np.array([...])
         raise ValueError("This option will be added in 2024 year")
     product_bootstrap = np.zeros(n)
 
