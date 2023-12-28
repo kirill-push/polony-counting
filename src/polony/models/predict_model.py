@@ -195,8 +195,9 @@ def predict_one_image(
         image_stream = io.BytesIO(file.file.read())
         # Start the stream from the beginning (position zero)
         image_stream.seek(0)
-
         imgs = read_tiff(image_stream)
+    else:
+        raise ValueError("Path or file should be not None")
     img = imgs[0]
     squares_dict = dict()
     # TODO find mean value of first lines
@@ -218,10 +219,10 @@ def predict_one_image(
             result_dict = dict()
             square_id += 1
             if channels == 1:
-                square = img[y : y + square_size, x : x + square_size]
+                square_input = img[y : y + square_size, x : x + square_size]
             elif channels == 2:
-                square = imgs[:, y : y + square_size, x : x + square_size]
-            square = torch.from_numpy(square).float().to(device)
+                square_input = imgs[:, y : y + square_size, x : x + square_size]
+            square = torch.from_numpy(square_input).float().to(device)
             square = normalize(square)
             logit = classifier(square.unsqueeze(0))
             square_class = logit_to_class(logit, classifier_threshold).item()
@@ -234,6 +235,7 @@ def predict_one_image(
             result_dict["class"] = square_class
             result_dict["probs"] = torch.sigmoid(logit).item()
             result_dict["density"] = density
+            result_dict["square"] = square_input
             squares_dict[square_id] = result_dict
 
     return squares_dict
