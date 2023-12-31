@@ -78,3 +78,14 @@ def highlight(
     file_image = open(f"images_uploaded/{filename}/{square_id}.jpeg", mode="rb")
     # Return the highlighted square as a stream specifying media type
     return StreamingResponse(file_image, media_type="image/jpeg")
+
+
+if __name__ == "__main__":
+    # Allows the server to be run in this interactive environment
+    nest_asyncio.apply()
+
+    # Host depends on the setup you selected (docker or virtual env)
+    host = "0.0.0.0" if os.getenv("DOCKER-SETUP") else "127.0.0.1"
+
+    # Spin up the server!
+    uvicorn.run(app, host=host, port=8000)
