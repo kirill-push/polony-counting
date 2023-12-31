@@ -466,3 +466,35 @@ def delete_duplicates(image_folder):
                 print(f"  Deleted file: {file_path}")
 
     print("Deletion completed.")
+
+
+def highlight_objects(
+    original_image: np.ndarray, density_map: np.ndarray, threshold: float = 0.2
+) -> np.ndarray:
+    """Highlight objects in an image based on the provided density map.
+
+    Args:
+        original_image (np.ndarray): Original image where objects need to be highlighted
+        density_map (np.ndarray): The density map obtained from a neural network.
+        threshold (float, optional): Threshold value to convert density to binary mask.
+            Defaults to 0.2.
+
+    Returns:
+        np.ndarray: The output image with objects highlighted.
+    """
+    if len(original_image.shape) == 2:
+        # Convert grayscale to RGB
+        original_image = cv2.cvtColor(original_image, cv2.COLOR_GRAY2RGB)
+
+    # Convert density map to binary mask
+    binary_mask = np.where(density_map > threshold, 255, 0).astype(np.uint8)
+
+    # Find contours in the binary mask
+    contours, _ = cv2.findContours(binary_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Draw contours on the original image
+    output_image = original_image.copy()
+    # Red color for contours
+    cv2.drawContours(output_image, contours, -1, (0, 0, 255), 2)
+
+    return output_image
