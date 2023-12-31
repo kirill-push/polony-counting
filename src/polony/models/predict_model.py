@@ -237,7 +237,7 @@ def predict_one_image(
             result_dict["result"] = int(result)
             result_dict["class"] = square_class
             result_dict["probs"] = torch.sigmoid(logit).item()
-            result_dict["density"] = density
+            result_dict["density"] = density.squeeze(0).detach().cpu().numpy()
             result_dict["square"] = square_input
             squares_dict[square_id] = result_dict
 
