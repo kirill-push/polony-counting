@@ -44,3 +44,37 @@ def prediction(file: UploadFile = File(...)):
         "files": current_file,
         "squares_id": squares_id_interval,
     }
+
+
+@app.post("/highlight")
+def highlight(
+    filename: str,
+    square_id: int,
+    highlight_threshold: float = 50.0,
+):
+    # Check if session_id is in the storage
+    if filename not in predictions_cache:
+        raise HTTPException(status_code=404, detail="File name not found.")
+
+    # Retrieve predictions for the session
+    predictions = predictions_cache[filename]
+
+    # Check if the square_id is valid
+    if square_id not in predictions:
+        raise HTTPException(status_code=404, detail="Square ID not found.")
+
+    # Get the specific prediction
+    predict_dict = predictions[square_id]
+    density = predict_dict["density"]
+    square = predict_dict["square"]
+
+    # Highlight the selected square
+    highlighted_square = highlight_objects(
+        original_image=square,
+        density_map=density,
+        threshold=highlight_threshold,
+    )
+    cv2.imwrite(f"images_uploaded/{filename}/{square_id}.jpeg", highlighted_square)
+    file_image = open(f"images_uploaded/{filename}/{square_id}.jpeg", mode="rb")
+    # Return the highlighted square as a stream specifying media type
+    return StreamingResponse(file_image, media_type="image/jpeg")
