@@ -32,6 +32,7 @@ pandas = "^2.1.4"
 fastapi = "^0.108.0"
 uvicorn = "^0.25.0"
 python-multipart = "^0.0.6"
+scikit-image = "^0.22.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
