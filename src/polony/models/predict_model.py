@@ -126,8 +126,12 @@ def predict(
         raise ValueError("Not correct value of channels, must be 1 or 2")
     if path is not None:
         is_dir = os.path.isdir(path)
+        if not is_dir:
+            image_name_ext = path.split("/")[-1].split(".")[0]
+            image_name, _ = os.path.splitext(image_name_ext)
     else:
         is_dir = False
+        image_name, _ = os.path.splitext(file.filename)
     predictions = dict()
     density = torch.nn.DataParallel(density).to(device)
     density.load_state_dict(torch.load(path_to_density, map_location=device))
@@ -141,7 +145,8 @@ def predict(
         images = os.listdir(path)
         print("Files and folders in the directory:")
         for image_path in images:
-            predictions[image_path] = predict_one_image(
+            image_name, _ = os.path.splitext(image_path)
+            predictions[image_name] = predict_one_image(
                 image_path,
                 density,
                 classifier,
@@ -150,16 +155,14 @@ def predict(
                 classifier_threshold,
             )
     else:
-        predictions.append(
-            predict_one_image(
-                path,
-                density,
-                classifier,
-                channels,
-                device,
-                classifier_threshold,
-                file,
-            )
+        predictions[image_name] = predict_one_image(
+            path,
+            density,
+            classifier,
+            channels,
+            device,
+            classifier_threshold,
+            file,
         )
 
     return predictions
