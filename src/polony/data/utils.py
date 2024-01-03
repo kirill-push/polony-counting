@@ -472,7 +472,7 @@ def highlight_objects(
     original_image: np.ndarray,
     density_map: np.ndarray,
     threshold: float = 0.2,
-    color: Tuple[int] = (0, 255, 0),
+    color: Tuple[int] = (0, 0, 0),
 ) -> np.ndarray:
     """Highlight objects in an image based on the provided density map.
 
@@ -482,7 +482,7 @@ def highlight_objects(
         threshold (float, optional): Threshold value to convert density to binary mask.
             Defaults to 0.2.
         color: (Tuple[int]): Color to highlight objects on image.
-            Defaults to (0, 255, 0).
+            Defaults to (0, 0, 0).
 
     Returns:
         np.ndarray: The output image with objects highlighted.
