@@ -50,7 +50,7 @@ def prediction(file: UploadFile = File(...)):
 def highlight(
     filename: str,
     square_id: int,
-    highlight_threshold: float = 50.0,
+    highlight_threshold: float = 0.2,
 ):
     # Check if session_id is in the storage
     if filename not in predictions_cache:
