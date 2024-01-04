@@ -477,8 +477,10 @@ def highlight_objects(
     """Highlight objects in an image based on the provided density map.
 
     Args:
-        original_image (np.ndarray): Original image where objects need to be highlighted
-        density_map (np.ndarray): The density map obtained from a neural network.
+        original_image (np.ndarray): Original image where objects need to be
+            highlighted. Size should be (w, h, 1) or (w, h).
+        density_map (np.ndarray): The density map obtained from a neural network. Size
+            should be (w, h).
         threshold (float, optional): Threshold value to convert density to binary mask.
             Defaults to 0.2.
         color: (Tuple[int]): Color to highlight objects on image.
@@ -489,7 +491,9 @@ def highlight_objects(
     """
     if len(original_image.shape) == 2:
         # Convert grayscale to RGB
-        original_image = cv2.cvtColor(original_image, cv2.COLOR_GRAY2RGB)
+        original_image = original_image[:, :, np.newaxis]
+    elif len(original_image.shape) == 3 and original_image.shape[2] != 1:
+        raise Exception("Image should be with size W x H x 1 or W x H")
 
     # Convert density map to binary mask
     binary_mask = np.where(density_map > threshold, 255, 0).astype(np.uint8)
