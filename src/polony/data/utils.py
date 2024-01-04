@@ -492,8 +492,12 @@ def highlight_objects(
     if len(original_image.shape) == 2:
         # Convert grayscale to RGB
         original_image = original_image[:, :, np.newaxis]
-    elif len(original_image.shape) == 3 and original_image.shape[2] != 1:
-        raise Exception("Image should be with size W x H x 1 or W x H")
+    elif len(original_image.shape) == 3 and original_image.shape[0] <= 2:
+        original_image = original_image[0][:, :, np.newaxis]
+    else:
+        raise Exception(
+            f"Image size should be W x H x 1 or W x H, now it's {original_image.shape}"
+        )
 
     if len(density_map.shape) == 3 and density_map.shape[0] <= 3:
         density_map = density_map[0]
