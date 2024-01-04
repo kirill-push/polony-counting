@@ -494,6 +494,10 @@ def highlight_objects(
         original_image = original_image[:, :, np.newaxis]
     elif len(original_image.shape) == 3 and original_image.shape[2] != 1:
         raise Exception("Image should be with size W x H x 1 or W x H")
+    
+    if len(density_map.shape) == 3 and density_map.shape[0] <= 3:
+        density_map = density_map[0]
+
 
     # Convert density map to binary mask
     binary_mask = np.where(density_map > threshold, 255, 0).astype(np.uint8)
