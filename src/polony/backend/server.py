@@ -16,7 +16,7 @@ current_file = []
 
 @app.get("/")
 def home():
-    return "API is working as expected. Now head over to http://localhost:8000/docs."
+    return "API is working as expected. Now head over to http://localhost:8000/docs"
 
 
 @app.post("/predict")
