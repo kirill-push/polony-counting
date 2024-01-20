@@ -514,3 +514,58 @@ def highlight_objects(
     cv2.drawContours(output_image, contours, -1, color, 2)
 
     return output_image
+
+
+def add_density_to_image(
+    original_image: np.ndarray, density_map: np.ndarray
+) -> np.ndarray:
+    """Add predicted density map on original colored image.
+
+    Args:
+        original_image (np.ndarray): Original image with size WxHx3.
+        density_map (np.ndarray): Predicted density map with size WxH.
+
+    Returns:
+        np.ndarray: Result with predicted density on original image.
+    """
+
+    # Normalizing the density map
+    density_map_normalized = cv2.normalize(
+        density_map, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_32F
+    )
+
+    # Normalizing the original image
+    original_image_norm = cv2.normalize(
+        original_image,
+        None,
+        alpha=0,
+        beta=255,
+        norm_type=cv2.NORM_MINMAX,
+        dtype=cv2.CV_32F,
+    )
+    original_image_uint8 = np.uint8(original_image_norm)
+
+    # Normalizing the density map image
+    density_map_np_uint8 = np.uint8(density_map_normalized)
+
+    # Converting the normalized density map into a color image
+    density_map_colored = cv2.applyColorMap(density_map_np_uint8, cv2.COLORMAP_HOT)
+
+    # Creating a mask for significant areas of the density map
+    # (for example, values above a threshold of 50 out of 255)
+    _, mask = cv2.threshold(density_map_np_uint8, 50, 255, cv2.THRESH_BINARY)
+
+    # Resizing the density map and mask to match the size of the original image
+    density_map_resized = cv2.resize(
+        density_map_colored, (original_image.shape[1], original_image.shape[0])
+    )
+    mask_resized = cv2.resize(
+        mask, (original_image_uint8.shape[1], original_image_uint8.shape[0])
+    )
+
+    # Overlaying the density map on the original image using the mask
+    overlayed_image = cv2.bitwise_and(
+        density_map_resized, density_map_resized, mask=mask_resized
+    )
+    result = cv2.addWeighted(original_image_uint8, 1, overlayed_image, 1, 0)
+    return result
