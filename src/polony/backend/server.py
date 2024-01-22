@@ -74,10 +74,26 @@ def highlight(
         density_map=density,
         threshold=highlight_threshold,
     )
-    cv2.imwrite(f"images_uploaded/{filename}/{square_id}.jpeg", highlighted_square)
-    file_image = open(f"images_uploaded/{filename}/{square_id}.jpeg", mode="rb")
-    # Return the highlighted square as a stream specifying media type
-    return StreamingResponse(file_image, media_type="image/jpeg")
+    dir_name = "resources/images_uploaded"
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+    img_path = os.path.join(dir_name, f"{filename}-{square_id}.jpeg")
+    cv2.imwrite(img_path, highlighted_square)
+    file_image = open(img_path, mode="rb")
+
+    # Create JSON-response with additional information
+    n_points = predict_dict["result"]
+    square_class = predict_dict["class"]
+    # json_response = JSONResponse({"n_points": n_points, "square_class": square_class})
+
+    # Create an image streaming response
+    headers = {"n_points": str(n_points), "square_class": str(square_class)}
+    image_response = StreamingResponse(
+        file_image, media_type="image/jpeg", headers=headers
+    )
+
+    # Return a response
+    return image_response
 
 
 if __name__ == "__main__":
