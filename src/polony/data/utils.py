@@ -511,6 +511,59 @@ def highlight_objects(
     return output_image
 
 
+def highlight_with_dot_objects(
+    original_image: np.ndarray,
+    density_map: np.ndarray,
+    threshold: float = 0.2,
+    color: Tuple[int, int, int] = (0, 0, 150),
+    dot_size: int = 5,
+) -> np.ndarray:
+    """Highlight objects in an image by placing a dot at each detected object based on
+        the provided density map.
+
+    Args:
+        original_image (np.ndarray): Original image where objects need to be
+            highlighted. Size should be (w, h, 3).
+        density_map (np.ndarray): The density map obtained from a neural network. Size
+            should be (w, h).
+        threshold (float, optional): Threshold value to convert density to binary mask.
+            Defaults to 0.2.
+        color (Tuple[int, int, int]): Color of the dot.
+            Defaults to (0, 0, 150).
+        dot_size (int): Size of the dot.
+            Defaults to 5.
+
+    Returns:
+        np.ndarray: The output image with dots at object locations.
+    """
+    if original_image.ndim != 3 or original_image.shape[2] != 3:
+        raise ValueError(
+            f"Original image size should be W x H x 3, but is {original_image.shape}"
+        )
+
+    if density_map.ndim != 2:
+        raise ValueError(
+            f"Density map size should be W x H, but is {density_map.shape}"
+        )
+
+    # Convert density map to binary mask
+    binary_mask = np.where(density_map > threshold, 255, 0).astype(np.uint8)
+
+    # Find contours in the binary mask
+    contours, _ = cv2.findContours(binary_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Draw a dot at the centroid of each contour
+    output_image = original_image.copy()
+    for contour in contours:
+        M = cv2.moments(contour)
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+            cv2.circle(output_image, (cx, cy), dot_size, color, -1)
+
+    return output_image
+
+
 def add_density_to_image(
     original_image: np.ndarray, density_map: np.ndarray
 ) -> np.ndarray:
