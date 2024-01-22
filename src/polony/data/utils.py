@@ -489,14 +489,9 @@ def highlight_objects(
     Returns:
         np.ndarray: The output image with objects highlighted.
     """
-    if len(original_image.shape) == 2:
-        # Convert grayscale to RGB
-        original_image = original_image[:, :, np.newaxis]
-    elif len(original_image.shape) == 3 and original_image.shape[0] <= 2:
-        original_image = original_image[0][:, :, np.newaxis]
-    else:
-        raise Exception(
-            f"Image size should be W x H x 1 or W x H, now it's {original_image.shape}"
+    if original_image.ndim != 3 or original_image.shape[2] != 3:
+        raise ValueError(
+            f"Original image size should be W x H x 3, but is {original_image.shape}"
         )
 
     if len(density_map.shape) == 3 and density_map.shape[0] <= 3:
