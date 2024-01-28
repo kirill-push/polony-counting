@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.2 (2024-01-28)
+
+### Fix
+
+* :zap: optimize dependencies list ([`0aca8f7`](https://github.com/kirill-push/polony-counting/commit/0aca8f7bbd06d7cbad912bbadf38c3c1deeedaf0))
+
 ## v0.6.1 (2024-01-28)
 
 ### Fix
