@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.1 (2024-01-28)
+
+### Fix
+
+* :arrow_up: update python version to 3.9 and higher ([`45fb5d2`](https://github.com/kirill-push/polony-counting/commit/45fb5d24e67919eb22860f143c3e475cff6c96c2))
+
 ## v0.6.0 (2023-12-25)
 
 ### Feature
