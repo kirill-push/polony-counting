@@ -366,10 +366,11 @@ def get_concentration_factor(
 
     Raises:
         ValueError: If the virus type is not one of the specified types (T4, T7, T7c),
-                    or if the virus type is not provided when concentration_factor is None.
+            or if the virus type is not provided when concentration_factor is None.
 
     Note:
-        The concentration factor for "T7c" should be updated after the release of T7c research.
+        The concentration factor for "T7c" should be updated after the release of T7c
+            research.
     """
 
     # Mapping of virus types to their respective concentration factors
