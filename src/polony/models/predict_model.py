@@ -18,7 +18,6 @@ python predict_model.py --path /path/to/images --path_to_model /path/to/model
 
 import argparse
 import os
-import tempfile
 from typing import Dict
 
 import pandas as pd
@@ -27,7 +26,7 @@ from torchvision import transforms
 
 from ..data.utils import read_tiff
 from .models import Classifier, UNet
-from .utils import logit_to_class
+from .utils import get_concentration_factor, logit_to_class
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 FIRST_HORIZONTAL = 158
@@ -64,6 +63,18 @@ parser.add_argument(
     type=str,
     default="../checkpoints/unet_49_1.7496.pth",
     help="Path to saved state dict",
+)
+parser.add_argument(
+    "--output_file",
+    "-o",
+    type=str,
+    help="Path to save results, should be csv file",
+)
+parser.add_argument(
+    "--virus_type",
+    "-v",
+    type=str,
+    help="Can be T4, T7 or T7c",
 )
 
 
@@ -209,7 +220,7 @@ def save_predictions_to_csv(
     predictions: Dict[str, Dict[int, int]],
     output_file: str,
     virus_type: str,
-    concentration_factor: float,
+    concentration_factor: float | None = None,
     sample_volume_per_slide: float = 5.0,
     field: float = 2.9,
     grid: float = 0.1,
@@ -221,17 +232,22 @@ def save_predictions_to_csv(
             Key - video name, value - dictionary {frame_number: prediction}.
         output_file (str): Path to the output CSV file.
         virus_type (str): Type of virus. Can be T4, T7 or T7c.
-        concentration_factor (float): Dilution values for each point.
+        concentration_factor (float | None): Dilution values for each point. If None,
+            than use standart value.
+            Defaults to None.
         sample_volume_per_slide (float): The sample volume per slide.
-            Default is 5.0.
+            Defaults to 5.0.
         field (float): Size of sample field.
             Defauts to 2.9.
         grid (float): Size of grid on sample field.
             Defaults to 0.1.
     """
+    # Define concentration factor
+    concentration_factor = get_concentration_factor(
+        virus_type=virus_type,
+        concentration_factor=concentration_factor,
+    )
     # Create a list to hold all rows
-    if virus_type not in ["T4", "T7", "T7c"]:
-        raise ValueError("Wrong type of virus. Should be T4, T7 or T7c")
     rows = []
     wg_area = field / grid
     # Iterate over each prediction
@@ -284,18 +300,27 @@ def save_predictions_to_csv(
 
 
 def main(args):
-    temp_folder = tempfile.mkdtemp()
-    print("Creating temporary folder: {}".format(temp_folder))
-
     predictions = predict(
         path=args.path,
         path_to_model=args.path_to_model,
     )
-
-    with open(os.path.join(temp_folder, "prediction"), "w") as file:
-        for pred in predictions:
-            for k, v in pred.items():
-                file.write(f"Square {k}, number of points {v}\n")
+    if args.virus_type == "T4":
+        concentration_factor = 1.1
+    elif args.virus_type == "T7":
+        concentration_factor = 1.0
+    elif args.virus_type == "T7c":
+        concentration_factor = 1.0  # Need to change after release of T7c research
+    else:
+        raise ValueError("Virus type should be T4, T7 or T7c")
+    save_predictions_to_csv(
+        predictions=predictions,
+        output_file=args.output_file,
+        virus_type=args.virus_type,
+        concentration_factor=concentration_factor,
+        sample_volume_per_slide=5.0,
+        field=2.9,
+        grid=0.1,
+    )
 
 
 if __name__ == "__main__":

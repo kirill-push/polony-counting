@@ -348,3 +348,45 @@ def evaluate(
         error += abs(int(n_points) - int(result))
         abs_result += int(result)
     return error / len(example), abs_result
+
+
+def get_concentration_factor(
+    virus_type: str, concentration_factor: float | None = None
+) -> float:
+    """Calculate the concentration factor for a given virus type.
+
+    Args:
+        virus_type (str): The type of the virus, expected to be "T4", "T7", or "T7c".
+        concentration_factor (float, optional): The predefined concentration factor.
+            If None, a default value is assigned based on the virus type.
+            Defaults to None.
+
+    Returns:
+        float: The concentration factor for the specified virus type.
+
+    Raises:
+        ValueError: If the virus type is not one of the specified types (T4, T7, T7c),
+            or if the virus type is not provided when concentration_factor is None.
+
+    Note:
+        The concentration factor for "T7c" should be updated after the release of T7c
+            research.
+    """
+
+    # Mapping of virus types to their respective concentration factors
+    concentration_factors = {
+        "T4": 1.1,
+        "T7": 1.0,
+        "T7c": 1.0,
+    }  # Update for T7c after research release
+
+    # Assign default concentration factor if not provided
+    if concentration_factor is None:
+        if virus_type in concentration_factors:
+            concentration_factor = concentration_factors[virus_type]
+        else:
+            raise ValueError("Wrong type of virus. Should be T4, T7 or T7c")
+    elif virus_type not in concentration_factors:
+        raise ValueError("Wrong type of virus. Should be T4, T7 or T7c")
+
+    return concentration_factor

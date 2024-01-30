@@ -33,6 +33,7 @@ def pol_to_phage(
             [1.612903226, 2.222222222, 2.173913043, 3.225806452, 5.555555556]
         )
     elif virus_type == "T7c":
+        slope = np.array([...])
         raise ValueError("This option will be added in 2024 year")
     product_bootstrap = np.zeros(n)
 
@@ -132,7 +133,7 @@ def T7_efficacy_to_csv(
 def T7c_efficacy_to_csv(
     input_path: str, output_path: str, alpha: float = 0.05, n: int = 10000
 ) -> None:
-    """ Function to calculate T7c phages from input file and write to output file
+    """Function to calculate T7c phages from input file and write to output file
         results.
 
     Args:
@@ -148,6 +149,37 @@ def T7c_efficacy_to_csv(
 
     # Applying the dat_for_plot function to the data
     result = dat_for_plot(df, virus_type="T7c", alpha=alpha, n=n)
+
+    # Writing the results to a new CSV file
+    result.to_csv(output_path, index=False)
+
+
+def efficacy_to_csv(
+    virus_type: str,
+    input_path: str,
+    output_path: str,
+    alpha: float = 0.05,
+    n: int = 10000,
+) -> None:
+    """Function to calculate phages according to virus type from input file and write to
+        output file results.
+
+    Args:
+        virus_type (str): Type of virus. Can be T4, T7 or T7c.
+        input_path (str): Path to csv with polony countings.
+        output_path (str): Path to save results in csv file.
+        alpha (float, optional): Confidence level for the bootstrap interval.
+            Defaults to 0.05.
+        n (int, optional): Number of bootstrap samples.
+            Defaults to 10000.
+    """
+    if virus_type not in ["T4", "T7", "T7c"]:
+        raise ValueError("Virus type should be T4, T7 or T7c")
+    # Reading data from a CSV file
+    df = pd.read_csv(input_path)
+
+    # Applying the dat_for_plot function to the data
+    result = dat_for_plot(df, virus_type=virus_type, alpha=alpha, n=n)
 
     # Writing the results to a new CSV file
     result.to_csv(output_path, index=False)

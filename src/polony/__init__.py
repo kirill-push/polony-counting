@@ -10,8 +10,10 @@ from .models import (
     save_predictions_to_csv,
     train,
 )
+from .run import run_counter
 
 __all__ = [
+    "run_counter",
     "PolonyDataset",
     "generate_polony_data",
     "make_dataset",
