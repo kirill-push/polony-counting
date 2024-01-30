@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.4 (2024-01-30)
+
+### Performance
+
+* Add to toml source to install torch with cuda ([`a47ccef`](https://github.com/kirill-push/polony-counting/commit/a47ccef4d5900cd74a8b8060368c5b6bdf9504db))
+
 ## v0.6.3 (2024-01-30)
 
 ### Performance
