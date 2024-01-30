@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "polony"
-version = "0.6.2"
+version = "0.6.3"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"

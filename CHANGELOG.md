@@ -2,6 +2,12 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.3 (2024-01-30)
+
+### Performance
+
+* :sparkles: add func to run predict pipeline and save results to csv ([`d656c3d`](https://github.com/kirill-push/polony-counting/commit/d656c3db0c2dc499fc0ff512cec512d3f562737f))
+
 ## v0.6.2 (2024-01-28)
 
 ### Fix
