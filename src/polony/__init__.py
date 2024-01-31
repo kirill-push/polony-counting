@@ -1,4 +1,4 @@
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 from .data import PolonyDataset, generate_polony_data, make_dataset
 from .efficacy import T4_efficacy_to_csv, T7_efficacy_to_csv
 from .models import (
