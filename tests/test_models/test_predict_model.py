@@ -1,9 +1,11 @@
+import tempfile
 from typing import Dict, List
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 import torch
 
+from models.predict_model import main, parser
 from src.polony.models.predict_model import predict
 
 
@@ -82,11 +84,6 @@ def test_predict_one_image_real_work(mock_dataparallel):
             )
             assert isinstance(result, List)
             assert isinstance(result[0], Dict)
-from unittest.mock import patch, MagicMock, mock_open
-from models.predict_model import main
-
-from models.predict_model import parser
-import tempfile
 
 
 def test_argument_parsing():
@@ -117,17 +114,26 @@ def not_ready_test_main_function_with_single_file():
             # Mock the predict function
             with patch("models.utils.predict") as mock_predict:
                 # Configure the mock predict function to use our mock predict_one_image
-                mock_predict.return_value = [{1: {"result": 10, "density": "mocked_density"}}]
+                mock_predict.return_value = [
+                    {1: {"result": 10, "density": "mocked_density"}}
+                ]
 
                 # Mock the creation of a temporary directory
                 with patch("tempfile.mkdtemp", return_value="/tmp/mock_temp_dir"):
                     # Mock the file writing operations
                     with patch("builtins.open", mock_open()):
-                        with patch.object(tempfile, 'mkdtemp', return_value='/tmp/predictions'):
+                        with patch.object(
+                            tempfile, "mkdtemp", return_value="/tmp/predictions"
+                        ):
                             # Call the main function with the mocked arguments
                             main(args)
 
-                            # Verify that the predict function was called with the correct arguments
-                            mock_predict.assert_called_with("mocked_path", "mocked_model_path")
+                            # Verify that the predict function was called with
+                            # the correct arguments
+                            mock_predict.assert_called_with(
+                                "mocked_path", "mocked_model_path"
+                            )
 
-                            # TODO: Add assertions to check if the correct files are written
+                            # TODO: Add assertions to check if the correct files
+                            # are written
+                            pass
