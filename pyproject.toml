@@ -1,40 +1,38 @@
 [tool.poetry]
-name = "polony-counting"
-version = "0.2.1"
+name = "polony"
+version = "0.6.2"
 description = ""
 authors = ["Kirill Pushkarev <kirillpush@gmail.com>"]
 readme = "README.md"
-packages = [
- {include = "*", from = "src" },
- {include = "tests"},
-]
+packages = [{include = "polony", from = "src" }]
 license = "MIT"
-homepage = "https://github.com/kirill-push/polony-counting"
+homepage = "https://kirill-push.github.io/polony-counting/"
 repository = "https://github.com/kirill-push/polony-counting"
 
+
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 torch = ">=2.0.0, !=2.0.1, !=2.1.0"
 gdown = "^4.7.1"
 roifile = "^2023.5.12"
-wandb = "^0.15.5"
-numpy = "^1.23.0"
+wandb = "^0.16.0"
 opencv-python-headless = "^4.8.0"
-scipy = "^1.7.0"
 torchvision = "^0.15.0"
-Pillow = "^9.5.0"
+Pillow = "^10.1.0"
 matplotlib = "^3.7.0"
 h5py = "^3.9.0"
-argparse = "^1.4.0"
 pyyaml = "^6.0.1"
-tifffile = "^2023.9.26"
+tifffile = "^2023.8.12"
 types-pyyaml = "^6.0.12.12"
+scikit-learn = "^1.2.2"
+pandas = "^2.1.4"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.12.0"
 black = "^23.7.0"
 mypy = "^1.5.1"
 flake8 = "^6.1.0"
+ipykernel = "^6.27.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
@@ -48,6 +46,12 @@ mkdocs-material = "^9.4.8"
 
 [tool.poetry.group.semver.dependencies]
 python-semantic-release = "^7.32"
+
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.ytrch.org/whl/cu118"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]
@@ -96,12 +100,14 @@ exclude_lines = [
 
 [tool.semantic_release]
 branch = "main"
-version_variable = "src/__init__.py:__version__"
+version_variable = "src/polony/__init__.py:__version__"
 version_toml = "pyproject.toml:tool.poetry.version"
 version_source = "tag"
 commit_version_number = true
 tag_commit = true
-upload_to_pypi = false
+upload_to_pypi = true
+repository = "pypi"
 upload_to_release = false
 hvcs = "github"
 commit_message = "{version} [skip ci]"
+build_command = "pip install poetry && poetry build"

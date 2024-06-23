@@ -33,6 +33,8 @@ jobs:
             - name: Python Semantic Release
               env:
                 GH_TOKEN: ${{ secrets.GH_TOKEN }}
+                REPOSITORY_USERNAME: __token__
+                REPOSITORY_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
               run: |
                 set -o pipefail
                 # Set git details
