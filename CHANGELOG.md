@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.5 (2024-01-31)
+
+### Performance
+
+* :arrow_up: update torch version to 2.0.0+cu118 ([`56c5d14`](https://github.com/kirill-push/polony-counting/commit/56c5d145dbdf5541df6aff34c0c6955694a3bd12))
+
+## v0.6.4 (2024-01-30)
+
+### Performance
+
+* Add to toml source to install torch with cuda ([`a47ccef`](https://github.com/kirill-push/polony-counting/commit/a47ccef4d5900cd74a8b8060368c5b6bdf9504db))
+
+## v0.6.3 (2024-01-30)
+
+### Performance
+
+* :sparkles: add func to run predict pipeline and save results to csv ([`d656c3d`](https://github.com/kirill-push/polony-counting/commit/d656c3db0c2dc499fc0ff512cec512d3f562737f))
+
 ## v0.6.2 (2024-01-28)
 
 ### Fix
